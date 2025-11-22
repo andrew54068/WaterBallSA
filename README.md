@@ -106,7 +106,7 @@ git clone https://github.com/andrew54068/WaterBallSA.git
 cd waterballsa
 
 # Set up environment variables
-cp frontend/.env.example frontend/.env.local
+cp frontend/.env.example frontend/.env
 cp backend/.env.example backend/.env
 
 # Start with Docker
