@@ -178,7 +178,7 @@ src/main/resources/db/migration/
 - **WebRTC**: Overkill for VOD (video on demand), better for live streaming
 
 **Implementation Flow**:
-1. Admin uploads MP4 to S3 (out of scope for Phase 1, can be manual)
+1. MP4 files uploaded to S3 (out of scope for Phase 1, can be manual)
 2. AWS MediaConvert transcodes to HLS (multiple quality levels: 1080p, 720p, 480p, 360p)
 3. Output: `.m3u8` playlist + `.ts` segments stored in S3
 4. Frontend uses `hls.js` or native HLS support to play video
@@ -295,34 +295,6 @@ Storage: httpOnly cookies (XSS protection) + localStorage for access token
 - XSS attacks can't steal httpOnly cookies
 - CSRF attacks prevented by SameSite cookie attribute
 - Token revocation possible via refresh token blacklist (Redis)
-
----
-
-### Authorization: Role-Based Access Control (RBAC)
-
-**Decision**: Simple **2-role system** (Student, Admin)
-
-**Rationale**:
-- **Simplicity**: Only 2 roles needed per requirements
-- **Performance**: Single `role` column in users table, no complex permission checks
-- **Clear Boundaries**:
-  - Students: Access purchased content only
-  - Admins: Access all content (for QA/support)
-
-**Authorization Flow**:
-```
-1. Request → JWT validation → Extract userId + role
-2. If role = ADMIN → Allow access to all content
-3. If role = STUDENT → Check purchases table for curriculumId
-4. Cache purchase status in Redis (5 min TTL) for performance
-```
-
-**Database Design**:
-```sql
-CREATE TYPE user_role AS ENUM ('STUDENT', 'ADMIN');
-
-ALTER TABLE users ADD COLUMN role user_role DEFAULT 'STUDENT' NOT NULL;
-```
 
 ---
 

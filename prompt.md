@@ -49,7 +49,7 @@ we apply the spirit of Behavior-Driven Development and Specification-Driven Deve
 
 4. let's support all form of code submissions, file uploads, text answers, quizzes. Each user has its exp and level and ranking compare to other user in this platform. No benefits relate to them.
 
-5. There are only two students role and admins role. The admin role is just to see all the content without purchasing. This project only focus on the student ignore everything about backstage.
+5. This project focuses on student users. Ignore everything about backstage/admin functionality.
 
 6. Infrastructure & Deployment not important at this point.
 
