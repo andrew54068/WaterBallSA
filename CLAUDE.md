@@ -455,14 +455,36 @@ com.waterballsa.backend/
 └── util/            # Utility classes (JwtUtil)
 ```
 
-### Frontend Structure (To Be Implemented)
+### Frontend Structure (Implemented)
 ```
 frontend/src/
-├── app/             # Next.js app directory (pages, layouts)
-├── components/      # React components
-├── lib/             # Utilities and API client
-├── hooks/           # Custom React hooks
-└── types/           # TypeScript type definitions
+├── app/                          # Next.js 14 app directory (pages, layouts)
+│   ├── page.tsx                  # Home page (curriculum list)
+│   ├── layout.tsx                # Root layout with providers
+│   ├── curriculums/
+│   │   └── [id]/page.tsx         # Curriculum detail page
+│   └── lessons/
+│       └── [id]/page.tsx         # Lesson viewer page (VIDEO/ARTICLE/SURVEY)
+├── components/                   # React components
+│   ├── Header.tsx                # Navigation header with auth
+│   ├── CurriculumCard.tsx        # Curriculum display card
+│   ├── VideoPlayer.tsx           # YouTube video player (react-player)
+│   ├── ArticleRenderer.tsx       # External article link opener
+│   ├── SurveyForm.tsx            # Survey/quiz placeholder (Phase 3)
+│   ├── LessonNavigation.tsx      # Previous/Next lesson navigation
+│   ├── LessonBreadcrumb.tsx      # Curriculum → Chapter → Lesson breadcrumb
+│   ├── GoogleLoginButton.tsx     # Google OAuth login button
+│   └── Providers.tsx             # Context providers wrapper
+├── lib/                          # Utilities and API client
+│   ├── api-client.ts             # Axios wrapper with JWT injection
+│   ├── auth-context.tsx          # Authentication context and hooks
+│   └── api/
+│       ├── auth.ts               # Authentication API calls
+│       ├── curriculums.ts        # Curriculum API calls
+│       ├── chapters.ts           # Chapter API calls
+│       └── lessons.ts            # Lesson API calls
+└── types/                        # TypeScript type definitions
+    └── index.ts                  # All API response types
 ```
 
 ## Testing Strategy
@@ -480,30 +502,35 @@ frontend/src/
 
 ## Phase Roadmap
 
-### Phase 1: Foundation (Current - ~65% Complete)
-**Status**: Backend ✅ | Frontend ⏳ | Testing ❌
+### Phase 1: Foundation (Current - ~85% Complete)
+**Status**: Backend ✅ | Frontend ✅ | Testing ❌
 
 **Completed**:
-- ✅ Google OAuth authentication (backend complete)
-- ✅ Curriculum/Chapter/Lesson structure (backend complete)
+- ✅ Google OAuth authentication (backend + frontend)
+- ✅ Curriculum/Chapter/Lesson structure (backend + frontend)
 - ✅ REST API with OpenAPI docs (Swagger UI available)
 - ✅ Database schema with seed data (5 curriculums, 19 chapters, 20+ lessons)
 - ✅ Docker Compose setup (all services containerized)
 - ✅ Frontend authentication and curriculum browsing
-
-**In Progress**:
-- ⏳ Frontend lesson viewer pages (video/article/survey) ⚠️ **CRITICAL - BLOCKS PHASE 1 COMPLETION**
+- ✅ **Lesson viewer pages** (VIDEO/ARTICLE/SURVEY) with all components:
+  - ✅ VideoPlayer component (react-player for YouTube)
+  - ✅ ArticleRenderer component (external link opener)
+  - ✅ SurveyForm component (Phase 3 placeholder)
+  - ✅ LessonNavigation component (prev/next navigation)
+  - ✅ LessonBreadcrumb component (context display)
+- ✅ Lesson viewer specification with Given-When-Then scenarios
+- ✅ Lesson viewer API documentation
 
 **Not Started**:
-- ❌ Comprehensive test suite (0% coverage) ⚠️ **HIGH PRIORITY**
-- ❌ Specifications documentation (mostly missing)
+- ❌ Comprehensive test suite (0% coverage) ⚠️ **CRITICAL - ONLY BLOCKER REMAINING**
+- ❌ Some specifications documentation (auth, curriculum structure)
 
-**Next Steps** (follow SDD/BDD workflow):
-1. 📋 Write lesson viewer specifications with Given-When-Then scenarios
-2. 🔌 Document lesson content API contracts
-3. 💻 Implement lesson viewer pages (video player, article renderer, survey form)
-4. ✅ Write comprehensive tests (>80% coverage target)
-5. 📚 Update documentation
+**Next Steps** (HIGH PRIORITY):
+1. 🎯 **CRITICAL**: Write comprehensive test suite (backend unit + integration + E2E)
+2. 🎯 **CRITICAL**: Write frontend unit tests for lesson viewer components
+3. 🎯 **CRITICAL**: Write E2E tests with Playwright for lesson viewing flows
+4. ✅ Test all Given-When-Then scenarios from specs/lesson-viewer.md
+5. 🎯 Ensure >80% code coverage before Phase 1 completion
 
 ### Phase 2: Access Control & Payment (Future - Not Started)
 **Goal**: Implement purchase system and content access control.
