@@ -2,11 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ CRITICAL DEVELOPMENT PRINCIPLES
+
+### 1. 🐳 ALWAYS Use Docker Compose
+- **NEVER run services directly** on the host machine unless explicitly instructed
+- **ALWAYS use Docker Compose** for development, testing, and running the application
+- Use `make up` or `docker-compose up` to start all services
+- Use `docker-compose exec` to run commands inside containers
+- This ensures consistency across all environments and prevents "works on my machine" issues
+
+### 2. 📋 ALWAYS Follow SDD/BDD Workflow
+- **NEVER write implementation code before writing specifications**
+- **ALWAYS start with specifications** in `docs/specifications/` using Given-When-Then format
+- **ALWAYS create database migrations** before implementing entities
+- **ALWAYS document API endpoints** before implementing controllers
+- **ALWAYS write tests** alongside or before implementation (TDD)
+- See "Development Workflow (SDD/BDD)" section below for detailed steps
+
 ## Project Overview
 
 WaterBallSA is an online learning platform built with **Specification-Driven Development (SDD)** and **Behavior-Driven Development (BDD)** principles. The system uses a microservices architecture with a Next.js frontend, Spring Boot backend, and PostgreSQL database.
 
 **Current Status**: Phase 1 backend is complete. Frontend implementation is in progress.
+
+**Development Environment**: All development is done using Docker Compose to ensure consistency.
 
 ## Architecture
 
@@ -66,7 +85,9 @@ Curriculum → Chapters → Lessons
 
 ## Common Commands
 
-### Local Development with Docker
+### 🐳 Docker Compose Commands (PRIMARY - USE THESE)
+
+**⚠️ IMPORTANT**: Always use Docker Compose for development. Only run commands outside Docker when explicitly needed.
 
 Start all services:
 ```bash
@@ -97,74 +118,51 @@ Clean everything (including volumes):
 make clean
 ```
 
-### Backend Development
+### 🐳 Running Commands Inside Docker Containers
 
-Run backend without Docker:
+**Backend commands** (inside Docker):
 ```bash
-cd backend
-./mvnw spring-boot:run
+# Run backend tests inside container
+docker-compose exec backend ./mvnw test
+
+# Run specific test class inside container
+docker-compose exec backend ./mvnw test -Dtest=CurriculumServiceTest
+
+# Run tests with coverage inside container
+docker-compose exec backend ./mvnw verify
+
+# Access backend shell
+docker-compose exec backend bash
+
+# Run Flyway migrations inside container
+docker-compose exec backend ./mvnw flyway:migrate
 ```
 
-Run all tests:
+**Frontend commands** (inside Docker):
 ```bash
-cd backend
-./mvnw test
+# Run frontend tests inside container
+docker-compose exec frontend yarn test
+
+# Run tests in watch mode inside container
+docker-compose exec frontend yarn test:watch
+
+# Run E2E tests inside container
+docker-compose exec frontend yarn test:e2e
+
+# Access frontend shell
+docker-compose exec frontend sh
+
+# Build for production inside container
+docker-compose exec frontend yarn build
 ```
 
-Run specific test class:
+**Database commands** (inside Docker):
 ```bash
-cd backend
-./mvnw test -Dtest=CurriculumServiceTest
-```
+# Access PostgreSQL shell
+docker-compose exec db psql -U postgres -d waterballsa
 
-Run tests with coverage:
-```bash
-cd backend
-./mvnw verify
-```
-
-Run Flyway migrations:
-```bash
-cd backend
-./mvnw flyway:migrate
-```
-
-### Frontend Development
-
-Run frontend dev server:
-```bash
-cd frontend
-yarn dev
-```
-
-Run unit tests:
-```bash
-cd frontend
-yarn test
-```
-
-Run tests in watch mode:
-```bash
-cd frontend
-yarn test:watch
-```
-
-Run E2E tests:
-```bash
-cd frontend
-yarn test:e2e
-```
-
-Run E2E tests with UI:
-```bash
-cd frontend
-yarn test:e2e:ui
-```
-
-Build for production:
-```bash
-cd frontend
-yarn build
+# Run SQL file inside container
+docker-compose exec db psql -U postgres -d waterballsa -f /path/to/file.sql
 ```
 
 ## Database Schema
@@ -222,14 +220,188 @@ When backend is running, access:
 
 ## Development Workflow (SDD/BDD)
 
-For each feature, follow this sequence:
+**⚠️ CRITICAL**: This workflow is MANDATORY for all feature development. NEVER skip to implementation without completing prior phases.
 
-1. **Specification Phase**: Write detailed specs with Given-When-Then scenarios in `docs/specifications/`
-2. **Database Phase**: Design schema, create Flyway migrations in `backend/src/main/resources/db/migration/`
-3. **API Phase**: Document endpoints in `docs/api/`
-4. **Implementation Phase**: Implement with TDD (entities → repositories → services → controllers)
-5. **Testing Phase**: Write unit tests, integration tests (TestContainers), E2E tests
-6. **Documentation Phase**: Update technical docs, seed data
+### The Golden Rule: Specification First, Implementation Last
+
+```
+📋 Specification → 🗄️ Database → 🔌 API → 💻 Implementation → ✅ Testing → 📚 Documentation
+```
+
+### Detailed Workflow for Each Feature
+
+#### Phase 1: Specification Phase (ALWAYS START HERE)
+**Goal**: Define WHAT we're building and WHY, with clear acceptance criteria.
+
+**Steps**:
+1. Create specification document in `docs/specifications/[feature-name].md`
+2. Write business context and user stories
+3. Define acceptance criteria using Given-When-Then format (BDD):
+   ```gherkin
+   Scenario: User purchases a curriculum
+     Given a logged-in user viewing a curriculum
+     And the user does not own the curriculum
+     When the user clicks "Purchase" and completes payment
+     Then the user should own the curriculum
+     And the user should be able to access all lessons
+   ```
+4. Document business rules and constraints
+5. Define error scenarios and edge cases
+6. **Get approval** before proceeding to implementation
+
+**Deliverables**:
+- `docs/specifications/[feature-name].md` with Given-When-Then scenarios
+- Clear acceptance criteria that will guide testing
+
+#### Phase 2: Database Phase
+**Goal**: Design the data model based on specifications.
+
+**Steps**:
+1. Design database schema (tables, columns, relationships, constraints)
+2. Create ER diagram (optional but recommended)
+3. Write Flyway migration script in `backend/src/main/resources/db/migration/V[N]__[description].sql`
+4. Add indexes for performance
+5. Add database triggers if needed (e.g., for auto-updating timestamps)
+6. Test migration on clean database using Docker:
+   ```bash
+   docker-compose exec backend ./mvnw flyway:migrate
+   ```
+
+**Deliverables**:
+- Flyway migration scripts (versioned, never modified after commit)
+- Optional: `docs/database/schema-phase[N].md` with ER diagrams
+
+**⚠️ IMPORTANT**: NEVER modify existing migrations. Always create new migrations for changes.
+
+#### Phase 3: API Phase
+**Goal**: Define the contract between frontend and backend.
+
+**Steps**:
+1. Design API endpoints (HTTP methods, paths, query params)
+2. Document request schemas (headers, body, validation rules)
+3. Document response schemas (success, error codes)
+4. Document authentication/authorization requirements
+5. Add OpenAPI/Swagger annotations to controller stubs (if using code-first approach)
+6. **Review API design** before implementation
+
+**Deliverables**:
+- `docs/api/[feature-name].md` with endpoint documentation
+- OR OpenAPI/Swagger annotations in code
+
+**Best Practice**: Design APIs to be RESTful, version-aware, and consistent with existing patterns.
+
+#### Phase 4: Implementation Phase (TDD)
+**Goal**: Implement the feature using Test-Driven Development.
+
+**Steps** (in this order):
+1. **Write failing tests first** based on specifications
+2. **Implement Domain Models** (JPA entities):
+   - Backend: `backend/src/main/java/com/waterballsa/backend/entity/`
+   - Use Lombok (@Data, @Builder) for boilerplate reduction
+3. **Implement Repositories** (Spring Data JPA):
+   - Backend: `backend/src/main/java/com/waterballsa/backend/repository/`
+   - Write custom queries with `@Query` if needed
+4. **Implement Services** (Business logic):
+   - Backend: `backend/src/main/java/com/waterballsa/backend/service/`
+   - Use DTOs for responses
+   - Write unit tests for services
+5. **Implement Controllers** (REST API):
+   - Backend: `backend/src/main/java/com/waterballsa/backend/controller/`
+   - Add OpenAPI annotations
+   - Write integration tests for controllers
+6. **Implement Frontend** (if applicable):
+   - Create pages in `frontend/src/app/`
+   - Create components in `frontend/src/components/`
+   - Create API client functions in `frontend/src/lib/api/`
+   - Write unit tests for components
+7. **Run all tests** to ensure they pass:
+   ```bash
+   # Backend tests inside Docker
+   docker-compose exec backend ./mvnw test
+
+   # Frontend tests inside Docker
+   docker-compose exec frontend yarn test
+   ```
+
+**TDD Cycle** (Red-Green-Refactor):
+- 🔴 **Red**: Write a failing test
+- 🟢 **Green**: Write minimal code to make it pass
+- 🔵 **Refactor**: Clean up code while keeping tests green
+
+**Deliverables**:
+- Working implementation with >80% test coverage
+- All acceptance criteria from specifications met
+
+#### Phase 5: Integration & E2E Testing Phase
+**Goal**: Verify the feature works end-to-end.
+
+**Steps**:
+1. Write integration tests (backend):
+   - Use `@SpringBootTest` with TestContainers
+   - Test actual database operations
+   - Test API endpoints with real HTTP calls
+2. Write E2E tests (backend):
+   - Use REST Assured for complete API flows
+   - Test authentication and authorization
+3. Write E2E tests (frontend):
+   - Use Playwright for user journeys
+   - Test complete workflows (login → browse → purchase → view content)
+4. Run all tests inside Docker:
+   ```bash
+   docker-compose exec backend ./mvnw verify
+   docker-compose exec frontend yarn test:e2e
+   ```
+5. Ensure all acceptance criteria from specifications are tested
+
+**Deliverables**:
+- Comprehensive test suite with >80% coverage
+- All tests passing in Docker environment
+
+#### Phase 6: Documentation Phase
+**Goal**: Update documentation and seed data.
+
+**Steps**:
+1. Update `CLAUDE.md` with new features, commands, or patterns
+2. Update `README.md` if user-facing changes
+3. Add or update seed data in migration scripts
+4. Document configuration changes (environment variables, etc.)
+5. Update API documentation (if not using Swagger)
+
+**Deliverables**:
+- Updated documentation
+- Updated seed data for testing
+
+### Verification Checklist
+
+Before considering a feature "done", verify:
+- [ ] Specification document exists with Given-When-Then scenarios
+- [ ] Database migrations are versioned and tested
+- [ ] API endpoints are documented (Swagger or markdown)
+- [ ] Implementation follows existing code patterns
+- [ ] Unit tests exist and pass (>80% coverage)
+- [ ] Integration tests exist and pass
+- [ ] E2E tests exist and pass
+- [ ] All tests run successfully inside Docker
+- [ ] Documentation is updated
+- [ ] Seed data is updated (if applicable)
+- [ ] Code review completed (if working in team)
+
+### Example: Adding Purchase System (Phase 2)
+
+1. **Specification**: Write `docs/specifications/purchase-system.md` with scenarios like:
+   - User can purchase curriculum
+   - User cannot access paid content without purchase
+   - User can view purchase history
+2. **Database**: Create migrations for `purchases` and `payment_transactions` tables
+3. **API**: Document `POST /api/purchases`, `GET /api/purchases/my-purchases`
+4. **Implementation**:
+   - Create `Purchase` entity
+   - Create `PurchaseRepository`
+   - Create `PurchaseService` with tests
+   - Create `PurchaseController` with integration tests
+   - Create frontend purchase page
+5. **Testing**: Write E2E tests for complete purchase flow
+6. **Documentation**: Update CLAUDE.md, add purchase seed data
 
 ## Environment Variables
 
@@ -308,36 +480,175 @@ frontend/src/
 
 ## Phase Roadmap
 
-### Phase 1: Foundation (Current - Backend Complete)
-- ✅ Google OAuth authentication
-- ✅ Curriculum/Chapter/Lesson structure
-- ✅ REST API with OpenAPI docs
-- ✅ Database schema with seed data
-- ⏳ Frontend implementation (in progress)
-- ⏳ Docker setup verification
-- ⏳ Comprehensive testing
+### Phase 1: Foundation (Current - ~65% Complete)
+**Status**: Backend ✅ | Frontend ⏳ | Testing ❌
 
-### Phase 2: Access Control & Payment (Future)
+**Completed**:
+- ✅ Google OAuth authentication (backend complete)
+- ✅ Curriculum/Chapter/Lesson structure (backend complete)
+- ✅ REST API with OpenAPI docs (Swagger UI available)
+- ✅ Database schema with seed data (5 curriculums, 19 chapters, 20+ lessons)
+- ✅ Docker Compose setup (all services containerized)
+- ✅ Frontend authentication and curriculum browsing
+
+**In Progress**:
+- ⏳ Frontend lesson viewer pages (video/article/survey) ⚠️ **CRITICAL - BLOCKS PHASE 1 COMPLETION**
+
+**Not Started**:
+- ❌ Comprehensive test suite (0% coverage) ⚠️ **HIGH PRIORITY**
+- ❌ Specifications documentation (mostly missing)
+
+**Next Steps** (follow SDD/BDD workflow):
+1. 📋 Write lesson viewer specifications with Given-When-Then scenarios
+2. 🔌 Document lesson content API contracts
+3. 💻 Implement lesson viewer pages (video player, article renderer, survey form)
+4. ✅ Write comprehensive tests (>80% coverage target)
+5. 📚 Update documentation
+
+### Phase 2: Access Control & Payment (Future - Not Started)
+**Goal**: Implement purchase system and content access control.
+
+**Must follow SDD/BDD workflow**:
+1. 📋 Write specifications for purchase system, payment gateway, permissions
+2. 🗄️ Design and create database migrations for `purchases` and `payment_transactions` tables
+3. 🔌 Document purchase and payment API endpoints
+4. 💻 Implement entities, services, controllers, frontend (with TDD)
+5. ✅ Write comprehensive tests
+6. 📚 Update documentation
+
+**Key Features**:
 - Purchase system with mock payment gateway
-- Permission-based content access
-- `purchases` and `payment_transactions` tables
+- Permission-based content access (ownership required)
+- Purchase history and transaction records
 
-### Phase 3: Engagement & Gamification (Future)
-- Assignment system (code, file, text, quiz)
+### Phase 3: Engagement & Gamification (Future - Not Started)
+**Goal**: Implement assignment system and gamification features.
+
+**Must follow SDD/BDD workflow**:
+1. 📋 Write specifications for assignments, EXP system, leaderboard
+2. 🗄️ Design and create database migrations for `assignments` and `submissions` tables
+3. 🔌 Document assignment, submission, and gamification API endpoints
+4. 💻 Implement entities, services, controllers, frontend (with TDD)
+5. ✅ Write comprehensive tests
+6. 📚 Update documentation
+
+**Key Features**:
+- Assignment system (code, file upload, text, quiz)
 - EXP and leveling system
 - Global leaderboard
-- `assignments` and `submissions` tables
+- Achievement/badge system
 
 ## Important Notes
 
+### 🐳 Docker Compose Rules
+- **ALWAYS use Docker Compose** for development - never run services on host machine
+- **ALWAYS run tests inside Docker containers** to ensure environment consistency
+- **ALWAYS use `docker-compose exec`** to run commands inside containers
+- Use `make up` to start services, `make down` to stop, `make clean` to reset
+
+### 📋 SDD/BDD Rules
+- **NEVER write implementation before specifications** - always start with specs
+- **ALWAYS write tests before or alongside implementation** - follow TDD/BDD
+- **ALWAYS use Given-When-Then format** for acceptance criteria
+- **ALWAYS verify all acceptance criteria** with automated tests
+- Follow the workflow: Specification → Database → API → Implementation → Testing → Documentation
+
+### Database Rules
 - **NEVER skip Flyway migrations** - always create new versioned migrations
+- **NEVER modify existing migrations** - create new ones for changes
+- Test migrations inside Docker: `docker-compose exec backend ./mvnw flyway:migrate`
+- **JSONB fields** in PostgreSQL for flexible metadata (e.g., `lesson.content_metadata`)
+
+### Backend Rules
 - **Use Lombok** for entities (@Data, @Builder) to reduce boilerplate
 - **Use DTOs** for API responses, never expose entities directly
 - **JWT tokens are stateless** - no server-side session storage
-- **JSONB fields** in PostgreSQL for flexible metadata (e.g., `lesson.content_metadata`)
 - **Pagination** uses Spring Data's `Pageable` - default page size is 10
 - **Sorting** defaults to `createdAt DESC` for list endpoints
 - **CORS** is configured for localhost:3000 in development
 - **TestContainers** provides real PostgreSQL for integration tests
+
+### Frontend Rules
 - **Use TypeScript** for all frontend code (TSX for React components)
 - **Use Yarn** for frontend package management (not npm)
+- Run frontend commands inside Docker: `docker-compose exec frontend yarn [command]`
+- Test E2E flows with Playwright inside Docker
+
+### Testing Rules
+- **>80% code coverage** is mandatory for all features
+- Write unit tests, integration tests, AND E2E tests
+- Run all tests inside Docker containers before committing
+- Backend: `docker-compose exec backend ./mvnw verify`
+- Frontend: `docker-compose exec frontend yarn test`
+
+---
+
+## Quick Reference Card
+
+### 🚀 Starting Development
+
+```bash
+# 1. Start all services with Docker Compose
+make up
+
+# 2. View logs
+make logs
+
+# 3. Access services:
+#    - Frontend: http://localhost:3000
+#    - Backend API: http://localhost:8080/api
+#    - Swagger UI: http://localhost:8080/swagger-ui.html
+```
+
+### 📋 Before Implementing Any Feature
+
+**Ask yourself**: Have I completed the SDD/BDD workflow?
+
+1. ✅ Written specification with Given-When-Then scenarios?
+2. ✅ Created database migrations (if needed)?
+3. ✅ Documented API endpoints (if needed)?
+4. ✅ Written tests BEFORE implementation?
+
+**If NO to any**, STOP and complete those steps first.
+
+### 🐳 Running Commands
+
+**ALWAYS use Docker Compose**:
+
+```bash
+# Backend tests
+docker-compose exec backend ./mvnw test
+
+# Frontend tests
+docker-compose exec frontend yarn test
+
+# Database access
+docker-compose exec db psql -U postgres -d waterballsa
+
+# Backend shell
+docker-compose exec backend bash
+
+# Frontend shell
+docker-compose exec frontend sh
+```
+
+### 🔄 Development Cycle (TDD)
+
+```
+1. 🔴 Write failing test
+2. 🟢 Write minimal code to pass
+3. 🔵 Refactor while keeping tests green
+4. ♻️  Repeat
+```
+
+### ✅ Definition of Done
+
+- [ ] Specification exists with Given-When-Then scenarios
+- [ ] Database migrations are versioned and tested
+- [ ] API is documented
+- [ ] Tests pass with >80% coverage
+- [ ] All tests run successfully inside Docker
+- [ ] Documentation is updated
+- [ ] Code follows existing patterns
+
+**Remember**: Specification First, Implementation Last!
