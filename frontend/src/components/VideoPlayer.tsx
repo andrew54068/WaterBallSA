@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import ReactPlayer from 'react-player/youtube'
+import ReactPlayer from 'react-player'
 
 interface VideoPlayerProps {
   videoUrl: string
