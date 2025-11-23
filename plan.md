@@ -2,11 +2,42 @@
 
 > This plan follows Specification-Driven Development (SDD) and Behavior-Driven Development (BDD) principles. Each phase is broken down into: Specifications → Database → API → Implementation → Tests.
 
+**Last Updated**: 2025-11-23
+
+## 📊 Project Status Overview
+
+| Phase | Component | Status | Completion |
+|-------|-----------|--------|------------|
+| **Phase 1** | Specifications | ⚠️ Partial | ~20% |
+| | Database Design | ✅ Complete | 100% |
+| | API Design | ✅ Complete | 100% |
+| | Backend Implementation | ✅ Complete | 100% |
+| | Frontend Implementation | ⏳ In Progress | ~70% |
+| | Infrastructure & DevOps | ✅ Complete | 100% |
+| | Testing | ❌ Not Started | 0% |
+| | Documentation | ⚠️ Partial | ~60% |
+| **Overall Phase 1** | | ⏳ **In Progress** | **~65%** |
+
+**🚨 Critical Blockers**:
+- Missing lesson viewer pages (video/article/survey) - prevents users from consuming content
+- No test coverage - risks production bugs
+
+**✅ Completed**: Backend API, Database, Docker setup, Authentication, Curriculum browsing
+
 ---
 
-## Phase 1: Foundation (MVP)
+## Phase 1: Foundation (MVP) - IN PROGRESS
 
 **Goal**: Establish core infrastructure and basic content delivery system with Google authentication.
+
+**Current Status**: Backend ✅ Complete | Frontend ⏳ In Progress (missing lesson viewers) | Testing ❌ Not Started
+
+**Next Steps**:
+1. 🎯 **HIGH PRIORITY**: Implement lesson viewer pages (video, article, survey)
+2. 🎯 **HIGH PRIORITY**: Add missing UI components (video player, article renderer, survey form)
+3. Write comprehensive test suite (backend unit tests, integration tests, E2E tests)
+4. Write frontend unit tests and E2E tests with Playwright
+5. Optional: Create API documentation markdown files (Swagger UI already available)
 
 ### 1.1 Specifications & Business Rules
 
@@ -46,28 +77,28 @@
 ### 1.3 API Design
 
 **Tasks**:
-- [ ] Design Authentication API endpoints
+- [x] Design Authentication API endpoints
   - `POST /api/auth/google` - Exchange Google OAuth code for JWT
   - `POST /api/auth/refresh` - Refresh JWT token
   - `GET /api/auth/me` - Get current user profile
   - `POST /api/auth/logout` - Logout and invalidate token
-- [ ] Design Curriculum API endpoints
+- [x] Design Curriculum API endpoints
   - `GET /api/curriculums` - List all curriculums (with pagination)
   - `GET /api/curriculums/{id}` - Get curriculum details with chapters
-- [ ] Design Chapter API endpoints
+- [x] Design Chapter API endpoints
   - `GET /api/chapters/{id}` - Get chapter details with lessons
-- [ ] Design Lesson API endpoints
+- [x] Design Lesson API endpoints
   - `GET /api/lessons/{id}` - Get lesson details and content
-- [ ] Document request/response schemas
-- [ ] Document error codes and responses
-- [ ] Design API versioning strategy
+- [x] Document request/response schemas (via OpenAPI/Swagger)
+- [x] Document error codes and responses (via global exception handler)
+- [x] Design API versioning strategy (using /api prefix)
 
 **Deliverables**:
-- `docs/api/authentication.md`
-- `docs/api/curriculums.md`
-- `docs/api/lessons.md`
-- `docs/api/error-codes.md`
-- OpenAPI/Swagger specification file
+- [ ] `docs/api/authentication.md` (Optional - Swagger UI available instead)
+- [ ] `docs/api/curriculums.md` (Optional - Swagger UI available instead)
+- [ ] `docs/api/lessons.md` (Optional - Swagger UI available instead)
+- [ ] `docs/api/error-codes.md` (Optional - Swagger UI available instead)
+- [x] OpenAPI/Swagger specification file (available at http://localhost:8080/swagger-ui.html)
 
 ### 1.4 Backend Implementation ✅
 
@@ -110,44 +141,44 @@
 - [x] Complete Spring Boot application with working API endpoints
 - [x] Swagger UI accessible at `http://localhost:8080/swagger-ui.html`
 
-### 1.5 Frontend Implementation
+### 1.5 Frontend Implementation (Partial ✓)
 
 **Tasks**:
-- [ ] Set up Next.js project structure (TypeScript)
-  - [ ] Configure dependencies (React, Next.js, TypeScript, TailwindCSS)
-  - [ ] Set up environment variables
-  - [ ] Configure ESLint and Prettier
-- [ ] Implement Authentication Pages
-  - [ ] Login page with Google OAuth button
-  - [ ] OAuth callback handler
-  - [ ] Protected route wrapper
-- [ ] Implement Layout Components
-  - [ ] Header with navigation and user menu
+- [x] Set up Next.js project structure (TypeScript)
+  - [x] Configure dependencies (React, Next.js, TypeScript, TailwindCSS)
+  - [x] Set up environment variables
+  - [x] Configure ESLint and Prettier
+- [x] Implement Authentication Pages
+  - [x] Login page with Google OAuth button
+  - [x] OAuth callback handler
+  - [x] Protected route wrapper (auth-context with useAuth hook)
+- [x] Implement Layout Components
+  - [x] Header with navigation and user menu
   - [ ] Footer
-  - [ ] Main layout wrapper
-- [ ] Implement Curriculum Pages
-  - [ ] Curriculum list page (browse all curriculums)
-  - [ ] Curriculum detail page (show chapters)
-  - [ ] Chapter detail page (show lessons)
-  - [ ] Lesson viewer page (video player, article reader, survey form)
-- [ ] Implement API Client
-  - [ ] Axios/Fetch wrapper with JWT token injection
-  - [ ] API service functions for all endpoints
-  - [ ] Error handling and retry logic
-- [ ] Implement State Management
-  - [ ] Authentication state (user profile, token)
-  - [ ] Curriculum state
-  - [ ] Loading and error states
+  - [x] Main layout wrapper
+- [x] Implement Curriculum Pages
+  - [x] Curriculum list page (browse all curriculums)
+  - [x] Curriculum detail page (show chapters and lessons)
+  - [ ] Chapter detail page (N/A - chapters shown inline on curriculum page)
+  - [ ] Lesson viewer page (video player, article reader, survey form) ⚠️ **MAJOR MISSING**
+- [x] Implement API Client
+  - [x] Axios/Fetch wrapper with JWT token injection
+  - [x] API service functions for all endpoints (auth, curriculums, lessons)
+  - [x] Error handling and retry logic
+- [x] Implement State Management
+  - [x] Authentication state (user profile, token)
+  - [x] Curriculum state (using SWR)
+  - [x] Loading and error states
 - [ ] Implement UI Components
-  - [ ] Video player component (integrate video.js or similar)
-  - [ ] Article renderer component (Markdown or rich text)
-  - [ ] Survey form component
+  - [ ] Video player component (integrate video.js or similar) ⚠️ **MISSING**
+  - [ ] Article renderer component (Markdown or rich text) ⚠️ **MISSING**
+  - [ ] Survey form component ⚠️ **MISSING**
   - [ ] Loading spinners and skeletons
   - [ ] Error boundaries
 
 **Deliverables**:
-- Complete Next.js application accessible at `http://localhost:3000`
-- All pages functional and connected to backend API
+- [x] Next.js application accessible at `http://localhost:3000`
+- [ ] All pages functional and connected to backend API (missing lesson viewer pages)
 
 ### 1.6 Infrastructure & DevOps ✅
 
@@ -689,11 +720,11 @@ For each feature, follow this workflow:
 ## Success Metrics
 
 ### Phase 1
-- [ ] All authentication flows working
-- [ ] All CRUD operations for curriculums/chapters/lessons working
-- [ ] Video playback, article reading, survey completion working
-- [ ] Docker setup complete and documented
-- [ ] >80% test coverage
+- [x] All authentication flows working (backend complete, frontend in progress)
+- [x] All CRUD operations for curriculums/chapters/lessons working (backend complete)
+- [ ] Video playback, article reading, survey completion working ⚠️ **MISSING - TOP PRIORITY**
+- [x] Docker setup complete and documented
+- [ ] >80% test coverage ⚠️ **NOT STARTED**
 
 ### Phase 2
 - [ ] Purchase flow working end-to-end
