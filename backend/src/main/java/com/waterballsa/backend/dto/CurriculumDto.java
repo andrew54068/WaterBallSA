@@ -62,15 +62,15 @@ public class CurriculumDto {
     }
 
     /**
-     * Converts a Curriculum entity to CurriculumDto with chapters.
+     * Converts a Curriculum entity to CurriculumDto with chapters and lessons.
      *
      * @param curriculum the curriculum entity
-     * @return CurriculumDto instance with chapters
+     * @return CurriculumDto instance with chapters and lessons
      */
     public static CurriculumDto fromWithChapters(Curriculum curriculum) {
         CurriculumDto dto = from(curriculum);
         dto.setChapters(curriculum.getChapters().stream()
-                .map(ChapterDto::from)
+                .map(ChapterDto::fromWithLessons)
                 .collect(Collectors.toList()));
         return dto;
     }
