@@ -75,15 +75,16 @@ export function GoogleLoginButton() {
           },
         })
 
-        // Render the Google Sign-In button
+        // Render the Google Sign-In button with custom theme
         console.log('[GoogleLoginButton] Rendering button...')
         window.google.accounts.id.renderButton(
           buttonRef.current,
           {
-            theme: 'outline',
+            theme: 'filled_black',
             size: 'large',
             text: 'signin_with',
             shape: 'rectangular',
+            width: 200,
           }
         )
 
@@ -118,10 +119,18 @@ export function GoogleLoginButton() {
   }, [login])
 
   return (
-    <div>
-      <div ref={buttonRef} className={isLoading ? 'opacity-50 pointer-events-none' : ''} />
+    <div className="relative">
+      {/* Wrapper with yellow accent styling */}
+      <div className={`
+        rounded-lg overflow-hidden
+        ring-2 ring-accent-yellow/50 hover:ring-accent-yellow
+        transition-all duration-200
+        ${isLoading ? 'opacity-50 pointer-events-none' : ''}
+      `}>
+        <div ref={buttonRef} />
+      </div>
       {error && (
-        <p className="text-red-600 text-sm mt-2">{error}</p>
+        <p className="text-red-400 text-sm mt-2">{error}</p>
       )}
     </div>
   )
