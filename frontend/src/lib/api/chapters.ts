@@ -1,4 +1,4 @@
-import apiClient from '../api-client'
+import { apiClient } from '../api-client'
 import { Chapter } from '@/types'
 
 export const chaptersApi = {

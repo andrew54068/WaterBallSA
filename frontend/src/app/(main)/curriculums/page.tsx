@@ -1,10 +1,10 @@
 import { curriculumsApi } from '@/lib/api/curriculums'
-import { PromotionalBanner } from '@/components/PromotionalBanner'
 import { CurriculumCard } from '@/components/CurriculumCard'
+import { Curriculum } from '@/types'
 
 export default async function AllCurriculumsPage() {
-  let curriculums = []
-  let error = null
+  let curriculums: Curriculum[] = []
+  let error: string | null = null
 
   try {
     const response = await curriculumsApi.getAll({ size: 20 })
@@ -16,8 +16,6 @@ export default async function AllCurriculumsPage() {
 
   return (
     <main className="min-h-screen bg-dark-900">
-      {/* Promotional Banner */}
-      <PromotionalBanner />
 
       {/* Page Header */}
       <section className="py-12 px-8">

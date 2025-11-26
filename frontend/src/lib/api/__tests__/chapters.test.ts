@@ -1,5 +1,5 @@
 import { chaptersApi } from '../chapters'
-import apiClient from '../../api-client'
+import { apiClient } from '../../api-client'
 import type { Chapter } from '@/types'
 
 // Mock the api-client

@@ -36,6 +36,30 @@ export interface Chapter {
   lessons: Lesson[]
 }
 
+// Content metadata types for different lesson types
+export interface VideoMetadata {
+  videoProvider?: string
+  videoId?: string
+  thumbnailUrl?: string
+  [key: string]: string | number | boolean | undefined
+}
+
+export interface ArticleMetadata {
+  author?: string
+  publishedDate?: string
+  readingTime?: number
+  [key: string]: string | number | boolean | undefined
+}
+
+export interface SurveyMetadata {
+  questionsCount?: number
+  passingScore?: number
+  timeLimit?: number
+  [key: string]: string | number | boolean | undefined
+}
+
+export type LessonMetadata = VideoMetadata | ArticleMetadata | SurveyMetadata | Record<string, string | number | boolean | undefined>
+
 export interface Lesson {
   id: number
   chapterId: number
@@ -43,7 +67,7 @@ export interface Lesson {
   description?: string
   lessonType: 'VIDEO' | 'ARTICLE' | 'SURVEY'
   contentUrl?: string
-  contentMetadata: Record<string, any>
+  contentMetadata: LessonMetadata
   orderIndex: number
   durationMinutes?: number
   isFree?: boolean
@@ -89,19 +113,19 @@ export interface ApiError {
   validationErrors?: Record<string, string>
 }
 
-// NextAuth Type Extensions
-import { DefaultSession } from 'next-auth'
-
-declare module 'next-auth' {
-  interface Session extends DefaultSession {
-    idToken?: string
-    accessToken?: string
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    idToken?: string
-    accessToken?: string
-  }
-}
+// NextAuth Type Extensions (not currently used - Phase 2)
+// import { DefaultSession } from 'next-auth'
+//
+// declare module 'next-auth' {
+//   interface Session extends DefaultSession {
+//     idToken?: string
+//     accessToken?: string
+//   }
+// }
+//
+// declare module 'next-auth/jwt' {
+//   interface JWT {
+//     idToken?: string
+//     accessToken?: string
+//   }
+// }

@@ -133,12 +133,15 @@ export default async function LessonPage({ params }: PageProps) {
         </div>
       </div>
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error loading lesson:', error)
 
     // Handle specific error types
-    if (error.response?.status === 404) {
-      notFound()
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number } }
+      if (axiosError.response?.status === 404) {
+        notFound()
+      }
     }
 
     // Generic error page

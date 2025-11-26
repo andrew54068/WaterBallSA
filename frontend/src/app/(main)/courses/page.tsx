@@ -2,6 +2,12 @@ import { FeaturedCourseCard } from '@/components/FeaturedCourseCard'
 import { lessonsApi } from '@/lib/api/lessons'
 import { curriculumsApi } from '@/lib/api/curriculums'
 
+// Phase 2: Order type (to be implemented)
+interface Order {
+  id: number
+  // Add more fields when implementing Phase 2
+}
+
 // Mock data for courses (following spec)
 const coursesData = [
   {
@@ -30,7 +36,7 @@ const coursesData = [
 ]
 
 // Mock order data (empty for now - Phase 2 feature)
-const orders: any[] = []
+const orders: Order[] = []
 
 export default async function CoursesPage() {
   // Fetch first free lesson for each course
