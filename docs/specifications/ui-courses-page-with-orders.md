@@ -57,7 +57,7 @@ Given I am viewing an unpurchased course
 Then the card should show "尚未購券" badge in top right
 And I should see available actions:
   | Action | Condition |
-  | 試體驗課程 | If free trial available (yellow button) |
+  | 立刻體驗 | If free trial available (yellow button) |
   | 立即購買 | Always available (outline button) |
 And if there's a coupon, I should see "你有一張 3,000 折價券" banner
 ```
@@ -75,9 +75,8 @@ And I should see a "開始學習" button instead of "立即購買"
 ```gherkin
 Given I am viewing a paid-only course without free trial
 Then I should see "尚未購券" badge
-And I should see "價限付費" button (grayed out/disabled)
 And I should see "立即購買" button (enabled, outline style)
-And there should be no "試體驗課程" button
+And there should be no "立刻體驗" button
 ```
 
 ### Scenario 6: Order History Section - Empty State
@@ -117,7 +116,7 @@ Then courses should display in 1 column
 ### Scenario 9: Clicking Trial Button
 ```gherkin
 Given I am viewing a course with free trial
-When I click "試體驗課程"
+When I click "立刻體驗"
 Then I should be navigated to the curriculum detail page
 And I should have access to free preview lessons
 ```

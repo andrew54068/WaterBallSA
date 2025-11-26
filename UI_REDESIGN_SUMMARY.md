@@ -66,7 +66,7 @@ Created 5 comprehensive specification documents with Given-When-Then scenarios:
    - Enhanced course card for home/courses pages
    - Purchase status badges (尚未購券, 已購買)
    - Coupon banners
-   - Multiple CTA buttons (試體驗課程, 立即購買, 價限付費)
+   - Multiple CTA buttons (立刻體驗, 立即購買)
    - Provider badges
 
 4. **`frontend/src/components/ChapterAccordion.tsx`** ✅

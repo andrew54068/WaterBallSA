@@ -64,7 +64,7 @@ Then I should see "尚未購券" badge in top right
 And I should see "你有一張 3,000 折價券" in yellow banner
 And I should see two buttons:
   | Button | Style |
-  | 試體驗課程 | Yellow filled |
+  | 立刻體驗 | Yellow filled |
   | 立即購買 | Dark outline |
 ```
 
@@ -72,7 +72,6 @@ And I should see two buttons:
 ```gherkin
 Given I am viewing the "AI x BDD" course card
 Then I should see "尚未購券" badge in top right
-And I should see "價限付費" button (grayed out)
 And I should see "立即購買" button (dark outline)
 ```
 
@@ -119,7 +118,7 @@ Then I should see a list of available curriculums
 ### Scenario 10: Clicking Featured Course Card
 ```gherkin
 Given I am viewing a featured course card
-When I click the "立即購買" or "試體驗課程" button
+When I click the "立即購買" or "立刻體驗" button
 Then I should be navigated to the course detail page
 ```
 
