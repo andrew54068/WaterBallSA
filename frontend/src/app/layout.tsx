@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/Providers'
 import { Header } from '@/components/Header'
+import { Sidebar } from '@/components/Sidebar'
+import { PromotionalBanner } from '@/components/PromotionalBanner'
 
 export const metadata: Metadata = {
-  title: 'WaterBallSA - Online Learning Platform',
-  description: 'An online course platform built with specification-driven development',
+  title: '水球軟體學院 WaterBallSA - 線上程式學習平台',
+  description: '專業的軟體工程線上學習平台，透過 Code Review 來帶你掌握紮實軟體架構能力',
 }
 
 export default function RootLayout({
@@ -14,14 +16,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="zh-TW">
       <head>
         {/* Google Sign-In SDK */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
-      <body className="antialiased">
+      <body className="antialiased bg-dark-900">
         <Providers>
-          <Header />
           {children}
         </Providers>
       </body>

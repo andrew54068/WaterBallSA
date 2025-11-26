@@ -7,9 +7,10 @@ import { Lesson } from '@/types'
 interface LessonNavigationProps {
   currentLessonId: number
   lessons: Lesson[]
+  curriculumId: number
 }
 
-export default function LessonNavigation({ currentLessonId, lessons }: LessonNavigationProps) {
+export default function LessonNavigation({ currentLessonId, lessons, curriculumId }: LessonNavigationProps) {
   // Find current lesson index
   const currentIndex = lessons.findIndex(lesson => lesson.id === currentLessonId)
 
@@ -44,7 +45,7 @@ export default function LessonNavigation({ currentLessonId, lessons }: LessonNav
         {/* Previous Button */}
         {prevLesson ? (
           <Link
-            href={`/lessons/${prevLesson.id}`}
+            href={`/course/${curriculumId}/chapters/${prevLesson.chapterId}/lessons/${prevLesson.orderIndex}`}
             className="flex-1 group"
           >
             <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors">
@@ -102,7 +103,7 @@ export default function LessonNavigation({ currentLessonId, lessons }: LessonNav
         {/* Next Button */}
         {nextLesson ? (
           <Link
-            href={`/lessons/${nextLesson.id}`}
+            href={`/course/${curriculumId}/chapters/${nextLesson.chapterId}/lessons/${nextLesson.orderIndex}`}
             className="flex-1 group"
           >
             <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors">

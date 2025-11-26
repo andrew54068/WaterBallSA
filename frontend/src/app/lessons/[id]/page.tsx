@@ -6,8 +6,7 @@ import { curriculumsApi } from '@/lib/api/curriculums'
 import VideoPlayer from '@/components/VideoPlayer'
 import ArticleRenderer from '@/components/ArticleRenderer'
 import SurveyForm from '@/components/SurveyForm'
-import LessonNavigation from '@/components/LessonNavigation'
-import LessonBreadcrumb from '@/components/LessonBreadcrumb'
+import { LessonSidebar } from '@/components/LessonSidebar'
 
 interface PageProps {
   params: {
@@ -43,93 +42,72 @@ export default async function LessonPage({ params }: PageProps) {
     // Fetch lesson data
     const lesson = await lessonsApi.getById(lessonId)
 
-    // Fetch chapter data (includes all lessons for navigation)
+    // Fetch current chapter data
     const chapter = await chaptersApi.getById(lesson.chapterId)
 
-    // Fetch curriculum data (for breadcrumb)
+    // Fetch curriculum data with ALL chapters
     const curriculum = await curriculumsApi.getById(chapter.curriculumId)
 
+    // TODO: Replace with real authentication in Phase 2
+    const userHasPurchased = false
+
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
-          <LessonBreadcrumb
-            curriculumId={curriculum.id}
-            curriculumTitle={curriculum.title}
-            chapterTitle={chapter.title}
-            lessonTitle={lesson.title}
-          />
-
-          {/* Lesson Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              {lesson.title}
-            </h1>
-            {lesson.description && (
-              <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                {lesson.description}
-              </p>
-            )}
-          </div>
-
-          {/* Lesson Content - Render based on type */}
-          <div className="mb-8">
-            {lesson.lessonType === 'VIDEO' && (
-              <VideoPlayer
-                videoUrl={lesson.contentUrl || ''}
-                title={lesson.title}
-                duration={lesson.durationMinutes}
-              />
-            )}
-
-            {lesson.lessonType === 'ARTICLE' && (
-              <ArticleRenderer
-                articleUrl={lesson.contentUrl || ''}
-                title={lesson.title}
-                description={lesson.description}
-                metadata={lesson.contentMetadata}
-                duration={lesson.durationMinutes}
-              />
-            )}
-
-            {lesson.lessonType === 'SURVEY' && (
-              <SurveyForm
-                surveyPath={lesson.contentUrl || ''}
-                title={lesson.title}
-                description={lesson.description}
-                metadata={lesson.contentMetadata}
-                duration={lesson.durationMinutes}
-              />
-            )}
-          </div>
-
-          {/* Lesson Navigation */}
-          <LessonNavigation
+      <div className="flex h-screen bg-dark-900">
+        {/* Left Sidebar - 30% */}
+        <div className="w-[30%] border-r border-dark-600">
+          <LessonSidebar
+            chapters={curriculum.chapters}
             currentLessonId={lessonId}
-            lessons={chapter.lessons}
+            curriculumId={curriculum.id}
+            userHasPurchased={userHasPurchased}
           />
+        </div>
 
-          {/* Back to Curriculum Link */}
-          <div className="mt-8 text-center">
-            <a
-              href={`/curriculums/${curriculum.id}`}
-              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        {/* Right Content Area - 70% */}
+        <div className="w-[70%] overflow-y-auto">
+          <div className="p-8">
+            {/* Lesson Header */}
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-white mb-2">
+                {lesson.title}
+              </h1>
+              {lesson.description && (
+                <p className="text-gray-400 leading-relaxed">
+                  {lesson.description}
+                </p>
+              )}
+            </div>
+
+            {/* Lesson Content - Render based on type */}
+            <div className="mb-8">
+              {lesson.lessonType === 'VIDEO' && (
+                <VideoPlayer
+                  videoUrl={lesson.contentUrl || ''}
+                  title={lesson.title}
+                  duration={lesson.durationMinutes}
                 />
-              </svg>
-              Back to {curriculum.title}
-            </a>
+              )}
+
+              {lesson.lessonType === 'ARTICLE' && (
+                <ArticleRenderer
+                  articleUrl={lesson.contentUrl || ''}
+                  title={lesson.title}
+                  description={lesson.description}
+                  metadata={lesson.contentMetadata}
+                  duration={lesson.durationMinutes}
+                />
+              )}
+
+              {lesson.lessonType === 'SURVEY' && (
+                <SurveyForm
+                  surveyPath={lesson.contentUrl || ''}
+                  title={lesson.title}
+                  description={lesson.description}
+                  metadata={lesson.contentMetadata}
+                  duration={lesson.durationMinutes}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
