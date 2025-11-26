@@ -42,9 +42,12 @@ export interface Lesson {
   title: string
   description?: string
   lessonType: 'VIDEO' | 'ARTICLE' | 'SURVEY'
+  contentUrl?: string
   contentMetadata: Record<string, any>
   orderIndex: number
   durationMinutes?: number
+  isFree?: boolean
+  isCompleted?: boolean
   createdAt: string
 }
 
