@@ -10,16 +10,17 @@ export default function MainLayout({
   return (
     <>
       {/* Sidebar - Fixed on the left */}
+      <Header />
       <Sidebar />
 
       {/* Main Content Area - Offset by sidebar width */}
       <div className="ml-64 min-h-screen flex flex-col">
         {/* Header - Fixed at top */}
-        <Header />
 
-        {/* Promotional Banner */}
+        {/* Promotional Banner - Only displays when user has coupons */}
         <div className="mt-16">
-          <PromotionalBanner />
+          {/* TODO Phase 2: Get hasCoupons from user context/API */}
+          <PromotionalBanner hasCoupons={false} />
         </div>
 
         {/* Page Content */}

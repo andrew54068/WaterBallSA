@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { PromotionalBanner } from '@/components/PromotionalBanner'
 import { ClockIcon, StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
@@ -64,9 +63,6 @@ export default function RoadmapPage() {
 
   return (
     <main className="min-h-screen bg-dark-900">
-      {/* Promotional Banner */}
-      <PromotionalBanner />
-
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-8 py-12">
         {/* Title */}

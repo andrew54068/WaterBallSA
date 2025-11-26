@@ -1,66 +1,50 @@
 'use client'
 
 import Link from 'next/link'
-import { XMarkIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
 
-export function PromotionalBanner() {
+interface PromotionalBannerProps {
+  hasCoupons?: boolean
+  couponAmount?: number
+  couponLink?: string
+}
+
+export function PromotionalBanner({
+  hasCoupons = false,
+  couponAmount = 3000,
+  couponLink = '/journeys/software-design-pattern/chapters/8/missions/1',
+}: PromotionalBannerProps) {
   const [isVisible, setIsVisible] = useState(true)
 
-  if (!isVisible) return null
+  // Only show banner if user has coupons
+  if (!hasCoupons || !isVisible) return null
 
   return (
-    <div className="relative bg-gradient-to-r from-accent-yellow via-accent-yellow to-accent-yellow-dark border-b-4 border-accent-yellow-dark overflow-hidden">
-      {/* Animated background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.15) 1px, transparent 0)',
-          backgroundSize: '32px 32px'
-        }} />
-      </div>
-
-      <div className="relative flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <div className="flex items-center space-x-4 flex-1">
-          <div className="hidden md:flex items-center justify-center w-12 h-12 bg-dark-900 rounded-full animate-pulse">
-            <span className="text-2xl">🎉</span>
-          </div>
-
-          <div className="flex-1">
-            <p className="text-dark-900 font-bold text-base md:text-lg leading-tight">
-              🎯 <span className="underline decoration-2 decoration-dark-900">軟體設計模式精通之旅</span>體驗課程的全部影片看完就可以<span className="underline decoration-wavy decoration-dark-900">獲得 3000 元課程折價券</span> ↓
-            </p>
+    <div className="rounded-lg border shadow-sm top-0 left-0 right-0 m-4 p-4 bg-background text-foreground dark:text-foreground static mb-0">
+      <div className="flex justify-between items-center">
+        <div className="flex-grow">
+          <div className="flex items-center justify-between gap-2">
+            <Link
+              href={couponLink}
+              className="text-sm md:text-base text-left underline hover:opacity-80 transition-opacity"
+            >
+              你有一張 {couponAmount.toLocaleString()} 折價券
+            </Link>
+            <button
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+            >
+              前往
+            </button>
           </div>
         </div>
-
-        <div className="flex items-center space-x-3 ml-4">
-          <Link
-            href="/curriculums"
-            className="
-              hidden sm:flex items-center px-6 py-2.5
-              bg-dark-900 text-accent-yellow
-              rounded-lg font-bold text-sm
-              hover:bg-dark-800 transition-all duration-200
-              shadow-lg hover:shadow-xl
-              group
-            "
-          >
-            <span>前往</span>
-            <ArrowRightIcon className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Link>
-
-          <button
-            onClick={() => setIsVisible(false)}
-            className="
-              p-2 rounded-full
-              bg-dark-900/20 hover:bg-dark-900/40
-              text-dark-900 hover:text-dark-800
-              transition-all duration-200
-            "
-            aria-label="Close banner"
-          >
-            <XMarkIcon className="w-5 h-5" />
-          </button>
-        </div>
+        <button
+          onClick={() => setIsVisible(false)}
+          className="ml-4 p-1 rounded-md hover:bg-muted transition-colors"
+          aria-label="Close banner"
+        >
+          <XMarkIcon className="w-5 h-5" />
+        </button>
       </div>
     </div>
   )

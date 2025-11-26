@@ -1,11 +1,8 @@
-import { PromotionalBanner } from '@/components/PromotionalBanner'
 import { BookOpenIcon } from '@heroicons/react/24/outline'
 
 export default function SOPPage() {
   return (
     <main className="min-h-screen bg-dark-900">
-      {/* Promotional Banner */}
-      <PromotionalBanner />
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-8 py-12">

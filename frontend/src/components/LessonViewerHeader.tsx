@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { GoogleLoginButton } from './GoogleLoginButton'
+import { Logo } from './Logo'
 
 export function LessonViewerHeader() {
   const { user, isLoading, logout } = useAuth()
@@ -14,15 +15,7 @@ export function LessonViewerHeader() {
     <header className="fixed top-0 left-0 right-0 h-16 bg-dark-800 border-b border-dark-600 z-50">
       <div className="flex items-center justify-between h-full px-6">
         {/* Logo / Brand */}
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent-yellow to-accent-yellow-dark rounded-lg flex items-center justify-center">
-            <span className="text-dark-900 font-bold text-lg">水</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-white font-bold text-sm leading-tight">水球軟體學院</span>
-            <span className="text-xs text-accent-yellow font-medium">WATERBALLSA.TW</span>
-          </div>
-        </div>
+        <Logo />
 
         {/* Auth Section */}
         <div className="flex items-center space-x-4">

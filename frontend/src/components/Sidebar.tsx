@@ -30,10 +30,10 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-dark-800 border-r border-dark-600 flex flex-col z-40">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-dark-800 border-r border-dark-600 flex flex-col z-0">
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-dark-600">
-        <div className="flex items-center space-x-3">
+        <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
           <div className="w-8 h-8 bg-gradient-to-br from-accent-yellow to-accent-yellow-dark rounded-lg flex items-center justify-center">
             <span className="text-dark-900 font-bold text-lg">水</span>
           </div>
@@ -41,7 +41,7 @@ export function Sidebar() {
             <span className="text-white font-bold text-sm leading-tight">水球軟體學院</span>
             <span className="text-xs text-accent-yellow font-medium">WATERBALLSA.TW</span>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}
@@ -85,7 +85,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-dark-600">
         <div className="text-xs text-gray-500 text-center">
-          © 2024 WaterBallSA
+          © {new Date().getFullYear()} WaterBallSA
         </div>
       </div>
     </aside>

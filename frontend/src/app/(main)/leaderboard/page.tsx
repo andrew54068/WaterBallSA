@@ -74,8 +74,7 @@ export default function LeaderboardPage() {
 
   return (
     <main className="min-h-screen bg-dark-900">
-      {/* Promotional Banner */}
-      <PromotionalBanner />
+      {/* Promotional Banner - Only displays when user has coupons */}
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-8 py-12">
