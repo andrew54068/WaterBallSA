@@ -80,7 +80,7 @@ Curriculum → Chapters → Lessons
 
 **Security Configuration** (`backend/src/main/java/com/waterballsa/backend/config/SecurityConfig.java`)
 - Stateless session management (JWT-based)
-- CORS configured for `http://localhost:3000`
+- CORS configured for `http://localhost:3001`
 - `JwtAuthenticationFilter` runs before `UsernamePasswordAuthenticationFilter`
 
 ## Common Commands
@@ -191,8 +191,8 @@ Located in `backend/src/main/resources/db/migration/`:
 ## API Documentation
 
 When backend is running, access:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: http://localhost:8081/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8081/v3/api-docs
 
 ### Key Endpoints
 
@@ -407,7 +407,7 @@ Before considering a feature "done", verify:
 
 ### Backend (`backend/.env`)
 ```bash
-DATABASE_URL=jdbc:postgresql://localhost:5432/waterballsa
+DATABASE_URL=jdbc:postgresql://localhost:5433/waterballsa
 DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=postgres
 REDIS_HOST=localhost
@@ -421,8 +421,8 @@ SPRING_PROFILES_ACTIVE=dev
 
 ### Frontend (`frontend/.env`)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
-NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:8081/api
+NEXTAUTH_URL=http://localhost:3001
 NEXTAUTH_SECRET=<your-secret>
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-google-client-id>
 ```
@@ -430,14 +430,14 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=<your-google-client-id>
 ## Google OAuth Setup
 
 **Authorized JavaScript origins**:
-- Development: `http://localhost:3000`
+- Development: `http://localhost:3001`
 - Production: `https://waterballsa.com`, `https://www.waterballsa.com`
 
 **Authorized redirect URIs**:
-- Development: `http://localhost:3000/auth/callback`
+- Development: `http://localhost:3001/auth/callback`
 - Production: `https://waterballsa.com/auth/callback`, `https://www.waterballsa.com/auth/callback`
 
-If using NextAuth.js, use: `http://localhost:3000/api/auth/callback/google`
+If using NextAuth.js, use: `http://localhost:3001/api/auth/callback/google`
 
 ## Project Structure Notes
 
@@ -592,7 +592,7 @@ frontend/src/
 - **JWT tokens are stateless** - no server-side session storage
 - **Pagination** uses Spring Data's `Pageable` - default page size is 10
 - **Sorting** defaults to `createdAt DESC` for list endpoints
-- **CORS** is configured for localhost:3000 in development
+- **CORS** is configured for localhost:3001 in development
 - **TestContainers** provides real PostgreSQL for integration tests
 
 ### Frontend Rules
@@ -622,9 +622,9 @@ make up
 make logs
 
 # 3. Access services:
-#    - Frontend: http://localhost:3000
-#    - Backend API: http://localhost:8080/api
-#    - Swagger UI: http://localhost:8080/swagger-ui.html
+#    - Frontend: http://localhost:3001
+#    - Backend API: http://localhost:8081/api
+#    - Swagger UI: http://localhost:8081/swagger-ui.html
 ```
 
 ### 📋 Before Implementing Any Feature

@@ -115,10 +115,10 @@ docker-compose up -d
 
 ### Access the Application
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8080
-- **API Docs**: http://localhost:8080/swagger-ui.html
-- **Database**: localhost:5432
+- **Frontend**: http://localhost:3001
+- **Backend API**: http://localhost:8081
+- **API Docs**: http://localhost:8081/swagger-ui.html
+- **Database**: localhost:5433
 
 ### Running Tests
 
