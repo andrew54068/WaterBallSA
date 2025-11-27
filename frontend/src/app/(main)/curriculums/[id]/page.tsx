@@ -2,6 +2,7 @@ import { curriculumsApi } from '@/lib/api/curriculums'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChapterAccordion } from '@/components/ChapterAccordion'
+import { JoinCourseButton } from '@/components/JoinCourseButton'
 import { GlobeAltIcon, DevicePhoneMobileIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import { Box, Container, Grid, Heading, Text, Flex, Button } from '@chakra-ui/react'
 
@@ -101,18 +102,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
 
               {/* CTA Buttons */}
               <Flex gap={4}>
-                <Button
-                  px={8}
-                  py={3}
-                  bg="accent.yellow"
-                  color="dark.900"
-                  rounded="lg"
-                  fontWeight="bold"
-                  _hover={{ bg: 'accent.yellow-dark' }}
-                  transition="all 0.2s"
-                >
-                  立即加入課程
-                </Button>
+                <JoinCourseButton curriculumId={curriculumId} />
                 {curriculumId === 1 && (
                   <Button
                     px={8}
@@ -185,33 +175,21 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                 <Heading as="h3" fontSize="xl" fontWeight="bold" color="white" mb={4}>課程證書</Heading>
 
                 {/* CTA Button */}
-                <Button
-                  w="full"
-                  px={6}
-                  py={3}
-                  bg="accent.yellow"
-                  color="dark.900"
-                  rounded="lg"
-                  fontWeight="bold"
-                  _hover={{ bg: 'accent.yellow-dark' }}
-                  transition="all 0.2s"
-                >
-                  立即加入課程
-                </Button>
+                <JoinCourseButton curriculumId={curriculumId} fullWidth />
               </Box>
 
               {/* Course Info */}
               <Flex direction="column" gap={4}>
                 <Flex align="center" gap={3} color="white">
-                  <GlobeAltIcon className="w-5 h-5 text-gray-400" />
+                  <GlobeAltIcon width={20} height={20} className="w-4 h-4 text-gray-400" />
                   <Text>中文課程</Text>
                 </Flex>
                 <Flex align="center" gap={3} color="white">
-                  <DevicePhoneMobileIcon className="w-5 h-5 text-gray-400" />
+                  <DevicePhoneMobileIcon width={20} height={20} className="w-4 h-4 text-gray-400" />
                   <Text>支援行動裝置</Text>
                 </Flex>
                 <Flex align="center" gap={3} color="white">
-                  <DocumentTextIcon className="w-5 h-5 text-gray-400" />
+                  <DocumentTextIcon width={20} height={20} className="w-4 h-4 text-gray-400" />
                   <Text>專業的完課認證</Text>
                 </Flex>
               </Flex>
