@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Box, Container, Flex, Heading, Text, Button, Image } from '@chakra-ui/react'
 import { PromotionalBanner } from '@/components/PromotionalBanner'
 
 interface LeaderboardUser {
@@ -73,87 +74,107 @@ export default function LeaderboardPage() {
   const currentRankings = activeTab === 'learning' ? learningRankings : weeklyGrowthRankings
 
   return (
-    <main className="min-h-screen bg-dark-900">
+    <Box as="main" minH="100vh" bg="dark.900">
       {/* Promotional Banner - Only displays when user has coupons */}
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-8 py-12">
+      <Container maxW="5xl" px={8} py={12}>
         {/* Tabs */}
-        <div className="flex gap-4 mb-8">
-          <button
+        <Flex gap={4} mb={8}>
+          <Button
+            px={6}
+            py={3}
+            rounded="lg"
+            fontWeight="bold"
+            fontSize="sm"
             onClick={() => setActiveTab('learning')}
-            className={`px-6 py-3 rounded-lg font-bold text-sm transition-all ${
-              activeTab === 'learning'
-                ? 'bg-accent-yellow text-dark-900'
-                : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-            }`}
+            bg={activeTab === 'learning' ? 'accent.yellow' : 'dark.800'}
+            color={activeTab === 'learning' ? 'dark.900' : 'gray.300'}
+            _hover={{ bg: activeTab === 'learning' ? 'accent.yellow' : 'dark.700' }}
+            transition="all 0.2s"
           >
             學習排行榜
-          </button>
-          <button
+          </Button>
+          <Button
+            px={6}
+            py={3}
+            rounded="lg"
+            fontWeight="bold"
+            fontSize="sm"
             onClick={() => setActiveTab('weekly')}
-            className={`px-6 py-3 rounded-lg font-bold text-sm transition-all ${
-              activeTab === 'weekly'
-                ? 'bg-accent-yellow text-dark-900'
-                : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-            }`}
+            bg={activeTab === 'weekly' ? 'accent.yellow' : 'dark.800'}
+            color={activeTab === 'weekly' ? 'dark.900' : 'gray.300'}
+            _hover={{ bg: activeTab === 'weekly' ? 'accent.yellow' : 'dark.700' }}
+            transition="all 0.2s"
           >
             本週成長榜
-          </button>
-        </div>
+          </Button>
+        </Flex>
 
         {/* Leaderboard List */}
-        <div className="space-y-4">
+        <Flex direction="column" gap={4}>
           {currentRankings.map((user) => (
-            <div
+            <Flex
               key={user.userId}
-              className="bg-dark-800 rounded-2xl p-6 border border-dark-600 hover:border-dark-500 transition-all flex items-center gap-6"
+              bg="dark.800"
+              rounded="2xl"
+              p={6}
+              borderWidth="1px"
+              borderColor="dark.600"
+              _hover={{ borderColor: 'dark.500' }}
+              transition="all 0.2s"
+              align="center"
+              gap={6}
             >
               {/* Rank Number */}
-              <div className="flex-shrink-0 w-20 text-center">
-                <span className="text-5xl font-black text-white/80">
+              <Box flexShrink={0} w="20" textAlign="center">
+                <Text fontSize="5xl" fontWeight="black" color="white" opacity="0.8">
                   {user.rank}
-                </span>
-              </div>
+                </Text>
+              </Box>
 
               {/* Avatar */}
-              <div className="flex-shrink-0">
-                <img
+              <Box flexShrink={0}>
+                <Image
                   src={user.avatar}
                   alt={user.name}
-                  className="w-14 h-14 rounded-full border-2 border-dark-600"
+                  w="14"
+                  h="14"
+                  rounded="full"
+                  borderWidth="2px"
+                  borderColor="dark.600"
                 />
-              </div>
+              </Box>
 
               {/* User Info */}
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-1">
+              <Box flex={1}>
+                <Heading as="h3" fontSize="lg" fontWeight="bold" color="white" mb={1}>
                   {user.name}
-                </h3>
-                <p className="text-sm text-gray-400">
+                </Heading>
+                <Text fontSize="sm" color="gray.400">
                   {user.title}
-                </p>
-              </div>
+                </Text>
+              </Box>
 
               {/* Level Badge */}
-              <div className="flex-shrink-0">
-                <div className="bg-white px-4 py-2 rounded-full">
-                  <span className="text-dark-900 font-bold text-sm">
+              <Box flexShrink={0}>
+                <Box bg="white" px={4} py={2} rounded="full">
+                  <Text color="dark.900" fontWeight="bold" fontSize="sm">
                     Lv.{user.level}
-                  </span>
-                </div>
-              </div>
+                  </Text>
+                </Box>
+              </Box>
 
               {/* EXP Points */}
-              <div className="flex-shrink-0 w-24 text-right">
-                <span className="text-2xl font-bold text-white">
+              <Box flexShrink={0} w="24" textAlign="right">
+                <Text fontSize="2xl" fontWeight="bold" color="white">
                   {user.exp.toLocaleString()}
-                </span>
-              </div>
-            </div>
+                </Text>
+              </Box>
+            </Flex>
           ))}
-        </div>
-      </div>
-    </main>
+        </Flex>
+      </Container>
+    </Box>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Box, Container, Flex, Heading, Text, Button } from '@chakra-ui/react'
 import { ClockIcon, StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 import { LockClosedIcon } from '@heroicons/react/24/solid'
@@ -62,112 +63,130 @@ export default function RoadmapPage() {
   const currentChallenges = activeTab === 'main' ? mainPathChallenges : sidePathChallenges
 
   return (
-    <main className="min-h-screen bg-dark-900">
+    <Box as="main" minH="100vh" bg="dark.900">
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-8 py-12">
+      <Container maxW="5xl" px={8} py={12}>
         {/* Title */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-accent-yellow mb-2">
+        <Box mb={8} textAlign="center">
+          <Heading as="h1" fontSize="4xl" fontWeight="bold" color="accent.yellow" mb={2}>
             軟體設計模式精通之旅
-          </h1>
-          <p className="text-gray-400">挑戰地圖</p>
-        </div>
+          </Heading>
+          <Text color="gray.400">挑戰地圖</Text>
+        </Box>
 
         {/* Progress Stats */}
-        <div className="flex justify-between items-center mb-8 bg-dark-800 rounded-2xl p-6 border border-dark-600">
-          <div className="flex items-center space-x-3">
+        <Flex justify="space-between" align="center" mb={8} bg="dark.800" rounded="2xl" p={6} borderWidth="1px" borderColor="dark.600">
+          <Flex align="center" gap={3}>
             <ClockIcon className="w-6 h-6 text-gray-400" />
-            <span className="text-white font-medium">0 days left</span>
-          </div>
-          <div className="flex items-center space-x-3">
+            <Text color="white" fontWeight="medium">0 days left</Text>
+          </Flex>
+          <Flex align="center" gap={3}>
             <StarIcon className="w-6 h-6 text-gray-400" />
-            <span className="text-white font-medium">0/20 cleared</span>
-          </div>
-          <div className="flex items-center space-x-3">
+            <Text color="white" fontWeight="medium">0/20 cleared</Text>
+          </Flex>
+          <Flex align="center" gap={3}>
             <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
-            <span className="text-white font-medium">0 XP</span>
-          </div>
-        </div>
+            <Text color="white" fontWeight="medium">0 XP</Text>
+          </Flex>
+        </Flex>
 
         {/* Path Tabs */}
-        <div className="flex gap-4 mb-8">
-          <button
+        <Flex gap={4} mb={8}>
+          <Button
+            flex={1}
+            px={6}
+            py={3}
+            rounded="lg"
+            fontWeight="bold"
+            fontSize="sm"
             onClick={() => setActiveTab('main')}
-            className={`flex-1 px-6 py-3 rounded-lg font-bold text-sm transition-all ${
-              activeTab === 'main'
-                ? 'bg-accent-yellow text-dark-900'
-                : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-            }`}
+            bg={activeTab === 'main' ? 'accent.yellow' : 'dark.800'}
+            color={activeTab === 'main' ? 'dark.900' : 'gray.300'}
+            _hover={{ bg: activeTab === 'main' ? 'accent.yellow' : 'dark.700' }}
+            transition="all 0.2s"
           >
             主線
-          </button>
-          <button
+          </Button>
+          <Button
+            flex={1}
+            px={6}
+            py={3}
+            rounded="lg"
+            fontWeight="bold"
+            fontSize="sm"
             onClick={() => setActiveTab('side')}
-            className={`flex-1 px-6 py-3 rounded-lg font-bold text-sm transition-all ${
-              activeTab === 'side'
-                ? 'bg-accent-yellow text-dark-900'
-                : 'bg-dark-800 text-gray-300 hover:bg-dark-700'
-            }`}
+            bg={activeTab === 'side' ? 'accent.yellow' : 'dark.800'}
+            color={activeTab === 'side' ? 'dark.900' : 'gray.300'}
+            _hover={{ bg: activeTab === 'side' ? 'accent.yellow' : 'dark.700' }}
+            transition="all 0.2s"
           >
             支線
-          </button>
-        </div>
+          </Button>
+        </Flex>
 
         {/* Section Header */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex-1 h-px bg-dark-600" />
-            <h2 className="text-lg font-medium text-gray-400">自段道館</h2>
-            <div className="flex-1 h-px bg-dark-600" />
-          </div>
-        </div>
+        <Box mb={8} textAlign="center">
+          <Flex align="center" justify="center" gap={4}>
+            <Box flex={1} h="1px" bg="dark.600" />
+            <Heading as="h2" fontSize="lg" fontWeight="medium" color="gray.400">自段道館</Heading>
+            <Box flex={1} h="1px" bg="dark.600" />
+          </Flex>
+        </Box>
 
         {/* Challenge List */}
-        <div className="space-y-4">
+        <Flex direction="column" gap={4}>
           {currentChallenges.length === 0 ? (
-            <div className="bg-dark-800 rounded-2xl p-8 text-center border border-dark-600">
-              <p className="text-gray-400">目前沒有挑戰</p>
-            </div>
+            <Box bg="dark.800" rounded="2xl" p={8} textAlign="center" borderWidth="1px" borderColor="dark.600">
+              <Text color="gray.400">目前沒有挑戰</Text>
+            </Box>
           ) : (
             currentChallenges.map((challenge) => (
-              <div
+              <Flex
                 key={challenge.id}
-                className="bg-dark-800 rounded-2xl p-6 border border-dark-600 hover:border-dark-500 transition-all flex items-center gap-6"
+                bg="dark.800"
+                rounded="2xl"
+                p={6}
+                borderWidth="1px"
+                borderColor="dark.600"
+                _hover={{ borderColor: 'dark.500' }}
+                transition="all 0.2s"
+                align="center"
+                gap={6}
               >
                 {/* Challenge Number Badge */}
-                <div className="relative flex-shrink-0">
-                  <div className="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center border-2 border-dark-600">
-                    <span className="text-white font-bold text-xl">
+                <Box position="relative" flexShrink={0}>
+                  <Flex w="16" h="16" bg="dark.700" rounded="full" align="center" justify="center" borderWidth="2px" borderColor="dark.600">
+                    <Text color="white" fontWeight="bold" fontSize="xl">
                       {challenge.number}
-                    </span>
-                  </div>
+                    </Text>
+                  </Flex>
                   {challenge.isLocked && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-dark-900 rounded-full flex items-center justify-center">
+                    <Flex position="absolute" top="-1" right="-1" w="6" h="6" bg="dark.900" rounded="full" align="center" justify="center">
                       <LockClosedIcon className="w-4 h-4 text-gray-400" />
-                    </div>
+                    </Flex>
                   )}
-                </div>
+                </Box>
 
                 {/* Challenge Title */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-white">
+                <Box flex={1}>
+                  <Heading as="h3" fontSize="lg" fontWeight="medium" color="white">
                     {challenge.title}
-                  </h3>
-                </div>
+                  </Heading>
+                </Box>
 
                 {/* Star Rating */}
-                <div className="flex-shrink-0 flex items-center space-x-1">
+                <Flex flexShrink={0} align="center" gap={1}>
                   {Array.from({ length: challenge.stars }).map((_, i) => (
                     <StarIconSolid key={i} className="w-5 h-5 text-accent-yellow" />
                   ))}
-                </div>
-              </div>
+                </Flex>
+              </Flex>
             ))
           )}
-        </div>
-      </div>
-    </main>
+        </Flex>
+      </Container>
+    </Box>
   )
 }
