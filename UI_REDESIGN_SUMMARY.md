@@ -64,7 +64,7 @@ Created 5 comprehensive specification documents with Given-When-Then scenarios:
 
 3. **`frontend/src/components/FeaturedCourseCard.tsx`** ✅
    - Enhanced course card for home/courses pages
-   - Purchase status badges (尚未購券, 已購買)
+   - Purchase status badges (尚未購買, 已購買)
    - Coupon banners
    - Multiple CTA buttons (立刻體驗, 立即購買)
    - Provider badges

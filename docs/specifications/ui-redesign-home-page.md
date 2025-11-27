@@ -60,7 +60,7 @@ And each card should display:
 ### Scenario 4: Course Card - Free Trial Offer
 ```gherkin
 Given I am viewing the "軟體設計模式精通之旅" course card
-Then I should see "尚未購券" badge in top right
+Then I should see "尚未購買" badge in top right
 And I should see "你有一張 3,000 折價券" in yellow banner
 And I should see two buttons:
   | Button | Style |
@@ -71,7 +71,7 @@ And I should see two buttons:
 ### Scenario 5: Course Card - Paid Course
 ```gherkin
 Given I am viewing the "AI x BDD" course card
-Then I should see "尚未購券" badge in top right
+Then I should see "尚未購買" badge in top right
 And I should see "立即購買" button (dark outline)
 ```
 

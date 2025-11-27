@@ -45,7 +45,7 @@ And each course card should display:
   | Course image | Hero image/thumbnail |
   | Course title | Full course name |
   | Provider badge | "水球潘" or provider name |
-  | Purchase status badge | "尚未購券" or "已購買" |
+  | Purchase status badge | "尚未購買" or "已購買" |
   | Description | Brief course description |
   | Pricing info | Discount/coupon information if applicable |
   | Action buttons | Purchase or trial buttons |
@@ -54,7 +54,7 @@ And each course card should display:
 ### Scenario 3: Unpurchased Course Card
 ```gherkin
 Given I am viewing an unpurchased course
-Then the card should show "尚未購券" badge in top right
+Then the card should show "尚未購買" badge in top right
 And I should see available actions:
   | Action | Condition |
   | 立刻體驗 | If free trial available (yellow button) |
@@ -74,7 +74,7 @@ And I should see a "開始學習" button instead of "立即購買"
 ### Scenario 5: Paid-Only Course Card
 ```gherkin
 Given I am viewing a paid-only course without free trial
-Then I should see "尚未購券" badge
+Then I should see "尚未購買" badge
 And I should see "立即購買" button (enabled, outline style)
 And there should be no "立刻體驗" button
 ```
@@ -157,7 +157,7 @@ CoursesPage
 ## Design Specifications
 
 ### Colors:
-- Purchase status badge "尚未購券": Yellow/Gold background
+- Purchase status badge "尚未購買": Yellow/Gold background
 - Purchase status badge "已購買": Green background (future)
 - Order history card: Dark background (`#2a2a3e`)
 - Empty state text: Gray (`#a0a0a0`)
