@@ -77,7 +77,7 @@ export default async function CoursesPage() {
           ) : courses.length === 0 ? (
             <EmptyState message="目前沒有課程" />
           ) : (
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={8}>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={8}>
               {courses.map((course) => (
                 <FeaturedCourseCard key={course.id} {...course} />
               ))}

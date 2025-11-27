@@ -34,7 +34,7 @@ export default async function AllCurriculumsPage() {
           ) : curriculums.length === 0 ? (
             <Text color="gray.500">目前沒有可用的課程。</Text>
           ) : (
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={8}>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={8}>
               {curriculums.map((curriculum) => (
                 <CurriculumCard key={curriculum.id} curriculum={curriculum} />
               ))}
