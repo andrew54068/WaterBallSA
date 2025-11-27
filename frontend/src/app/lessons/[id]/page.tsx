@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { Box, Flex, Heading, Text } from '@chakra-ui/react'
 import { lessonsApi } from '@/lib/api/lessons'
 import { chaptersApi } from '@/lib/api/chapters'
 import { curriculumsApi } from '@/lib/api/curriculums'
@@ -52,34 +54,34 @@ export default async function LessonPage({ params }: PageProps) {
     const userHasPurchased = false
 
     return (
-      <div className="flex h-screen bg-dark-900">
+      <Flex h="100vh" bg="dark.900">
         {/* Left Sidebar - 30% */}
-        <div className="w-[30%] border-r border-dark-600">
+        <Box w="30%" borderRight="1px" borderColor="dark.600">
           <LessonSidebar
             chapters={curriculum.chapters}
             currentLessonId={lessonId}
             curriculumId={curriculum.id}
             userHasPurchased={userHasPurchased}
           />
-        </div>
+        </Box>
 
         {/* Right Content Area - 70% */}
-        <div className="w-[70%] overflow-y-auto">
-          <div className="p-8">
+        <Box w="70%" overflowY="auto">
+          <Box p={8}>
             {/* Lesson Header */}
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">
+            <Box mb={6}>
+              <Heading as="h1" fontSize="3xl" fontWeight="bold" color="white" mb={2}>
                 {lesson.title}
-              </h1>
+              </Heading>
               {lesson.description && (
-                <p className="text-gray-400 leading-relaxed">
+                <Text color="gray.400" lineHeight="relaxed">
                   {lesson.description}
-                </p>
+                </Text>
               )}
-            </div>
+            </Box>
 
             {/* Lesson Content - Render based on type */}
-            <div className="mb-8">
+            <Box mb={8}>
               {lesson.lessonType === 'VIDEO' && (
                 <VideoPlayer
                   videoUrl={lesson.contentUrl || ''}
@@ -93,7 +95,7 @@ export default async function LessonPage({ params }: PageProps) {
                   articleUrl={lesson.contentUrl || ''}
                   title={lesson.title}
                   description={lesson.description}
-                  metadata={lesson.contentMetadata}
+                  metadata={lesson.contentMetadata as any}
                   duration={lesson.durationMinutes}
                 />
               )}
@@ -103,14 +105,14 @@ export default async function LessonPage({ params }: PageProps) {
                   surveyPath={lesson.contentUrl || ''}
                   title={lesson.title}
                   description={lesson.description}
-                  metadata={lesson.contentMetadata}
+                  metadata={lesson.contentMetadata as any}
                   duration={lesson.durationMinutes}
                 />
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+            </Box>
+          </Box>
+        </Box>
+      </Flex>
     )
   } catch (error: unknown) {
     console.error('Error loading lesson:', error)
@@ -125,10 +127,12 @@ export default async function LessonPage({ params }: PageProps) {
 
     // Generic error page
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
-        <div className="text-center">
+      <Flex minH="100vh" bg="dark.900" align="center" justify="center" px={4}>
+        <Box textAlign="center">
           <svg
-            className="w-16 h-16 text-red-500 mx-auto mb-4"
+            width="64px"
+            height="64px"
+            style={{ color: 'var(--chakra-colors-red-500)', margin: '0 auto 1rem' }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -140,20 +144,28 @@ export default async function LessonPage({ params }: PageProps) {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <Heading as="h1" fontSize="2xl" fontWeight="bold" color="white" mb={2}>
             Failed to Load Lesson
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          </Heading>
+          <Text color="gray.400" mb={6}>
             There was an error loading this lesson. Please try again.
-          </p>
-          <a
-            href="/"
-            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-          >
-            Go to Home
-          </a>
-        </div>
-      </div>
+          </Text>
+          <Link href="/">
+            <Box
+              display="inline-block"
+              px={6}
+              py={3}
+              bg="blue.600"
+              _hover={{ bg: 'blue.700' }}
+              color="white"
+              rounded="lg"
+              transition="colors 0.2s"
+            >
+              Go to Home
+            </Box>
+          </Link>
+        </Box>
+      </Flex>
     )
   }
 }
