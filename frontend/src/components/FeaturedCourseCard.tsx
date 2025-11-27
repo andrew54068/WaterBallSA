@@ -1,13 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Box, Flex, Text, Badge, Button, createToaster } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+import { Box, Flex, Text, Badge, Button } from "@chakra-ui/react";
 import { useAuth } from "@/lib/auth-context";
-
-const toaster = createToaster({
-  placement: "top",
-  duration: 3000,
-});
+import { LoginModal } from "./LoginModal";
 
 interface FeaturedCourseCardProps {
   id: number;
@@ -40,16 +37,22 @@ export function FeaturedCourseCard({
 }: FeaturedCourseCardProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+
+  // Auto-redirect after successful login
+  useEffect(() => {
+    if (user && pendingRedirect) {
+      router.push(pendingRedirect);
+      setPendingRedirect(null);
+      setIsLoginModalOpen(false);
+    }
+  }, [user, pendingRedirect, router]);
 
   const handleFreeTrialClick = () => {
     if (!user) {
-      toaster.create({
-        title: "請先登入",
-        description: "請先登入後才能體驗課程",
-        type: "warning",
-      });
-      // Scroll to top where login button is
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setPendingRedirect(`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`);
+      setIsLoginModalOpen(true);
       return;
     }
     router.push(`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`);
@@ -57,13 +60,8 @@ export function FeaturedCourseCard({
 
   const handlePurchaseClick = () => {
     if (!user) {
-      toaster.create({
-        title: "請先登入",
-        description: "請先登入後才能購買課程",
-        type: "warning",
-      });
-      // Scroll to top where login button is
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setPendingRedirect(`/curriculums/${id}`);
+      setIsLoginModalOpen(true);
       return;
     }
     router.push(`/curriculums/${id}`);
@@ -132,7 +130,7 @@ export function FeaturedCourseCard({
             bg={isPurchased ? "green.500" : "accent.yellow"}
             color={isPurchased ? "white" : "dark.900"}
           >
-            {isPurchased ? "已購買" : "尚未購券"}
+            {isPurchased ? "已購買" : "尚未購買"}
           </Badge>
         </Box>
       </Box>
@@ -234,6 +232,9 @@ export function FeaturedCourseCard({
           )}
         </Flex>
       </Box>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </Box>
   );
 }
