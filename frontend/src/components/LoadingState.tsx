@@ -1,13 +1,4 @@
-import { Box, Grid, keyframes } from '@chakra-ui/react'
-
-const pulse = keyframes`
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-`
+import { Box, Grid } from '@chakra-ui/react'
 
 export function LoadingState() {
   return (
@@ -20,7 +11,17 @@ export function LoadingState() {
           p={6}
           borderWidth="1px"
           borderColor="dark.600"
-          animation={`${pulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`}
+          css={{
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            '@keyframes pulse': {
+              '0%, 100%': {
+                opacity: 1,
+              },
+              '50%': {
+                opacity: 0.5,
+              },
+            },
+          }}
         >
           <Box h={6} bg="dark.700" rounded="md" mb={4} />
           <Box h={4} bg="dark.700" rounded="md" mb={2} />
