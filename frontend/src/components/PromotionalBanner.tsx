@@ -61,14 +61,15 @@ export function PromotionalBanner({
         </Box>
         <IconButton
           aria-label="Close banner"
-          icon={<XMarkIcon style={{ width: '20px', height: '20px' }} />}
           onClick={() => setIsVisible(false)}
           ml={4}
           size="sm"
           bg="transparent"
           _hover={{ bg: 'dark.700' }}
           transition="background 0.2s"
-        />
+        >
+          <XMarkIcon style={{ width: '20px', height: '20px' }} />
+        </IconButton>
       </Flex>
     </Box>
   )
