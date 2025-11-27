@@ -17,24 +17,21 @@ export default function LessonBreadcrumb({
   chapterTitle,
   lessonTitle,
 }: LessonBreadcrumbProps) {
+  const SeparatorIcon = () => (
+    <Icon viewBox="0 0 24 24" boxSize={4} color="gray.600" flexShrink={0}>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5l7 7-7 7"
+      />
+    </Icon>
+  )
+
   return (
-    <Breadcrumb.Root
-      separator={
-        <Icon viewBox="0 0 24 24" boxSize={4} color="gray.600" flexShrink={0}>
-          <path
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </Icon>
-      }
-      fontSize="sm"
-      mb={6}
-      overflowX="auto"
-    >
+    <Breadcrumb.Root fontSize="sm" mb={6} overflowX="auto">
       {/* Curriculum Link */}
       <Breadcrumb.Item>
         <Breadcrumb.Link
@@ -49,6 +46,10 @@ export default function LessonBreadcrumb({
         </Breadcrumb.Link>
       </Breadcrumb.Item>
 
+      <Breadcrumb.Separator>
+        <SeparatorIcon />
+      </Breadcrumb.Separator>
+
       {/* Chapter (non-clickable) */}
       <Breadcrumb.Item>
         <Text
@@ -61,9 +62,13 @@ export default function LessonBreadcrumb({
         </Text>
       </Breadcrumb.Item>
 
+      <Breadcrumb.Separator>
+        <SeparatorIcon />
+      </Breadcrumb.Separator>
+
       {/* Current Lesson (non-clickable, bold) */}
-      <Breadcrumb.Item isCurrentPage>
-        <Text
+      <Breadcrumb.Item>
+        <Breadcrumb.CurrentLink
           color="white"
           fontWeight="semibold"
           whiteSpace="nowrap"
@@ -71,7 +76,7 @@ export default function LessonBreadcrumb({
           maxW={{ base: '200px', md: 'none' }}
         >
           {lessonTitle}
-        </Text>
+        </Breadcrumb.CurrentLink>
       </Breadcrumb.Item>
     </Breadcrumb.Root>
   )
