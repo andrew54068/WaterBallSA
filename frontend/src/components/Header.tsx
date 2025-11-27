@@ -1,14 +1,16 @@
 'use client'
 
 import { useAuth } from '@/lib/auth-context'
+import { useCurriculum } from '@/lib/curriculum-context'
 import { GoogleLoginButton } from './GoogleLoginButton'
 import { Logo } from './Logo'
 import { Bars3Icon } from '@heroicons/react/24/solid'
 import { useState } from 'react'
-import { Box, Flex, Button, Image, Text } from '@chakra-ui/react'
+import { Box, Flex, Button, Image, Text, Select, createListCollection } from '@chakra-ui/react'
 
 export function Header() {
   const { user, isLoading, logout } = useAuth()
+  const { curriculums, selectedCurriculum, setSelectedCurriculum, isLoading: curriculumsLoading } = useCurriculum()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Debug logging
@@ -23,6 +25,11 @@ export function Header() {
     await logout()
     console.log('[Header] Logout complete')
   }
+
+  // Create collection for Select component
+  const curriculumCollection = createListCollection({
+    items: curriculums.map(c => ({ value: c.id.toString(), label: c.title })),
+  })
 
   return (
     <Box
@@ -66,22 +73,65 @@ export function Header() {
         <Flex flex={1} align="center" justify="space-between" px={6}>
           {/* Page Title / Breadcrumb */}
           <Flex align="center" gap={4}>
-            <Box
-              as="select"
-              bg="dark.700"
-              color="white"
-              px={4}
-              py={2}
-              borderRadius="lg"
-              fontSize="sm"
-              fontWeight="medium"
-              borderWidth="1px"
-              borderColor="dark.600"
-              _focus={{ ring: 2, ringColor: 'accent.yellow' }}
-            >
-              <option>軟體設計模式精通之旅</option>
-              <option>AI x BDD：規格驅動全自動開發術</option>
-            </Box>
+            {curriculumsLoading ? (
+              <Box h="40px" w="300px" bg="dark.700" borderRadius="lg" className="animate-pulse" />
+            ) : (
+              <Select.Root
+                collection={curriculumCollection}
+                value={[selectedCurriculum?.id.toString() || '']}
+                onValueChange={(details) => {
+                  const curriculumId = details.value[0]
+                  const curriculum = curriculums.find(c => c.id.toString() === curriculumId)
+                  if (curriculum) {
+                    setSelectedCurriculum(curriculum)
+                  }
+                }}
+                size="sm"
+              >
+                <Select.Trigger
+                  pl="10px"
+                  pr="8px"
+                  minW="300px"
+                  bg="dark.700"
+                  color="white"
+                  borderRadius="lg"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  borderWidth="1px"
+                  borderColor="dark.600"
+                  _focus={{ ring: 2, ringColor: 'accent.yellow' }}
+                >
+                  <Select.ValueText placeholder="選擇課程" />
+                </Select.Trigger>
+                <Select.Positioner>
+                  <Select.Content
+                    p="5px"
+                    bg="dark.700"
+                    borderColor="dark.600"
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    maxH="300px"
+                    minW="300px"
+                    overflowY="auto"
+                    shadow="xl"
+                  >
+                    {curriculums.map((curriculum) => (
+                      <Select.Item
+                        key={curriculum.id}
+                        item={{ label: curriculum.title, value: curriculum.id.toString() }}
+                        color="white"
+                        _hover={{ bg: 'dark.600' }}
+                        px="10px"
+                        py="8px"
+                        cursor="pointer"
+                      >
+                        {curriculum.title}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Select.Root>
+            )}
           </Flex>
 
           {/* Auth Section */}
