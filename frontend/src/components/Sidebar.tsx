@@ -83,14 +83,13 @@ export function Sidebar() {
                       />
                     )}
 
-                    <Icon
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        marginRight: '12px',
-                        position: 'relative',
-                        zIndex: 10,
-                      }}
+                    <Box
+                      as={Icon}
+                      w="20px"
+                      h="20px"
+                      mr="12px"
+                      position="relative"
+                      zIndex={10}
                     />
                     <Text position="relative" zIndex={10}>
                       {item.name}
