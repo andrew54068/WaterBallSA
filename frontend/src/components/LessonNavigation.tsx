@@ -139,11 +139,10 @@ export default function LessonNavigation({ currentLessonId, lessons, curriculumI
               align="center"
               gap={3}
               p={4}
-              bg="blue.900"
-              bgOpacity={0.2}
-              _hover={{ bgOpacity: 0.3 }}
+              bg="blue.900/20"
+              _hover={{ bg: 'blue.900/30' }}
               borderRadius="lg"
-              transition="background-opacity 0.2s"
+              transition="background 0.2s"
               role="group"
               h="full"
             >
