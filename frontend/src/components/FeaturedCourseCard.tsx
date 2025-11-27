@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link'
+import { Box, Flex, Text, Badge, Button } from '@chakra-ui/react'
 
 interface FeaturedCourseCardProps {
-  id: number;
-  title: string;
-  provider: string;
-  description: string;
-  image: string;
-  hasCoupon?: boolean;
-  couponValue?: number;
-  isPurchased?: boolean;
-  hasFreeTrial?: boolean;
-  isPaidOnly?: boolean;
-  firstFreeLessonIndex?: number;
-  firstFreeChapterIndex?: number;
+  id: number
+  title: string
+  provider: string
+  description: string
+  image: string
+  hasCoupon?: boolean
+  couponValue?: number
+  isPurchased?: boolean
+  hasFreeTrial?: boolean
+  isPaidOnly?: boolean
+  firstFreeLessonIndex?: number
+  firstFreeChapterIndex?: number
 }
 
 export function FeaturedCourseCard({
@@ -33,88 +33,161 @@ export function FeaturedCourseCard({
   firstFreeChapterIndex,
 }: FeaturedCourseCardProps) {
   return (
-    <div className="relative bg-dark-800 rounded-2xl overflow-hidden border-2 border-accent-yellow/30 hover:border-accent-yellow transition-all duration-300 group">
+    <Box
+      role="group"
+      position="relative"
+      bg="dark.800"
+      borderRadius="2xl"
+      overflow="hidden"
+      borderWidth="2px"
+      borderColor="accent.yellow"
+      opacity={0.3}
+      transition="all 0.3s"
+      _hover={{ borderColor: 'accent.yellow' }}
+    >
       {/* Hero Image */}
-      <div className="relative h-64 bg-gradient-to-br from-dark-700 to-dark-900 overflow-hidden">
+      <Box position="relative" h="256px" bgGradient="linear(to-br, dark.700, dark.900)" overflow="hidden">
         {image && (
-          <div className="w-full h-full flex items-center justify-center p-8">
-            <div className="relative w-full h-full">
+          <Flex w="full" h="full" align="center" justify="center" p={8}>
+            <Box position="relative" w="full" h="full">
               {/* Placeholder for course hero visual */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-20" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl mb-4">🎯</div>
-                  <h4 className="text-2xl font-bold text-white mb-2">
+              <Box
+                position="absolute"
+                inset={0}
+                bgGradient="linear(to-br, blue.600, purple.600, pink.600)"
+                opacity={0.2}
+              />
+              <Flex position="absolute" inset={0} align="center" justify="center">
+                <Box textAlign="center">
+                  <Text fontSize="4xl" mb={4}>
+                    🎯
+                  </Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="white" mb={2}>
                     {title.substring(0, 10)}...
-                  </h4>
-                  <p className="text-sm text-gray-300">{provider}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+                  </Text>
+                  <Text fontSize="sm" color="gray.300">
+                    {provider}
+                  </Text>
+                </Box>
+              </Flex>
+            </Box>
+          </Flex>
         )}
 
         {/* Status Badge */}
-        <div className="absolute top-4 right-4">
-          <span
-            className={`px-4 py-1.5 rounded-full text-xs font-bold ${
-              isPurchased
-                ? "bg-green-500 text-white"
-                : "bg-accent-yellow text-dark-900"
-            }`}
+        <Box position="absolute" top={4} right={4}>
+          <Badge
+            px={4}
+            py={1.5}
+            borderRadius="full"
+            fontSize="xs"
+            fontWeight="bold"
+            colorScheme={isPurchased ? 'green' : undefined}
+            bg={isPurchased ? 'green.500' : 'accent.yellow'}
+            color={isPurchased ? 'white' : 'dark.900'}
           >
-            {isPurchased ? "已購買" : "尚未購券"}
-          </span>
-        </div>
-      </div>
+            {isPurchased ? '已購買' : '尚未購券'}
+          </Badge>
+        </Box>
+      </Box>
 
       {/* Content */}
-      <div className="p-6">
+      <Box p={6}>
         {/* Title */}
-        <h3 className="text-2xl font-bold text-white mb-3 leading-tight">
+        <Text fontSize="2xl" fontWeight="bold" color="white" mb={3} lineHeight="tight">
           {title}
-        </h3>
+        </Text>
 
         {/* Provider Badge */}
-        <div className="inline-flex items-center px-3 py-1.5 bg-accent-yellow/20 border border-accent-yellow/40 rounded-full mb-4">
-          <span className="text-accent-yellow font-semibold text-sm">
+        <Box
+          display="inline-flex"
+          alignItems="center"
+          px={3}
+          py={1.5}
+          bg="rgba(247, 179, 43, 0.2)"
+          borderWidth="1px"
+          borderColor="rgba(247, 179, 43, 0.4)"
+          borderRadius="full"
+          mb={4}
+        >
+          <Text color="accent.yellow" fontWeight="semibold" fontSize="sm">
             {provider}
-          </span>
-        </div>
+          </Text>
+        </Box>
 
         {/* Description */}
-        <p className="text-gray-300 text-sm mb-6 line-clamp-2">{description}</p>
+        <Text color="gray.300" fontSize="sm" mb={6} lineClamp={2}>
+          {description}
+        </Text>
 
         {/* Coupon Banner */}
         {hasCoupon && couponValue && (
-          <div className="mb-4 p-3 bg-accent-yellow/10 border border-accent-yellow/30 rounded-lg">
-            <p className="text-accent-yellow text-sm font-bold text-center">
+          <Box
+            mb={4}
+            p={3}
+            bg="rgba(247, 179, 43, 0.1)"
+            borderWidth="1px"
+            borderColor="rgba(247, 179, 43, 0.3)"
+            borderRadius="lg"
+          >
+            <Text color="accent.yellow" fontSize="sm" fontWeight="bold" textAlign="center">
               你有一張 {couponValue.toLocaleString()} 折價券
-            </p>
-          </div>
+            </Text>
+          </Box>
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <Flex gap={3}>
           {hasFreeTrial ? (
             <Link
               href={`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`}
-              className="flex-1 px-6 py-3 bg-accent-yellow text-dark-900 rounded-lg font-bold text-center hover:bg-accent-yellow-dark transition-all"
+              style={{ flex: 1, textDecoration: 'none' }}
             >
-              立刻體驗
+              <Button
+                w="full"
+                px={6}
+                py={3}
+                bg="accent.yellow"
+                color="dark.900"
+                borderRadius="lg"
+                fontWeight="bold"
+                _hover={{ bg: 'accent.yellow-dark' }}
+                transition="all 0.2s"
+              >
+                立刻體驗
+              </Button>
             </Link>
           ) : (
             <Link
               href={`/curriculums/${id}`}
-              className={`${
-                hasFreeTrial || isPaidOnly ? "flex-1" : "w-full"
-              } px-6 py-3 bg-transparent border-2 border-white/30 text-white rounded-lg font-bold text-center hover:bg-white/10 hover:border-white/50 transition-all`}
+              style={{
+                flex: hasFreeTrial || isPaidOnly ? 1 : undefined,
+                width: hasFreeTrial || isPaidOnly ? undefined : '100%',
+                textDecoration: 'none',
+              }}
             >
-              立即購買
+              <Button
+                w="full"
+                px={6}
+                py={3}
+                bg="transparent"
+                borderWidth="2px"
+                borderColor="rgba(255, 255, 255, 0.3)"
+                color="white"
+                borderRadius="lg"
+                fontWeight="bold"
+                _hover={{
+                  bg: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                }}
+                transition="all 0.2s"
+              >
+                立即購買
+              </Button>
             </Link>
           )}
-        </div>
-      </div>
-    </div>
-  );
+        </Flex>
+      </Box>
+    </Box>
+  )
 }

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { Breadcrumb, Text, Icon } from '@chakra-ui/react'
 
 interface LessonBreadcrumbProps {
   curriculumId: number
@@ -17,54 +18,61 @@ export default function LessonBreadcrumb({
   lessonTitle,
 }: LessonBreadcrumbProps) {
   return (
-    <nav className="flex items-center space-x-2 text-sm mb-6 overflow-x-auto">
+    <Breadcrumb.Root
+      separator={
+        <Icon viewBox="0 0 24 24" boxSize={4} color="gray.600" flexShrink={0}>
+          <path
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </Icon>
+      }
+      fontSize="sm"
+      mb={6}
+      overflowX="auto"
+    >
       {/* Curriculum Link */}
-      <Link
-        href={`/curriculums/${curriculumId}`}
-        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline transition-colors whitespace-nowrap"
-      >
-        {curriculumTitle}
-      </Link>
-
-      {/* Separator */}
-      <svg
-        className="w-4 h-4 text-gray-400 dark:text-gray-600 flex-shrink-0"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 5l7 7-7 7"
-        />
-      </svg>
+      <Breadcrumb.Item>
+        <Breadcrumb.Link
+          as={Link}
+          href={`/curriculums/${curriculumId}`}
+          color="blue.400"
+          _hover={{ color: 'blue.300', textDecoration: 'underline' }}
+          transition="color 0.2s"
+          whiteSpace="nowrap"
+        >
+          {curriculumTitle}
+        </Breadcrumb.Link>
+      </Breadcrumb.Item>
 
       {/* Chapter (non-clickable) */}
-      <span className="text-gray-600 dark:text-gray-400 whitespace-nowrap truncate max-w-[200px] md:max-w-none">
-        {chapterTitle}
-      </span>
-
-      {/* Separator */}
-      <svg
-        className="w-4 h-4 text-gray-400 dark:text-gray-600 flex-shrink-0"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 5l7 7-7 7"
-        />
-      </svg>
+      <Breadcrumb.Item>
+        <Text
+          color="gray.400"
+          whiteSpace="nowrap"
+          lineClamp={1}
+          maxW={{ base: '200px', md: 'none' }}
+        >
+          {chapterTitle}
+        </Text>
+      </Breadcrumb.Item>
 
       {/* Current Lesson (non-clickable, bold) */}
-      <span className="text-gray-900 dark:text-white font-semibold whitespace-nowrap truncate max-w-[200px] md:max-w-none">
-        {lessonTitle}
-      </span>
-    </nav>
+      <Breadcrumb.Item isCurrentPage>
+        <Text
+          color="white"
+          fontWeight="semibold"
+          whiteSpace="nowrap"
+          lineClamp={1}
+          maxW={{ base: '200px', md: 'none' }}
+        >
+          {lessonTitle}
+        </Text>
+      </Breadcrumb.Item>
+    </Breadcrumb.Root>
   )
 }
