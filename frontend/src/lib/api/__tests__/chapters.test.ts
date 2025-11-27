@@ -28,7 +28,6 @@ describe('chaptersApi', () => {
         title: 'Test Chapter',
         description: 'Test Description',
         orderIndex: 1,
-        isPublished: true,
         createdAt: '2024-01-01T00:00:00Z',
         lessons: [],
       }
@@ -56,7 +55,6 @@ describe('chaptersApi', () => {
         curriculumId: 5,
         title: 'Advanced Topics',
         orderIndex: 10,
-        isPublished: true,
         createdAt: '2024-01-01T00:00:00Z',
         lessons: [],
       }
@@ -75,7 +73,6 @@ describe('chaptersApi', () => {
         curriculumId: 1,
         title: 'Test Chapter',
         orderIndex: 1,
-        isPublished: true,
         createdAt: '2024-01-01T00:00:00Z',
         lessons: [
           {
@@ -107,7 +104,6 @@ describe('chaptersApi', () => {
           curriculumId: 1,
           title: 'Chapter 1',
           orderIndex: 1,
-          isPublished: true,
           createdAt: '2024-01-01T00:00:00Z',
           lessons: [],
         },
@@ -116,7 +112,6 @@ describe('chaptersApi', () => {
           curriculumId: 1,
           title: 'Chapter 2',
           orderIndex: 2,
-          isPublished: true,
           createdAt: '2024-01-02T00:00:00Z',
           lessons: [],
         },
@@ -157,7 +152,6 @@ describe('chaptersApi', () => {
           curriculumId: 5,
           title: 'Advanced Chapter',
           orderIndex: 1,
-          isPublished: true,
           createdAt: '2024-01-01T00:00:00Z',
           lessons: [],
         },
@@ -178,7 +172,6 @@ describe('chaptersApi', () => {
           curriculumId: 1,
           title: 'Chapter 1',
           orderIndex: 1,
-          isPublished: true,
           createdAt: '2024-01-01T00:00:00Z',
           lessons: [
             {
@@ -266,7 +259,6 @@ describe('chaptersApi', () => {
         curriculumId: 1,
         title: 'Test Chapter',
         orderIndex: 1,
-        isPublished: true,
         createdAt: '2024-01-01T00:00:00Z',
         lessons: [],
       }
