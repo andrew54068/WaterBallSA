@@ -38,6 +38,22 @@ services:
       - waterballsa-network
     command: redis-server --appendonly yes
 
+  # Adminer Database Management
+  adminer:
+    image: adminer:latest
+    container_name: waterballsa-adminer
+    ports:
+      - "8083:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: nette
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - waterballsa-network
+    restart: unless-stopped
+
   # Backend Spring Boot Application
   backend:
     build:
@@ -87,8 +103,8 @@ services:
       - waterballsa-network
     volumes:
       - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+      # - /app/node_modules
+      # - /app/.next
     restart: unless-stopped
 
 volumes:
