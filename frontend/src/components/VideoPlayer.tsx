@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, createElement } from 'react'
 import ReactPlayer from 'react-player'
 import { Box, Flex, Text, Button, Icon } from '@chakra-ui/react'
 
@@ -116,30 +116,30 @@ export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerPr
         )}
 
         {/* React Player */}
-        <ReactPlayer
-          url={videoUrl}
-          controls
-          width="100%"
-          height="100%"
-          playing={playing}
-          onReady={handleReady}
-          onError={handleError}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          config={{
+        {createElement(ReactPlayer as any, {
+          url: videoUrl,
+          controls: true,
+          width: '100%',
+          height: '100%',
+          playing: playing,
+          onReady: handleReady,
+          onError: handleError,
+          onPlay: () => setPlaying(true),
+          onPause: () => setPlaying(false),
+          config: {
             youtube: {
               playerVars: {
                 modestbranding: 1,
                 rel: 0,
               },
             },
-          }}
-          style={{
+          },
+          style: {
             position: 'absolute',
             top: 0,
             left: 0,
-          }}
-        />
+          },
+        })}
       </Box>
 
       {/* Video metadata */}
