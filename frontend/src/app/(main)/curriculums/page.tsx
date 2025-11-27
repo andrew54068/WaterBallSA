@@ -1,3 +1,4 @@
+import { Box, Container, Grid, Heading, Text } from '@chakra-ui/react'
 import { curriculumsApi } from '@/lib/api/curriculums'
 import { CurriculumCard } from '@/components/CurriculumCard'
 import { Curriculum } from '@/types'
@@ -15,32 +16,32 @@ export default async function AllCurriculumsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-dark-900">
+    <Box as="main" minH="100vh" bg="dark.900">
 
       {/* Page Header */}
-      <section className="py-12 px-8">
-        <div className="max-w-7xl mx-auto mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">所有單元</h1>
-          <p className="text-gray-400">瀏覽所有可用的課程</p>
-        </div>
+      <Box as="section" py={12} px={8}>
+        <Container maxW="7xl" mb={8}>
+          <Heading as="h1" fontSize="4xl" fontWeight="bold" color="white" mb={2}>所有單元</Heading>
+          <Text color="gray.400">瀏覽所有可用的課程</Text>
+        </Container>
 
-        <div className="max-w-7xl mx-auto">
+        <Container maxW="7xl">
           {error ? (
-            <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-6 py-4 rounded-lg">
-              <p className="font-bold">Error loading courses</p>
-              <p>{error}</p>
-            </div>
+            <Box bg="red.900" opacity="0.2" borderWidth="1px" borderColor="red.500" color="red.400" px={6} py={4} rounded="lg">
+              <Text fontWeight="bold">Error loading courses</Text>
+              <Text>{error}</Text>
+            </Box>
           ) : curriculums.length === 0 ? (
-            <p className="text-gray-500">目前沒有可用的課程。</p>
+            <Text color="gray.500">目前沒有可用的課程。</Text>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={8}>
               {curriculums.map((curriculum) => (
                 <CurriculumCard key={curriculum.id} curriculum={curriculum} />
               ))}
-            </div>
+            </Grid>
           )}
-        </div>
-      </section>
-    </main>
+        </Container>
+      </Box>
+    </Box>
   )
 }

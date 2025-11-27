@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChapterAccordion } from '@/components/ChapterAccordion'
 import { GlobeAltIcon, DevicePhoneMobileIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
+import { Box, Container, Grid, Heading, Text, Flex, Button } from '@chakra-ui/react'
 
 interface PageProps {
   params: {
@@ -33,17 +34,28 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-dark-900 py-8">
-        <div className="container mx-auto px-4">
-          <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-6 py-4 rounded-lg">
-            <p className="font-bold">Error loading curriculum</p>
-            <p>{error}</p>
-          </div>
-          <Link href="/" className="text-accent-yellow hover:underline mt-4 inline-block">
-            ← Back to Home
+      <Box as="main" minH="100vh" bg="dark.900" py={8}>
+        <Container maxW="7xl" px={4}>
+          <Box
+            bg="red.900"
+            opacity="0.2"
+            borderWidth="1px"
+            borderColor="red.500"
+            color="red.400"
+            px={6}
+            py={4}
+            rounded="lg"
+          >
+            <Text fontWeight="bold">Error loading curriculum</Text>
+            <Text>{error}</Text>
+          </Box>
+          <Link href="/" style={{ marginTop: '1rem', display: 'inline-block' }}>
+            <Text color="accent.yellow" _hover={{ textDecoration: 'underline' }}>
+              ← Back to Home
+            </Text>
           </Link>
-        </div>
-      </main>
+        </Container>
+      </Box>
     )
   }
 
@@ -53,102 +65,160 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
   )
 
   return (
-    <main className="min-h-screen bg-dark-900">
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <Box as="main" minH="100vh" bg="dark.900">
+      <Container maxW="7xl" px={8} py={12}>
+        <Grid templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }} gap={12}>
           {/* Main Content - Left Column */}
-          <div className="lg:col-span-2">
+          <Box gridColumn={{ base: '1', lg: 'span 2' }}>
             {/* Hero Section */}
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
+            <Box mb={12}>
+              <Heading
+                as="h1"
+                fontSize={{ base: '4xl', md: '5xl' }}
+                fontWeight="black"
+                color="white"
+                mb={6}
+                lineHeight="tight"
+              >
                 {curriculum!.title}
-              </h1>
+              </Heading>
 
-              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+              <Text fontSize="lg" color="gray.300" mb={6} lineHeight="relaxed">
                 {curriculum!.description}
-              </p>
+              </Text>
 
               {/* Stats */}
-              <div className="flex items-center space-x-6 mb-8 text-gray-400">
-                <div className="flex items-center space-x-2">
-                  <span>📹</span>
-                  <span>{totalVideos} 部影片</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span>⏱️</span>
-                  <span>大量實戰題</span>
-                </div>
-              </div>
+              <Flex align="center" gap={6} mb={8} color="gray.400">
+                <Flex align="center" gap={2}>
+                  <Text>📹</Text>
+                  <Text>{totalVideos} 部影片</Text>
+                </Flex>
+                <Flex align="center" gap={2}>
+                  <Text>⏱️</Text>
+                  <Text>大量實戰題</Text>
+                </Flex>
+              </Flex>
 
               {/* CTA Buttons */}
-              <div className="flex gap-4">
-                <button className="px-8 py-3 bg-accent-yellow text-dark-900 rounded-lg font-bold hover:bg-accent-yellow-dark transition-all">
+              <Flex gap={4}>
+                <Button
+                  px={8}
+                  py={3}
+                  bg="accent.yellow"
+                  color="dark.900"
+                  rounded="lg"
+                  fontWeight="bold"
+                  _hover={{ bg: 'accent.yellow-dark' }}
+                  transition="all 0.2s"
+                >
                   立即加入課程
-                </button>
+                </Button>
                 {curriculumId === 1 && (
-                  <button className="px-8 py-3 bg-transparent border-2 border-accent-yellow text-accent-yellow rounded-lg font-bold hover:bg-accent-yellow/10 transition-all">
+                  <Button
+                    px={8}
+                    py={3}
+                    bg="transparent"
+                    borderWidth="2px"
+                    borderColor="accent.yellow"
+                    color="accent.yellow"
+                    rounded="lg"
+                    fontWeight="bold"
+                    _hover={{ bg: 'accent.yellow', opacity: 0.1 }}
+                    transition="all 0.2s"
+                  >
                     預約 1v1 諮詢
-                  </button>
+                  </Button>
                 )}
-              </div>
-            </div>
+              </Flex>
+            </Box>
 
             {/* Chapter Accordion */}
-            <div>
+            <Box>
               <ChapterAccordion chapters={curriculum!.chapters} curriculumId={curriculumId} />
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           {/* Sidebar - Right Column */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 space-y-8">
+          <Box gridColumn={{ base: '1', lg: 'span 1' }}>
+            <Box position="sticky" top={8} display="flex" flexDirection="column" gap={8}>
               {/* Certificate Card */}
-              <div className="bg-dark-800 rounded-2xl p-6 border border-dark-600">
+              <Box bg="dark.800" rounded="2xl" p={6} borderWidth="1px" borderColor="dark.600">
                 {/* Certificate Image */}
-                <div className="mb-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-8 aspect-[4/3] flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="mb-3">
-                      <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <span className="text-3xl">🎓</span>
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">CERTIFICATE</h3>
-                    <h4 className="text-lg font-bold mb-3">OF ACHIEVEMENT</h4>
-                    <p className="text-sm opacity-80 mb-2">This certifies that</p>
-                    <p className="font-bold text-lg mb-2">John Doe</p>
-                    <p className="text-xs opacity-70">has successfully completed</p>
-                    <p className="text-sm font-semibold mt-2">{curriculum!.title.substring(0, 20)}...</p>
-                  </div>
-                </div>
+                <Box
+                  mb={6}
+                  bgGradient="to-br"
+                  gradientFrom="blue.400"
+                  gradientTo="blue.600"
+                  rounded="xl"
+                  p={8}
+                  aspectRatio="4/3"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Box textAlign="center" color="white">
+                    <Box mb={3}>
+                      <Flex
+                        w="64px"
+                        h="64px"
+                        bg="white"
+                        opacity="0.2"
+                        rounded="full"
+                        mx="auto"
+                        mb={4}
+                        align="center"
+                        justify="center"
+                      >
+                        <Text fontSize="3xl">🎓</Text>
+                      </Flex>
+                    </Box>
+                    <Heading as="h3" fontSize="xl" fontWeight="bold" mb={2}>CERTIFICATE</Heading>
+                    <Heading as="h4" fontSize="lg" fontWeight="bold" mb={3}>OF ACHIEVEMENT</Heading>
+                    <Text fontSize="sm" opacity="0.8" mb={2}>This certifies that</Text>
+                    <Text fontWeight="bold" fontSize="lg" mb={2}>John Doe</Text>
+                    <Text fontSize="xs" opacity="0.7">has successfully completed</Text>
+                    <Text fontSize="sm" fontWeight="semibold" mt={2}>{curriculum!.title.substring(0, 20)}...</Text>
+                  </Box>
+                </Box>
 
                 {/* Heading */}
-                <h3 className="text-xl font-bold text-white mb-4">課程證書</h3>
+                <Heading as="h3" fontSize="xl" fontWeight="bold" color="white" mb={4}>課程證書</Heading>
 
                 {/* CTA Button */}
-                <button className="w-full px-6 py-3 bg-accent-yellow text-dark-900 rounded-lg font-bold hover:bg-accent-yellow-dark transition-all">
+                <Button
+                  w="full"
+                  px={6}
+                  py={3}
+                  bg="accent.yellow"
+                  color="dark.900"
+                  rounded="lg"
+                  fontWeight="bold"
+                  _hover={{ bg: 'accent.yellow-dark' }}
+                  transition="all 0.2s"
+                >
                   立即加入課程
-                </button>
-              </div>
+                </Button>
+              </Box>
 
               {/* Course Info */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 text-white">
+              <Flex direction="column" gap={4}>
+                <Flex align="center" gap={3} color="white">
                   <GlobeAltIcon className="w-5 h-5 text-gray-400" />
-                  <span>中文課程</span>
-                </div>
-                <div className="flex items-center space-x-3 text-white">
+                  <Text>中文課程</Text>
+                </Flex>
+                <Flex align="center" gap={3} color="white">
                   <DevicePhoneMobileIcon className="w-5 h-5 text-gray-400" />
-                  <span>支援行動裝置</span>
-                </div>
-                <div className="flex items-center space-x-3 text-white">
+                  <Text>支援行動裝置</Text>
+                </Flex>
+                <Flex align="center" gap={3} color="white">
                   <DocumentTextIcon className="w-5 h-5 text-gray-400" />
-                  <span>專業的完課認證</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+                  <Text>專業的完課認證</Text>
+                </Flex>
+              </Flex>
+            </Box>
+          </Box>
+        </Grid>
+      </Container>
+    </Box>
   )
 }
