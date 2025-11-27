@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { useState, useEffect, useRef } from 'react'
+import { Box, Text } from '@chakra-ui/react'
 
 // Google Identity Services types
 interface GoogleCredentialResponse {
@@ -142,19 +143,24 @@ export function GoogleLoginButton() {
   }, [login])
 
   return (
-    <div className="relative">
+    <Box position="relative">
       {/* Wrapper with yellow accent styling */}
-      <div className={`
-        rounded-lg overflow-hidden
-        ring-2 ring-accent-yellow/50 hover:ring-accent-yellow
-        transition-all duration-200
-        ${isLoading ? 'opacity-50 pointer-events-none' : ''}
-      `}>
+      <Box
+        borderRadius="lg"
+        overflow="hidden"
+        borderWidth="2px"
+        borderColor="accent.yellow"
+        borderStyle="solid"
+        opacity={isLoading ? 0.5 : 1}
+        pointerEvents={isLoading ? 'none' : 'auto'}
+        _hover={{ borderColor: 'accent.yellow' }}
+        transition="all 0.2s"
+      >
         <div ref={buttonRef} />
-      </div>
+      </Box>
       {error && (
-        <p className="text-red-400 text-sm mt-2">{error}</p>
+        <Text color="red.400" fontSize="sm" mt={2}>{error}</Text>
       )}
-    </div>
+    </Box>
   )
 }

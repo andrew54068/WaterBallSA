@@ -10,6 +10,7 @@ import {
   MapIcon,
   BookOpenIcon
 } from '@heroicons/react/24/outline'
+import { Box, Flex, Text, VStack, List } from '@chakra-ui/react'
 
 interface NavItem {
   name: string
@@ -30,64 +31,84 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-dark-800 border-r border-dark-600 flex flex-col z-0">
-      {/* Logo */}
-      <div className="flex items-center h-16 px-6 border-b border-dark-600">
-        <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 bg-gradient-to-br from-accent-yellow to-accent-yellow-dark rounded-lg flex items-center justify-center">
-            <span className="text-dark-900 font-bold text-lg">水</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-white font-bold text-sm leading-tight">水球軟體學院</span>
-            <span className="text-xs text-accent-yellow font-medium">WATERBALLSA.TW</span>
-          </div>
-        </Link>
-      </div>
-
+    <Box
+      as="aside"
+      position="fixed"
+      left={0}
+      top="64px"
+      h="calc(100vh - 64px)"
+      w="256px"
+      bg="dark.800"
+      borderRight="1px solid"
+      borderColor="dark.600"
+      display="flex"
+      flexDirection="column"
+      zIndex={40}
+    >
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-6">
-        <ul className="space-y-1">
+      <Box as="nav" flex={1} px={3} py={6}>
+        <List.Root as="ul" gap={1} display="flex" flexDirection="column">
           {navigation.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
 
             return (
-              <li key={item.name}>
-                <Link
-                  href={item.href}
-                  className={`
-                    flex items-center px-4 py-3 rounded-lg
-                    text-sm font-medium transition-all duration-200
-                    group relative overflow-hidden
-                    ${isActive
-                      ? 'bg-accent-yellow text-dark-900 shadow-lg'
-                      : 'text-gray-300 hover:bg-dark-700 hover:text-white'
-                    }
-                  `}
-                >
-                  {/* Active indicator */}
-                  {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-accent-yellow to-accent-yellow-dark opacity-100" />
-                  )}
+              <List.Item key={item.name} listStyleType="none">
+                <Link href={item.href} style={{ textDecoration: 'none' }}>
+                  <Flex
+                    align="center"
+                    px={4}
+                    py={3}
+                    borderRadius="lg"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    transition="all 0.2s"
+                    position="relative"
+                    overflow="hidden"
+                    bg={isActive ? 'accent.yellow' : 'transparent'}
+                    color={isActive ? 'dark.900' : 'gray.300'}
+                    shadow={isActive ? 'lg' : 'none'}
+                    _hover={{
+                      bg: isActive ? 'accent.yellow' : 'dark.700',
+                      color: isActive ? 'dark.900' : 'white',
+                    }}
+                  >
+                    {/* Active indicator */}
+                    {isActive && (
+                      <Box
+                        position="absolute"
+                        inset={0}
+                        bgGradient="linear(to-r, accent.yellow, accent.yellow-dark)"
+                        opacity={1}
+                      />
+                    )}
 
-                  <Icon className={`
-                    w-5 h-5 mr-3 relative z-10
-                    ${isActive ? 'text-dark-900' : 'text-gray-400 group-hover:text-white'}
-                  `} />
-                  <span className="relative z-10">{item.name}</span>
+                    <Icon
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        marginRight: '12px',
+                        position: 'relative',
+                        zIndex: 10,
+                      }}
+                    />
+                    <Text position="relative" zIndex={10}>
+                      {item.name}
+                    </Text>
+                  </Flex>
                 </Link>
-              </li>
+              </List.Item>
             )
           })}
-        </ul>
-      </nav>
+        </List.Root>
+      </Box>
 
       {/* Footer */}
-      <div className="p-4 border-t border-dark-600">
-        <div className="text-xs text-gray-500 text-center">
+      <Box p={4} borderTop="1px solid" borderColor="dark.600">
+        <Text fontSize="xs" color="gray.500" textAlign="center">
           © {new Date().getFullYear()} WaterBallSA
-        </div>
-      </div>
-    </aside>
+        </Text>
+      </Box>
+    </Box>
   )
 }

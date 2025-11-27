@@ -1,15 +1,34 @@
+'use client'
+
 import Link from 'next/link'
+import { Box, Flex, Text } from '@chakra-ui/react'
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer">
-      <div className="w-8 h-8 bg-gradient-to-br from-accent-yellow to-accent-yellow-dark rounded-lg flex items-center justify-center">
-        <span className="text-dark-900 font-bold text-lg">水</span>
-      </div>
-      <div className="flex flex-col">
-        <span className="text-white font-bold text-sm leading-tight">水球軟體學院</span>
-        <span className="text-xs text-accent-yellow font-medium">WATERBALLSA.TW</span>
-      </div>
+    <Link href="/" style={{ textDecoration: 'none' }}>
+      <Flex align="center" gap={3} _hover={{ opacity: 0.8 }} transition="opacity 0.2s" cursor="pointer">
+        <Box
+          w="32px"
+          h="32px"
+          bgGradient="linear(to-br, accent.yellow, accent.yellow-dark)"
+          borderRadius="lg"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Text color="dark.900" fontWeight="bold" fontSize="lg">
+            水
+          </Text>
+        </Box>
+        <Flex direction="column">
+          <Text color="white" fontWeight="bold" fontSize="sm" lineHeight="tight">
+            水球軟體學院
+          </Text>
+          <Text fontSize="xs" color="accent.yellow" fontWeight="medium">
+            WATERBALLSA.TW
+          </Text>
+        </Flex>
+      </Flex>
     </Link>
   )
 }

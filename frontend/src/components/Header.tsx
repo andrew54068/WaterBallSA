@@ -5,6 +5,7 @@ import { GoogleLoginButton } from './GoogleLoginButton'
 import { Logo } from './Logo'
 import { Bars3Icon } from '@heroicons/react/24/solid'
 import { useState } from 'react'
+import { Box, Flex, Button, Image, Text } from '@chakra-ui/react'
 
 export function Header() {
   const { user, isLoading, logout } = useAuth()
@@ -24,58 +25,109 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-dark-800 border-b border-dark-600 z-50">
-      <div className="flex items-center justify-between h-full pr-6 ml-5">
-        {/* Logo / Brand */}
-        <div className="flex items-center space-x-4">
+    <Box
+      as="header"
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      h="64px"
+      bg="dark.800"
+      borderBottom="1px solid"
+      borderColor="dark.600"
+      zIndex={50}
+    >
+      <Flex align="center" h="full">
+        {/* Logo / Brand - Fixed width matching sidebar */}
+        <Flex
+          w="256px"
+          align="center"
+          px={6}
+          borderRight="1px solid"
+          borderColor="dark.600"
+          h="full"
+        >
           <Logo />
           {/* Mobile Menu Toggle */}
-          <button
+          <Button
+            display={{ base: 'block', lg: 'none' }}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-gray-400 hover:text-white transition"
+            variant="ghost"
+            ml="auto"
+            p={2}
+            color="gray.400"
+            _hover={{ color: 'white' }}
           >
-            <Bars3Icon className="w-6 h-6" />
-          </button>
-        </div>
+            <Bars3Icon style={{ width: '24px', height: '24px' }} />
+          </Button>
+        </Flex>
 
-        {/* Page Title / Breadcrumb */}
-        <div className="flex items-center space-x-4">
-          <select className="bg-dark-700 text-white px-4 py-2 rounded-lg text-sm font-medium border border-dark-600 focus:outline-none focus:ring-2 focus:ring-accent-yellow transition">
-            <option>軟體設計模式精通之旅</option>
-            <option>AI x BDD：規格驅動全自動開發術</option>
-          </select>
-        </div>
+        {/* Right side content */}
+        <Flex flex={1} align="center" justify="space-between" px={6}>
+          {/* Page Title / Breadcrumb */}
+          <Flex align="center" gap={4}>
+            <Box
+              as="select"
+              bg="dark.700"
+              color="white"
+              px={4}
+              py={2}
+              borderRadius="lg"
+              fontSize="sm"
+              fontWeight="medium"
+              borderWidth="1px"
+              borderColor="dark.600"
+              _focus={{ ring: 2, ringColor: 'accent.yellow' }}
+            >
+              <option>軟體設計模式精通之旅</option>
+              <option>AI x BDD：規格驅動全自動開發術</option>
+            </Box>
+          </Flex>
 
-        {/* Auth Section */}
-        <div className="flex items-center space-x-4">
-          {isLoading ? (
-            <div className="h-10 w-20 bg-dark-700 animate-pulse rounded-lg" />
-          ) : user ? (
-            <div className="flex items-center space-x-3">
-              {user.profilePicture && (
-                <img
-                  src={user.profilePicture}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full ring-2 ring-dark-600"
-                />
-              )}
-              <span className="hidden md:block text-sm font-medium text-white">
-                {user.name}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white border border-dark-600 rounded-lg hover:bg-dark-700 transition"
-              >
-                登出
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <GoogleLoginButton />
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
+          {/* Auth Section */}
+          <Flex align="center" gap={4}>
+            {isLoading ? (
+              <Box h="40px" w="80px" bg="dark.700" borderRadius="lg" className="animate-pulse" />
+            ) : user ? (
+              <Flex align="center" gap={3}>
+                {user.profilePicture && (
+                  <Image
+                    src={user.profilePicture}
+                    alt={user.name}
+                    w="36px"
+                    h="36px"
+                    borderRadius="full"
+                    ring={2}
+                    ringColor="dark.600"
+                  />
+                )}
+                <Text display={{ base: 'none', md: 'block' }} fontSize="sm" fontWeight="medium" color="white">
+                  {user.name}
+                </Text>
+                <Button
+                  onClick={handleLogout}
+                  px={4}
+                  py={2}
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color="gray.300"
+                  borderWidth="1px"
+                  borderColor="dark.600"
+                  borderRadius="lg"
+                  bg="transparent"
+                  _hover={{ color: 'white', bg: 'dark.700' }}
+                >
+                  登出
+                </Button>
+              </Flex>
+            ) : (
+              <Flex align="center" gap={3}>
+                <GoogleLoginButton />
+              </Flex>
+            )}
+          </Flex>
+        </Flex>
+      </Flex>
+    </Box>
   )
 }
