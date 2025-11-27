@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from '@/components/Providers'
-import { Header } from '@/components/Header'
-import { Sidebar } from '@/components/Sidebar'
-import { PromotionalBanner } from '@/components/PromotionalBanner'
 
 export const metadata: Metadata = {
   title: '水球軟體學院 WaterBallSA - 線上程式學習平台',
@@ -21,7 +18,7 @@ export default function RootLayout({
         {/* Google Sign-In SDK */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
-      <body className="antialiased bg-dark-900">
+      <body style={{ margin: 0, padding: 0 }}>
         <Providers>
           {children}
         </Providers>

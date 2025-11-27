@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/Sidebar'
 import { Header } from '@/components/Header'
 import { PromotionalBanner } from '@/components/PromotionalBanner'
+import { Box, Flex } from '@chakra-ui/react'
 
 export default function MainLayout({
   children,
@@ -14,20 +15,18 @@ export default function MainLayout({
       <Sidebar />
 
       {/* Main Content Area - Offset by sidebar width */}
-      <div className="ml-64 min-h-screen flex flex-col">
-        {/* Header - Fixed at top */}
-
+      <Flex ml="256px" minH="100vh" flexDirection="column">
         {/* Promotional Banner - Only displays when user has coupons */}
-        <div className="mt-16">
+        <Box mt="64px">
           {/* TODO Phase 2: Get hasCoupons from user context/API */}
           <PromotionalBanner hasCoupons={false} />
-        </div>
+        </Box>
 
         {/* Page Content */}
-        <main className="flex-1">
+        <Box as="main" flex={1}>
           {children}
-        </main>
-      </div>
+        </Box>
+      </Flex>
     </>
   )
 }

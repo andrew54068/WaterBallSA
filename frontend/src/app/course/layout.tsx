@@ -1,5 +1,6 @@
 import { Providers } from '@/components/Providers'
 import { LessonViewerHeader } from '@/components/LessonViewerHeader'
+import { Box } from '@chakra-ui/react'
 
 export default function CourseLayout({
   children,
@@ -7,14 +8,14 @@ export default function CourseLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-dark-900">
+    <Box minH="100vh" bg="dark.900">
       {/* Header without sidebar offset */}
       <LessonViewerHeader />
 
       {/* Content without sidebar - full width */}
-      <div className="pt-16">
+      <Box pt="64px">
         {children}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
