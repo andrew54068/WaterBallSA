@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import ReactPlayer from 'react-player'
+import { Box, Flex, Text, Button, Icon } from '@chakra-ui/react'
 
 interface VideoPlayerProps {
   videoUrl: string
@@ -33,53 +34,85 @@ export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerPr
 
   if (error) {
     return (
-      <div className="relative w-full pt-[56.25%] bg-gray-900 rounded-lg overflow-hidden">
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-          <svg
-            className="w-16 h-16 text-red-500 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+      <Box
+        position="relative"
+        w="full"
+        pt="56.25%"
+        bg="dark.900"
+        borderRadius="lg"
+        overflow="hidden"
+      >
+        <Flex
+          position="absolute"
+          inset={0}
+          direction="column"
+          align="center"
+          justify="center"
+          p={8}
+          textAlign="center"
+        >
+          <Icon viewBox="0 0 24 24" boxSize={16} color="red.500" mb={4}>
             <path
+              fill="none"
+              stroke="currentColor"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
-          </svg>
-          <p className="text-white text-lg font-semibold mb-2">
+          </Icon>
+          <Text color="white" fontSize="lg" fontWeight="semibold" mb={2}>
             {error}
-          </p>
-          <button
+          </Text>
+          <Button
+            mt={4}
+            px={6}
+            py={2}
+            bg="blue.600"
+            _hover={{ bg: 'blue.700' }}
+            color="white"
+            borderRadius="lg"
             onClick={handleRetry}
-            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
             Retry
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Flex>
+      </Box>
     )
   }
 
   return (
-    <div className="relative w-full">
+    <Box position="relative" w="full">
       {/* Aspect ratio container (16:9) */}
-      <div className="relative w-full pt-[56.25%] bg-gray-900 rounded-lg overflow-hidden">
+      <Box
+        position="relative"
+        w="full"
+        pt="56.25%"
+        bg="dark.900"
+        borderRadius="lg"
+        overflow="hidden"
+      >
         {/* Loading skeleton */}
         {!isReady && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-            <div className="animate-pulse flex flex-col items-center">
-              <svg
-                className="w-16 h-16 text-gray-600 mb-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.34-5.89a1.5 1.5 0 000-2.54L6.3 2.84z" />
-              </svg>
-              <p className="text-gray-400 text-sm">Loading video...</p>
-            </div>
-          </div>
+          <Flex
+            position="absolute"
+            inset={0}
+            align="center"
+            justify="center"
+            bg="dark.800"
+          >
+            <Flex direction="column" align="center" animation="pulse 2s infinite">
+              <Icon viewBox="0 0 20 20" boxSize={16} color="dark.600" mb={4}>
+                <path
+                  fill="currentColor"
+                  d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.34-5.89a1.5 1.5 0 000-2.54L6.3 2.84z"
+                />
+              </Icon>
+              <Text color="gray.400" fontSize="sm">
+                Loading video...
+              </Text>
+            </Flex>
+          </Flex>
         )}
 
         {/* React Player */}
@@ -107,14 +140,14 @@ export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerPr
             left: 0,
           }}
         />
-      </div>
+      </Box>
 
       {/* Video metadata */}
       {duration && (
-        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <Text mt={2} fontSize="sm" color="gray.400">
           Duration: {duration} minutes
-        </div>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }

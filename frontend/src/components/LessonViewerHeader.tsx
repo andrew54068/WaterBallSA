@@ -3,6 +3,15 @@
 import { useAuth } from '@/lib/auth-context'
 import { GoogleLoginButton } from './GoogleLoginButton'
 import { Logo } from './Logo'
+import {
+  Box,
+  Flex,
+  Button,
+  Image,
+  Text,
+  Skeleton,
+  HStack,
+} from '@chakra-ui/react'
 
 export function LessonViewerHeader() {
   const { user, isLoading, logout } = useAuth()
@@ -12,41 +21,71 @@ export function LessonViewerHeader() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-dark-800 border-b border-dark-600 z-50">
-      <div className="flex items-center justify-between h-full px-6">
+    <Box
+      as="header"
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      h={16}
+      bg="dark.800"
+      borderBottom="1px"
+      borderColor="dark.600"
+      zIndex={50}
+    >
+      <Flex align="center" justify="space-between" h="full" px={6}>
         {/* Logo / Brand */}
         <Logo />
 
         {/* Auth Section */}
-        <div className="flex items-center space-x-4">
+        <HStack gap={4}>
           {isLoading ? (
-            <div className="h-10 w-20 bg-dark-700 animate-pulse rounded-lg" />
+            <Skeleton h={10} w={20} borderRadius="lg" />
           ) : user ? (
-            <div className="flex items-center space-x-3">
+            <HStack gap={3}>
               {user.profilePicture && (
-                <img
+                <Image
                   src={user.profilePicture}
                   alt={user.name}
-                  className="w-9 h-9 rounded-full ring-2 ring-dark-600"
+                  boxSize="36px"
+                  borderRadius="full"
+                  ring="2px"
+                  ringColor="dark.600"
                 />
               )}
-              <span className="hidden md:block text-sm font-medium text-white">
+              <Text
+                display={{ base: 'none', md: 'block' }}
+                fontSize="sm"
+                fontWeight="medium"
+                color="white"
+              >
                 {user.name}
-              </span>
-              <button
+              </Text>
+              <Button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white border border-dark-600 rounded-lg hover:bg-dark-700 transition"
+                size="sm"
+                px={4}
+                py={2}
+                fontSize="sm"
+                fontWeight="medium"
+                color="gray.300"
+                _hover={{ color: 'white', bg: 'dark.700' }}
+                border="1px"
+                borderColor="dark.600"
+                borderRadius="lg"
+                bg="transparent"
+                transition="all 0.2s"
               >
                 登出
-              </button>
-            </div>
+              </Button>
+            </HStack>
           ) : (
-            <div className="flex items-center space-x-3">
+            <HStack gap={3}>
               <GoogleLoginButton />
-            </div>
+            </HStack>
           )}
-        </div>
-      </div>
-    </header>
+        </HStack>
+      </Flex>
+    </Box>
   )
 }

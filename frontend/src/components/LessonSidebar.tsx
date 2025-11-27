@@ -2,6 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import {
+  Box,
+  VStack,
+  Button,
+  Flex,
+  Text,
+  Icon,
+} from '@chakra-ui/react'
 import { ChevronDownIcon, LockClosedIcon, CheckCircleIcon, PlayIcon } from '@heroicons/react/24/solid'
 
 interface Lesson {
@@ -10,6 +18,7 @@ interface Lesson {
   lessonType: string
   isFree?: boolean
   isCompleted?: boolean
+  orderIndex?: number
 }
 
 interface Chapter {
@@ -66,38 +75,48 @@ export function LessonSidebar({
   }
 
   return (
-    <div className="h-full bg-dark-800 overflow-y-auto">
-      <div className="p-4 space-y-2">
+    <Box h="full" bg="dark.800" overflowY="auto">
+      <VStack gap={2} p={4} align="stretch">
         {chapters
           .sort((a, b) => a.orderIndex - b.orderIndex)
           .map((chapter, index) => {
             const isExpanded = expandedChapters.has(chapter.id)
 
             return (
-              <div key={chapter.id} className="bg-dark-700 rounded-lg overflow-hidden">
+              <Box key={chapter.id} bg="dark.700" borderRadius="lg" overflow="hidden">
                 {/* Chapter Header */}
-                <button
+                <Button
                   onClick={() => toggleChapter(chapter.id)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-dark-600 transition-colors"
+                  w="full"
+                  justifyContent="space-between"
+                  p={4}
+                  h="auto"
+                  bg="transparent"
+                  _hover={{ bg: 'dark.600' }}
+                  borderRadius={0}
+                  transition="all 0.2s"
                 >
-                  <div className="flex items-center space-x-3">
-                    <span className="text-accent-yellow font-bold">
+                  <Flex align="center" gap={3}>
+                    <Text color="accent.yellow" fontWeight="bold">
                       副本{index === 0 ? '零' : index}
-                    </span>
-                    <span className="text-white font-medium text-sm">
+                    </Text>
+                    <Text color="white" fontWeight="medium" fontSize="sm">
                       {chapter.title}
-                    </span>
-                  </div>
-                  <ChevronDownIcon
-                    className={`w-5 h-5 text-gray-400 transition-transform ${
-                      isExpanded ? 'transform rotate-180' : ''
-                    }`}
+                    </Text>
+                  </Flex>
+                  <Icon
+                    as={ChevronDownIcon}
+                    w={5}
+                    h={5}
+                    color="gray.400"
+                    transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
+                    transition="transform 0.2s"
                   />
-                </button>
+                </Button>
 
                 {/* Lessons List */}
                 {isExpanded && (
-                  <div className="border-t border-dark-600">
+                  <Box borderTop="1px" borderColor="dark.600">
                     {chapter.lessons.map((lesson) => {
                       const isCurrentLesson = lesson.id === currentLessonId
                       const isLocked = isLessonLocked(lesson, index)
@@ -106,36 +125,48 @@ export function LessonSidebar({
                         <Link
                           key={lesson.id}
                           href={`/course/${curriculumId}/chapters/${chapter.orderIndex}/lessons/${lesson.orderIndex}`}
-                          className={`flex items-center space-x-3 p-4 transition-colors ${
-                            isCurrentLesson
-                              ? 'bg-accent-yellow text-dark-900'
-                              : 'hover:bg-dark-600 text-white'
-                          }`}
+                          passHref
                         >
-                          {/* Status Icon */}
-                          <div className="flex-shrink-0">
-                            {lesson.isCompleted ? (
-                              <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                            ) : isLocked ? (
-                              <LockClosedIcon className="w-5 h-5 text-gray-400" />
-                            ) : (
-                              <PlayIcon className="w-5 h-5 text-gray-400" />
-                            )}
-                          </div>
+                          <Flex
+                            as="a"
+                            align="center"
+                            gap={3}
+                            p={4}
+                            transition="all 0.2s"
+                            bg={isCurrentLesson ? 'accent.yellow' : 'transparent'}
+                            color={isCurrentLesson ? 'dark.900' : 'white'}
+                            _hover={!isCurrentLesson ? { bg: 'dark.600' } : {}}
+                          >
+                            {/* Status Icon */}
+                            <Box flexShrink={0}>
+                              {lesson.isCompleted ? (
+                                <Icon as={CheckCircleIcon} w={5} h={5} color="green.500" />
+                              ) : isLocked ? (
+                                <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
+                              ) : (
+                                <Icon as={PlayIcon} w={5} h={5} color="gray.400" />
+                              )}
+                            </Box>
 
-                          {/* Lesson Title */}
-                          <span className="flex-1 text-sm font-medium line-clamp-2">
-                            {lesson.title}
-                          </span>
+                            {/* Lesson Title */}
+                            <Text
+                              flex={1}
+                              fontSize="sm"
+                              fontWeight="medium"
+                              lineClamp={2}
+                            >
+                              {lesson.title}
+                            </Text>
+                          </Flex>
                         </Link>
                       )
                     })}
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
             )
           })}
-      </div>
-    </div>
+      </VStack>
+    </Box>
   )
 }

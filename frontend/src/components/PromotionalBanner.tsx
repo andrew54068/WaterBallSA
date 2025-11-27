@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
+import { Box, Flex, Text, Button, IconButton } from '@chakra-ui/react'
 
 interface PromotionalBannerProps {
   hasCoupons?: boolean
@@ -21,31 +22,54 @@ export function PromotionalBanner({
   if (!hasCoupons || !isVisible) return null
 
   return (
-    <div className="rounded-lg border shadow-sm top-0 left-0 right-0 m-4 p-4 bg-background text-foreground dark:text-foreground static mb-0">
-      <div className="flex justify-between items-center">
-        <div className="flex-grow">
-          <div className="flex items-center justify-between gap-2">
-            <Link
-              href={couponLink}
-              className="text-sm md:text-base text-left underline hover:opacity-80 transition-opacity"
-            >
-              你有一張 {couponAmount.toLocaleString()} 折價券
+    <Box
+      borderRadius="lg"
+      borderWidth="1px"
+      shadow="sm"
+      m={4}
+      p={4}
+      bg="bg.surface"
+      color="white"
+      mb={0}
+    >
+      <Flex justify="space-between" align="center">
+        <Box flex={1}>
+          <Flex align="center" justify="space-between" gap={2}>
+            <Link href={couponLink} style={{ textDecoration: 'none' }}>
+              <Text
+                fontSize={{ base: 'sm', md: 'base' }}
+                textDecoration="underline"
+                _hover={{ opacity: 0.8 }}
+                transition="opacity 0.2s"
+              >
+                你有一張 {couponAmount.toLocaleString()} 折價券
+              </Text>
             </Link>
-            <button
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+            <Button
+              size="sm"
+              fontSize="sm"
+              fontWeight="medium"
+              bg="accent.yellow"
+              color="dark.900"
+              _hover={{ bg: 'accent.yellow-dark' }}
+              px={3}
+              borderRadius="md"
             >
               前往
-            </button>
-          </div>
-        </div>
-        <button
-          onClick={() => setIsVisible(false)}
-          className="ml-4 p-1 rounded-md hover:bg-muted transition-colors"
+            </Button>
+          </Flex>
+        </Box>
+        <IconButton
           aria-label="Close banner"
-        >
-          <XMarkIcon className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
+          icon={<XMarkIcon style={{ width: '20px', height: '20px' }} />}
+          onClick={() => setIsVisible(false)}
+          ml={4}
+          size="sm"
+          bg="transparent"
+          _hover={{ bg: 'dark.700' }}
+          transition="background 0.2s"
+        />
+      </Flex>
+    </Box>
   )
 }
