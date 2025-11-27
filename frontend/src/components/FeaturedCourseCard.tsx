@@ -1,21 +1,27 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Box, Flex, Text, Badge, Button } from '@chakra-ui/react'
+import { useRouter } from "next/navigation";
+import { Box, Flex, Text, Badge, Button, createToaster } from "@chakra-ui/react";
+import { useAuth } from "@/lib/auth-context";
+
+const toaster = createToaster({
+  placement: "top",
+  duration: 3000,
+});
 
 interface FeaturedCourseCardProps {
-  id: number
-  title: string
-  provider: string
-  description: string
-  image: string
-  hasCoupon?: boolean
-  couponValue?: number
-  isPurchased?: boolean
-  hasFreeTrial?: boolean
-  isPaidOnly?: boolean
-  firstFreeLessonIndex?: number
-  firstFreeChapterIndex?: number
+  id: number;
+  title: string;
+  provider: string;
+  description: string;
+  image: string;
+  hasCoupon?: boolean;
+  couponValue?: number;
+  isPurchased?: boolean;
+  hasFreeTrial?: boolean;
+  isPaidOnly?: boolean;
+  firstFreeLessonIndex?: number;
+  firstFreeChapterIndex?: number;
 }
 
 export function FeaturedCourseCard({
@@ -32,6 +38,37 @@ export function FeaturedCourseCard({
   firstFreeLessonIndex,
   firstFreeChapterIndex,
 }: FeaturedCourseCardProps) {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleFreeTrialClick = () => {
+    if (!user) {
+      toaster.create({
+        title: "請先登入",
+        description: "請先登入後才能體驗課程",
+        type: "warning",
+      });
+      // Scroll to top where login button is
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    router.push(`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`);
+  };
+
+  const handlePurchaseClick = () => {
+    if (!user) {
+      toaster.create({
+        title: "請先登入",
+        description: "請先登入後才能購買課程",
+        type: "warning",
+      });
+      // Scroll to top where login button is
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    router.push(`/curriculums/${id}`);
+  };
+
   return (
     <Box
       role="group"
@@ -41,12 +78,16 @@ export function FeaturedCourseCard({
       overflow="hidden"
       borderWidth="2px"
       borderColor="accent.yellow"
-      opacity={0.3}
       transition="all 0.3s"
-      _hover={{ borderColor: 'accent.yellow' }}
+      _hover={{ borderColor: "accent.yellow" }}
     >
       {/* Hero Image */}
-      <Box position="relative" h="256px" bgGradient="linear(to-br, dark.700, dark.900)" overflow="hidden">
+      <Box
+        position="relative"
+        h="256px"
+        bgGradient="linear(to-br, dark.700, dark.900)"
+        overflow="hidden"
+      >
         {image && (
           <Flex w="full" h="full" align="center" justify="center" p={8}>
             <Box position="relative" w="full" h="full">
@@ -57,7 +98,12 @@ export function FeaturedCourseCard({
                 bgGradient="linear(to-br, blue.600, purple.600, pink.600)"
                 opacity={0.2}
               />
-              <Flex position="absolute" inset={0} align="center" justify="center">
+              <Flex
+                position="absolute"
+                inset={0}
+                align="center"
+                justify="center"
+              >
                 <Box textAlign="center">
                   <Text fontSize="4xl" mb={4}>
                     🎯
@@ -82,11 +128,11 @@ export function FeaturedCourseCard({
             borderRadius="full"
             fontSize="xs"
             fontWeight="bold"
-            colorScheme={isPurchased ? 'green' : undefined}
-            bg={isPurchased ? 'green.500' : 'accent.yellow'}
-            color={isPurchased ? 'white' : 'dark.900'}
+            colorScheme={isPurchased ? "green" : undefined}
+            bg={isPurchased ? "green.500" : "accent.yellow"}
+            color={isPurchased ? "white" : "dark.900"}
           >
-            {isPurchased ? '已購買' : '尚未購券'}
+            {isPurchased ? "已購買" : "尚未購券"}
           </Badge>
         </Box>
       </Box>
@@ -94,7 +140,13 @@ export function FeaturedCourseCard({
       {/* Content */}
       <Box p={6}>
         {/* Title */}
-        <Text fontSize="2xl" fontWeight="bold" color="white" mb={3} lineHeight="tight">
+        <Text
+          fontSize="2xl"
+          fontWeight="bold"
+          color="white"
+          mb={3}
+          lineHeight="tight"
+        >
           {title}
         </Text>
 
@@ -130,7 +182,12 @@ export function FeaturedCourseCard({
             borderColor="rgba(247, 179, 43, 0.3)"
             borderRadius="lg"
           >
-            <Text color="accent.yellow" fontSize="sm" fontWeight="bold" textAlign="center">
+            <Text
+              color="accent.yellow"
+              fontSize="sm"
+              fontWeight="bold"
+              textAlign="center"
+            >
               你有一張 {couponValue.toLocaleString()} 折價券
             </Text>
           </Box>
@@ -139,55 +196,44 @@ export function FeaturedCourseCard({
         {/* Action Buttons */}
         <Flex gap={3}>
           {hasFreeTrial ? (
-            <Link
-              href={`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`}
-              style={{ flex: 1, textDecoration: 'none' }}
+            <Button
+              flex={1}
+              px={6}
+              py={3}
+              bg="accent.yellow"
+              color="dark.900"
+              borderRadius="lg"
+              fontWeight="bold"
+              _hover={{ bg: "accent.yellow-dark" }}
+              transition="all 0.2s"
+              onClick={handleFreeTrialClick}
             >
-              <Button
-                w="full"
-                px={6}
-                py={3}
-                bg="accent.yellow"
-                color="dark.900"
-                borderRadius="lg"
-                fontWeight="bold"
-                _hover={{ bg: 'accent.yellow-dark' }}
-                transition="all 0.2s"
-              >
-                立刻體驗
-              </Button>
-            </Link>
+              立刻體驗
+            </Button>
           ) : (
-            <Link
-              href={`/curriculums/${id}`}
-              style={{
-                flex: hasFreeTrial || isPaidOnly ? 1 : undefined,
-                width: hasFreeTrial || isPaidOnly ? undefined : '100%',
-                textDecoration: 'none',
+            <Button
+              flex={hasFreeTrial || isPaidOnly ? 1 : undefined}
+              w={hasFreeTrial || isPaidOnly ? undefined : "full"}
+              px={6}
+              py={3}
+              bg="transparent"
+              borderWidth="2px"
+              borderColor="rgba(255, 255, 255, 0.3)"
+              color="white"
+              borderRadius="lg"
+              fontWeight="bold"
+              _hover={{
+                bg: "rgba(255, 255, 255, 0.1)",
+                borderColor: "rgba(255, 255, 255, 0.5)",
               }}
+              transition="all 0.2s"
+              onClick={handlePurchaseClick}
             >
-              <Button
-                w="full"
-                px={6}
-                py={3}
-                bg="transparent"
-                borderWidth="2px"
-                borderColor="rgba(255, 255, 255, 0.3)"
-                color="white"
-                borderRadius="lg"
-                fontWeight="bold"
-                _hover={{
-                  bg: 'rgba(255, 255, 255, 0.1)',
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
-                }}
-                transition="all 0.2s"
-              >
-                立即購買
-              </Button>
-            </Link>
+              立即購買
+            </Button>
           )}
         </Flex>
       </Box>
     </Box>
-  )
+  );
 }
