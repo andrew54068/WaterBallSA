@@ -14,7 +14,7 @@ describe('SurveyForm', () => {
 
   afterEach(() => {
     // Restore original NODE_ENV
-    process.env.NODE_ENV = originalEnv
+    (process.env as any).NODE_ENV = originalEnv
   })
 
   describe('Basic Rendering', () => {
@@ -175,7 +175,7 @@ describe('SurveyForm', () => {
 
   describe('Development Mode', () => {
     it('should display survey path in development mode', () => {
-      process.env.NODE_ENV = 'development'
+      (process.env as any).NODE_ENV = 'development'
       render(<SurveyForm {...defaultProps} />)
 
       expect(screen.getByText('Survey Path:')).toBeInTheDocument()
@@ -183,14 +183,14 @@ describe('SurveyForm', () => {
     })
 
     it('should not display survey path in production mode', () => {
-      process.env.NODE_ENV = 'production'
+      (process.env as any).NODE_ENV = 'production'
       render(<SurveyForm {...defaultProps} />)
 
       expect(screen.queryByText('Survey Path:')).not.toBeInTheDocument()
     })
 
     it('should not display survey path in test mode', () => {
-      process.env.NODE_ENV = 'test'
+      (process.env as any).NODE_ENV = 'test'
       render(<SurveyForm {...defaultProps} />)
 
       expect(screen.queryByText('Survey Path:')).not.toBeInTheDocument()
@@ -288,7 +288,7 @@ describe('SurveyForm', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty survey path', () => {
-      process.env.NODE_ENV = 'development'
+      (process.env as any).NODE_ENV = 'development'
       render(<SurveyForm {...defaultProps} surveyPath="" />)
 
       expect(screen.getByText('Survey Path:')).toBeInTheDocument()
