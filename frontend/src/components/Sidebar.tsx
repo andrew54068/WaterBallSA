@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useCurriculum } from '@/lib/curriculum-context'
 import {
   HomeIcon,
   AcademicCapIcon,
@@ -14,21 +15,26 @@ import { Box, Flex, Text, VStack, List } from '@chakra-ui/react'
 
 interface NavItem {
   name: string
-  href: string
+  href: string | (() => string)
   icon: React.ComponentType<{ className?: string }>
 }
 
-const navigation: NavItem[] = [
-  { name: '首頁', href: '/', icon: HomeIcon },
-  { name: '課程', href: '/courses', icon: AcademicCapIcon },
-  { name: '排行榜', href: '/leaderboard', icon: TrophyIcon },
-  { name: '所有單元', href: '/curriculums', icon: RectangleStackIcon },
-  { name: '挑戰地圖', href: '/roadmap', icon: MapIcon },
-  { name: 'SOP 寶典', href: '/sop', icon: BookOpenIcon },
-]
-
 export function Sidebar() {
   const pathname = usePathname()
+  const { selectedCurriculum } = useCurriculum()
+
+  const navigation: NavItem[] = [
+    { name: '首頁', href: '/', icon: HomeIcon },
+    { name: '課程', href: '/courses', icon: AcademicCapIcon },
+    { name: '排行榜', href: '/leaderboard', icon: TrophyIcon },
+    {
+      name: '所有單元',
+      href: () => selectedCurriculum ? `/curriculums/${selectedCurriculum.id}` : '/curriculums',
+      icon: RectangleStackIcon
+    },
+    { name: '挑戰地圖', href: '/roadmap', icon: MapIcon },
+    { name: 'SOP 寶典', href: '/sop', icon: BookOpenIcon },
+  ]
 
   return (
     <Box
@@ -49,12 +55,13 @@ export function Sidebar() {
       <Box as="nav" flex={1} px={3} py={6}>
         <List.Root as="ul" gap={1} display="flex" flexDirection="column">
           {navigation.map((item) => {
-            const isActive = pathname === item.href
+            const href = typeof item.href === 'function' ? item.href() : item.href
+            const isActive = pathname === href || (item.name === '所有單元' && pathname.startsWith('/curriculums/'))
             const Icon = item.icon
 
             return (
               <List.Item key={item.name} listStyleType="none">
-                <Link href={item.href} style={{ textDecoration: 'none' }}>
+                <Link href={href} style={{ textDecoration: 'none' }}>
                   <Flex
                     align="center"
                     px={4}
