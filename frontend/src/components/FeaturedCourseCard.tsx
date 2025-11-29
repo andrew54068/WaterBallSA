@@ -50,12 +50,14 @@ export function FeaturedCourseCard({
   }, [user, pendingRedirect, router]);
 
   const handleFreeTrialClick = () => {
+    const lessonUrl = `/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`;
+
     if (!user) {
-      setPendingRedirect(`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`);
+      setPendingRedirect(lessonUrl);
       setIsLoginModalOpen(true);
       return;
     }
-    router.push(`/course/${id}/chapters/${firstFreeChapterIndex}/lessons/${firstFreeLessonIndex}`);
+    router.push(lessonUrl);
   };
 
   const handlePurchaseClick = () => {
@@ -78,6 +80,9 @@ export function FeaturedCourseCard({
       borderColor="accent.yellow"
       transition="all 0.3s"
       _hover={{ borderColor: "accent.yellow" }}
+      display="flex"
+      flexDirection="column"
+      height="full"
     >
       {/* Hero Image */}
       <Box
@@ -136,7 +141,7 @@ export function FeaturedCourseCard({
       </Box>
 
       {/* Content */}
-      <Box p={6}>
+      <Box p={6} display="flex" flexDirection="column" flex="1">
         {/* Title */}
         <Text
           fontSize="2xl"
@@ -150,6 +155,7 @@ export function FeaturedCourseCard({
 
         {/* Provider Badge */}
         <Box
+          w="fit-content"
           display="inline-flex"
           alignItems="center"
           px={3}
@@ -192,7 +198,7 @@ export function FeaturedCourseCard({
         )}
 
         {/* Action Buttons */}
-        <Flex gap={3}>
+        <Flex gap={3} marginTop="auto">
           {hasFreeTrial ? (
             <Button
               flex={1}

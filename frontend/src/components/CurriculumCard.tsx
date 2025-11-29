@@ -8,7 +8,7 @@ interface CurriculumCardProps {
 
 export function CurriculumCard({ curriculum }: CurriculumCardProps) {
   const difficultyLabels = {
-    BEGINNER: '水球潘',
+    BEGINNER: '初級',
     INTERMEDIATE: '中級',
     ADVANCED: '高級',
   }
