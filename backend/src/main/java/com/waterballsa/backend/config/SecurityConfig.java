@@ -52,7 +52,15 @@ public class SecurityConfig {
                         // Public read access to curriculums (browse without auth)
                         .requestMatchers(HttpMethod.GET, "/api/curriculums/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/chapters/**").permitAll()
+
+                        // Public read access to lessons (but ownership will be checked by service layer)
                         .requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()
+
+                        // Video progress endpoints require authentication
+                        .requestMatchers("/api/video-progress/**").authenticated()
+
+                        // Purchase endpoints require authentication
+                        .requestMatchers("/api/purchases/**").authenticated()
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
