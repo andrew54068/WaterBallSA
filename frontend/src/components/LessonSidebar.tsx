@@ -10,7 +10,10 @@ import {
   Text,
   Icon,
 } from '@chakra-ui/react'
-import { ChevronDownIcon, LockClosedIcon, CheckCircleIcon, PlayIcon } from '@heroicons/react/24/solid'
+import { ChevronDownIcon, LockClosedIcon } from '@heroicons/react/24/solid'
+import { useAuth } from '@/lib/auth-context'
+import { useChapterProgress } from '@/hooks/useChapterProgress'
+import LessonProgressIndicator from './LessonProgressIndicator'
 
 interface Lesson {
   id: number
@@ -41,6 +44,9 @@ export function LessonSidebar({
   curriculumId,
   userHasPurchased = false,
 }: LessonSidebarProps) {
+  const { user } = useAuth()
+  const isAuthenticated = !!user
+
   // Find which chapter contains the current lesson
   const currentChapterId = chapters.find((ch) =>
     ch.lessons.some((l) => l.id === currentLessonId)
@@ -50,6 +56,13 @@ export function LessonSidebar({
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(currentChapterId ? [currentChapterId] : [])
   )
+
+  // Fetch progress for the current chapter (where the user is)
+  // In a production app, you'd want to fetch for all chapters or use a more sophisticated caching strategy
+  const { progressMap } = useChapterProgress({
+    chapterId: currentChapterId || 0,
+    isAuthenticated,
+  })
 
   const toggleChapter = (chapterId: number) => {
     setExpandedChapters((prev) => {
@@ -139,12 +152,14 @@ export function LessonSidebar({
                           >
                             {/* Status Icon */}
                             <Box flexShrink={0}>
-                              {lesson.isCompleted ? (
-                                <Icon as={CheckCircleIcon} w={5} h={5} color="green.500" />
-                              ) : isLocked ? (
+                              {isLocked ? (
                                 <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
                               ) : (
-                                <Icon as={PlayIcon} w={5} h={5} color="gray.400" />
+                                <LessonProgressIndicator
+                                  lessonId={lesson.id}
+                                  progress={progressMap.get(lesson.id)}
+                                  size="sm"
+                                />
                               )}
                             </Box>
 
