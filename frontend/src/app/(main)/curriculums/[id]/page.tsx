@@ -79,7 +79,7 @@ export default async function CurriculumDetailPage({ params }: PageProps) {
                 fontWeight="black"
                 color="white"
                 mb={6}
-                lineHeight="tight"
+                lineHeight="shorter"
               >
                 {curriculum!.title}
               </Heading>

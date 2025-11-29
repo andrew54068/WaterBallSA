@@ -130,7 +130,7 @@ export default function RoadmapPage() {
         <Box mb={8} textAlign="center">
           <Flex align="center" justify="center" gap={4}>
             <Box flex={1} h="1px" bg="dark.600" />
-            <Heading as="h2" fontSize="lg" fontWeight="medium" color="gray.400">自段道館</Heading>
+            <Heading as="h2" fontSize="lg" fontWeight="medium" color="gray.400">白段道館</Heading>
             <Box flex={1} h="1px" bg="dark.600" />
           </Flex>
         </Box>
