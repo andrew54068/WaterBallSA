@@ -66,7 +66,7 @@ And the inactive tab should have a darker background
 ### Scenario 4: Section Headers
 ```gherkin
 Given I am viewing the main path (主線)
-Then I should see section headers like "自段道館"
+Then I should see section headers like "白段道館"
 And section headers should be centered
 And section headers should have decorative lines on both sides
 ```
@@ -194,7 +194,7 @@ RoadmapPage
 │   │   ├── Tab: 主線 (active)
 │   │   └── Tab: 支線
 │   └── ChallengeList
-│       ├── SectionHeader: "自段道館"
+│       ├── SectionHeader: "白段道館"
 │       ├── ChallengeEntry (1) - 行雲流水的設計底層思路
 │       ├── ChallengeEntry (2) - Christopher Alexander：設計模式
 │       ├── ChallengeEntry (3) - 掌握「樣板方法」最基礎的控制反轉
@@ -271,7 +271,7 @@ const mockRoadmap: RoadmapData = {
   totalXP: 0,
   mainPath: [
     {
-      title: "自段道館",
+      title: "白段道館",
       challenges: [
         {
           id: 1,
