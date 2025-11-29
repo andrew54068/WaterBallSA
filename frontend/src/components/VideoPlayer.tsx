@@ -1,23 +1,24 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { Box, Flex, Text, Button, Icon } from '@chakra-ui/react'
+import { useVideoProgress } from '@/hooks/useVideoProgress'
+import type { VideoProgressDto } from '@/types/video-progress'
 
 interface VideoPlayerProps {
   videoUrl: string
   title: string
+  lessonId?: number
   duration?: number
+  isAuthenticated?: boolean
+  onProgressUpdate?: (progress: VideoProgressDto) => void
+  onComplete?: () => void
 }
 
 /**
- * Converts various YouTube URL formats to embed URL
- * Supports:
- * - https://www.youtube.com/watch?v=VIDEO_ID
- * - https://youtu.be/VIDEO_ID
- * - https://www.youtube.com/watch?v=VIDEO_ID&other=params
- * - https://youtu.be/VIDEO_ID?si=TRACKING_ID
+ * Extracts YouTube video ID from various URL formats
  */
-function getYouTubeEmbedUrl(url: string): string | null {
+function getYouTubeVideoId(url: string): string | null {
   try {
     const urlObj = new URL(url)
 
@@ -25,7 +26,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
     if (urlObj.hostname.includes('youtube.com')) {
       const videoId = urlObj.searchParams.get('v')
       if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}`
+        return videoId
       }
     }
 
@@ -33,7 +34,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
     if (urlObj.hostname.includes('youtu.be')) {
       const videoId = urlObj.pathname.slice(1).split('?')[0]
       if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}`
+        return videoId
       }
     }
 
@@ -44,37 +45,125 @@ function getYouTubeEmbedUrl(url: string): string | null {
   }
 }
 
-export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerProps) {
-  const [isLoading, setIsLoading] = useState(true)
+export default function VideoPlayer({
+  videoUrl,
+  title,
+  lessonId,
+  duration,
+  isAuthenticated = false,
+  onProgressUpdate,
+  onComplete,
+}: VideoPlayerProps) {
+  const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const playerRef = useRef<YT.Player | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const playerInitializedRef = useRef(false)
 
-  // Convert YouTube URL to embed format
-  const embedUrl = useMemo(() => {
-    const url = getYouTubeEmbedUrl(videoUrl)
-    if (!url) {
+  // Video ID extraction
+  const videoId = useMemo(() => {
+    const id = getYouTubeVideoId(videoUrl)
+    if (!id) {
       setError('Invalid YouTube URL format')
     }
-    return url
+    return id
   }, [videoUrl])
 
-  const handleIframeLoad = () => {
-    setIsLoading(false)
-    setError(null)
-  }
+  // Progress tracking hook (only if lessonId is provided)
+  const { progress, isLoading: isProgressLoading, initializePlayer, cleanup } = useVideoProgress({
+    lessonId: lessonId || 0,
+    isAuthenticated: isAuthenticated && !!lessonId,
+    onProgressUpdate,
+    onComplete,
+  })
 
-  const handleIframeError = () => {
-    setError('Video unavailable. Please try again later.')
-    setIsLoading(false)
-  }
+  // Store latest hook functions in refs to avoid recreating player
+  const initializePlayerRef = useRef(initializePlayer)
+  const cleanupRef = useRef(cleanup)
+
+  // Keep refs up to date
+  useEffect(() => {
+    initializePlayerRef.current = initializePlayer
+    cleanupRef.current = cleanup
+  }, [initializePlayer, cleanup])
+
+  /**
+   * Initialize YouTube Player
+   */
+  useEffect(() => {
+    if (!videoId || !containerRef.current || playerInitializedRef.current) {
+      return
+    }
+
+    const initPlayer = () => {
+      if (!window.YT || !window.YT.Player) {
+        // YT API not ready yet, retry after a delay
+        setTimeout(initPlayer, 100)
+        return
+      }
+
+      try {
+        playerRef.current = new window.YT.Player(containerRef.current!, {
+          height: '100%',
+          width: '100%',
+          videoId: videoId,
+          playerVars: {
+            autoplay: 0,
+            controls: 1,
+            rel: 0,
+            modestbranding: 1,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: (event) => {
+              console.log('[VideoPlayer] YouTube player ready')
+              setIsPlayerReady(true)
+              setError(null)
+
+              // Initialize progress tracking (only if authenticated and lessonId provided)
+              if (isAuthenticated && lessonId) {
+                console.log('[VideoPlayer] Initializing progress tracking for lesson', lessonId)
+                initializePlayerRef.current(event.target)
+              } else {
+                console.log('[VideoPlayer] Skipping progress tracking:', {
+                  isAuthenticated,
+                  lessonId,
+                })
+              }
+            },
+            onError: (event) => {
+              console.error('YouTube Player Error:', event.data)
+              setError('Video unavailable. Please try again later.')
+            },
+          },
+        })
+
+        playerInitializedRef.current = true
+      } catch (err) {
+        console.error('Failed to initialize YouTube Player:', err)
+        setError('Failed to load video player')
+      }
+    }
+
+    initPlayer()
+
+    return () => {
+      cleanupRef.current()
+      if (playerRef.current) {
+        playerRef.current.destroy()
+        playerRef.current = null
+      }
+      playerInitializedRef.current = false
+    }
+  }, [videoId, lessonId, isAuthenticated])
 
   const handleRetry = () => {
     setError(null)
-    setIsLoading(true)
-    // Force re-render by reloading the page
+    playerInitializedRef.current = false
     window.location.reload()
   }
 
-  if (error || !embedUrl) {
+  if (error || !videoId) {
     return (
       <Box
         position="relative"
@@ -135,7 +224,7 @@ export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerPr
         overflow="hidden"
       >
         {/* Loading skeleton */}
-        {isLoading && (
+        {!isPlayerReady && (
           <Flex
             position="absolute"
             inset={0}
@@ -153,36 +242,42 @@ export default function VideoPlayer({ videoUrl, title, duration }: VideoPlayerPr
               </Icon>
               <Text color="gray.400" fontSize="sm">
                 Loading video...
+                {isProgressLoading && isAuthenticated && ' (Restoring progress...)'}
               </Text>
             </Flex>
           </Flex>
         )}
 
-        {/* YouTube iframe embed */}
+        {/* YouTube Player Container */}
         <Box
-          as="iframe"
+          ref={containerRef}
           position="absolute"
           top={0}
           left={0}
           w="full"
           h="full"
-          src={embedUrl}
-          title={title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
         />
       </Box>
 
       {/* Video metadata */}
-      {duration && (
-        <Text mt={2} fontSize="sm" color="gray.400">
-          Duration: {duration} minutes
-        </Text>
-      )}
+      <Flex mt={2} justify="space-between" align="center">
+        {duration && (
+          <Text fontSize="sm" color="gray.400">
+            Duration: {duration} minutes
+          </Text>
+        )}
+        {isAuthenticated && progress && (
+          <Text fontSize="sm" color="gray.400">
+            {progress.isCompleted ? (
+              <Text as="span" color="green.400">
+                ✓ Completed
+              </Text>
+            ) : (
+              `Progress: ${progress.completionPercentage}%`
+            )}
+          </Text>
+        )}
+      </Flex>
     </Box>
   )
 }
