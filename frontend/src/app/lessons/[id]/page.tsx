@@ -5,10 +5,7 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react'
 import { lessonsApi } from '@/lib/api/lessons'
 import { chaptersApi } from '@/lib/api/chapters'
 import { curriculumsApi } from '@/lib/api/curriculums'
-import VideoPlayer from '@/components/VideoPlayer'
-import ArticleRenderer from '@/components/ArticleRenderer'
-import SurveyForm from '@/components/SurveyForm'
-import { LessonSidebar } from '@/components/LessonSidebar'
+import LessonPageClient from '../LessonPageClient'
 
 interface PageProps {
   params: {
@@ -50,69 +47,13 @@ export default async function LessonPage({ params }: PageProps) {
     // Fetch curriculum data with ALL chapters
     const curriculum = await curriculumsApi.getById(chapter.curriculumId)
 
-    // TODO: Replace with real authentication in Phase 2
-    const userHasPurchased = false
-
+    // Phase 2: Ownership is now checked via API in the useLessonAccess hook
     return (
-      <Flex h="100vh" bg="dark.900">
-        {/* Left Sidebar - 30% */}
-        <Box w="30%" borderRight="1px" borderColor="dark.600">
-          <LessonSidebar
-            chapters={curriculum.chapters}
-            currentLessonId={lessonId}
-            curriculumId={curriculum.id}
-            userHasPurchased={userHasPurchased}
-          />
-        </Box>
-
-        {/* Right Content Area - 70% */}
-        <Box w="70%" overflowY="auto">
-          <Box p={8}>
-            {/* Lesson Header */}
-            <Box mb={6}>
-              <Heading as="h1" fontSize="3xl" fontWeight="bold" color="white" mb={2}>
-                {lesson.title}
-              </Heading>
-              {lesson.description && (
-                <Text color="gray.400" lineHeight="relaxed">
-                  {lesson.description}
-                </Text>
-              )}
-            </Box>
-
-            {/* Lesson Content - Render based on type */}
-            <Box mb={8}>
-              {lesson.lessonType === 'VIDEO' && (
-                <VideoPlayer
-                  videoUrl={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-
-              {lesson.lessonType === 'ARTICLE' && (
-                <ArticleRenderer
-                  articleUrl={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  description={lesson.description}
-                  metadata={lesson.contentMetadata as any}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-
-              {lesson.lessonType === 'SURVEY' && (
-                <SurveyForm
-                  surveyPath={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  description={lesson.description}
-                  metadata={lesson.contentMetadata as any}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-            </Box>
-          </Box>
-        </Box>
-      </Flex>
+      <LessonPageClient
+        lesson={lesson}
+        chapter={chapter}
+        curriculum={curriculum}
+      />
     )
   } catch (error: unknown) {
     console.error('Error loading lesson:', error)
