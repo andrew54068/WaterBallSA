@@ -6,12 +6,15 @@ import { GoogleLoginButton } from './GoogleLoginButton'
 import { Logo } from './Logo'
 import { Bars3Icon } from '@heroicons/react/24/solid'
 import { useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Box, Flex, Button, Image, Text, Select, createListCollection } from '@chakra-ui/react'
 
 export function Header() {
   const { user, isLoading, logout } = useAuth()
   const { curriculums, selectedCurriculum, setSelectedCurriculum, isLoading: curriculumsLoading } = useCurriculum()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   // Debug logging
   console.log('[Header] Render - isLoading:', isLoading, 'user:', user ? {
@@ -84,6 +87,18 @@ export function Header() {
                   const curriculum = curriculums.find(c => c.id.toString() === curriculumId)
                   if (curriculum) {
                     setSelectedCurriculum(curriculum)
+
+                    // Navigate to curriculum detail page if we're on a curriculum page
+                    // Check if current path is a curriculum detail page
+                    const isCurriculumPage = pathname?.startsWith('/curriculums/')
+                    if (isCurriculumPage) {
+                      // Extract current curriculum ID from path
+                      const currentCurriculumId = pathname.split('/')[2]
+                      // Only navigate if selecting a different curriculum
+                      if (currentCurriculumId !== curriculumId) {
+                        router.push(`/curriculums/${curriculumId}`)
+                      }
+                    }
                   }
                 }}
                 size="sm"

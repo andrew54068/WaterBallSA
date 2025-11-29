@@ -16,7 +16,7 @@ export function Logo() {
           alignItems="center"
           justifyContent="center"
         >
-          <Text color="dark.900" fontWeight="bold" fontSize="lg">
+          <Text color="white.900" fontWeight="bold" fontSize="lg">
             水
           </Text>
         </Box>

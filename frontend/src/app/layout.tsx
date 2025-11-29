@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import { Providers } from '@/components/Providers'
 
@@ -19,6 +20,11 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body style={{ margin: 0, padding: 0 }}>
+        {/* YouTube IFrame Player API */}
+        <Script
+          src="https://www.youtube.com/iframe_api"
+          strategy="beforeInteractive"
+        />
         <Providers>
           {children}
         </Providers>
