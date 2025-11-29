@@ -70,7 +70,7 @@ export interface Lesson {
   contentMetadata: LessonMetadata
   orderIndex: number
   durationMinutes?: number
-  isFree?: boolean
+  isFreePreview?: boolean
   isCompleted?: boolean
   createdAt: string
 }
