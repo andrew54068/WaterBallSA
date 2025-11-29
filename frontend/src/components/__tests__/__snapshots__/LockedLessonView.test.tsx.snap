@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LockedLessonView Component Visual States should render consistently for anonymous users 1`] = `
+<div>
+  <div
+    class="css-1poeji6"
+    data-testid="blurred-content"
+  >
+    <div
+      class="css-15b46d9"
+    />
+    <div
+      class="css-9rawdt"
+    >
+      <div
+        class="css-eoiiov"
+        data-testid="lock-icon"
+      >
+        <svg
+          fill="none"
+          height="80px"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          style="margin: 0px auto;"
+          viewBox="0 0 24 24"
+          width="80px"
+        >
+          <rect
+            height="11"
+            rx="2"
+            ry="2"
+            width="18"
+            x="3"
+            y="11"
+          />
+          <path
+            d="M7 11V7a5 5 0 0 1 10 0v4"
+          />
+        </svg>
+      </div>
+      <h2
+        class="chakra-heading css-1t4ol6"
+      >
+        This Lesson is Locked
+      </h2>
+      <p
+        class="css-1j53lps"
+      >
+        This lesson is part of 
+        <strong>
+          Advanced JavaScript
+        </strong>
+      </p>
+      <p
+        class="css-z5ujvm"
+      >
+        Sign in or purchase to access this content
+      </p>
+      <p
+        class="css-52ddr3"
+      >
+        View free preview lessons to learn more about this curriculum
+      </p>
+      <div
+        class="css-1rqzcuw"
+      >
+        <button
+          class="chakra-button css-1vocog8"
+          type="button"
+        >
+          Sign In
+        </button>
+        <button
+          class="chakra-button css-f39pot"
+          type="button"
+        >
+          Purchase for $99.99
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`LockedLessonView Component Visual States should render consistently for authenticated users 1`] = `
+<div>
+  <div
+    class="css-1poeji6"
+    data-testid="blurred-content"
+  >
+    <div
+      class="css-15b46d9"
+    />
+    <div
+      class="css-9rawdt"
+    >
+      <div
+        class="css-eoiiov"
+        data-testid="lock-icon"
+      >
+        <svg
+          fill="none"
+          height="80px"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          style="margin: 0px auto;"
+          viewBox="0 0 24 24"
+          width="80px"
+        >
+          <rect
+            height="11"
+            rx="2"
+            ry="2"
+            width="18"
+            x="3"
+            y="11"
+          />
+          <path
+            d="M7 11V7a5 5 0 0 1 10 0v4"
+          />
+        </svg>
+      </div>
+      <h2
+        class="chakra-heading css-1t4ol6"
+      >
+        This Lesson is Locked
+      </h2>
+      <p
+        class="css-1j53lps"
+      >
+        This lesson is part of 
+        <strong>
+          Advanced JavaScript
+        </strong>
+      </p>
+      <p
+        class="css-z5ujvm"
+      >
+        Purchase this curriculum to access all lessons
+      </p>
+      <p
+        class="css-52ddr3"
+      >
+        View free preview lessons to learn more about this curriculum
+      </p>
+      <div
+        class="css-1rqzcuw"
+      >
+        <button
+          class="chakra-button css-f39pot"
+          type="button"
+        >
+          Purchase for $99.99
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
