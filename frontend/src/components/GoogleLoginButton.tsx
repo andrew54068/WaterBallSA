@@ -2,7 +2,9 @@
 
 import { useAuth } from '@/lib/auth-context'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Box, Text } from '@chakra-ui/react'
+import { returnUrlUtils } from '@/lib/utils/returnUrl'
 
 // Google Identity Services types
 interface GoogleCredentialResponse {
@@ -41,8 +43,13 @@ declare global {
   }
 }
 
-export function GoogleLoginButton() {
+interface GoogleLoginButtonProps {
+  width?: number
+}
+
+export function GoogleLoginButton({ width = 200 }: GoogleLoginButtonProps) {
   const { login } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const buttonRef = useRef<HTMLDivElement>(null)
@@ -90,6 +97,19 @@ export function GoogleLoginButton() {
               // response.credential contains the Google ID token
               await login(response.credential)
               console.log('[GoogleLoginButton] Login successful')
+
+              // Handle post-login redirect
+              const returnUrl = returnUrlUtils.get()
+
+              if (returnUrl && returnUrlUtils.isSafeURL(returnUrl)) {
+                console.log('[GoogleLoginButton] Redirecting to:', returnUrl)
+                returnUrlUtils.clear()
+                router.push(returnUrl)
+              } else {
+                console.log('[GoogleLoginButton] No valid return URL, staying on current page')
+                // Don't redirect if no return URL - user likely logged in from current page
+                returnUrlUtils.clear()
+              }
             } catch (err) {
               console.error('[GoogleLoginButton] Login failed:', err)
               setError(err instanceof Error ? err.message : 'Login failed')
@@ -108,7 +128,7 @@ export function GoogleLoginButton() {
             size: 'large',
             text: 'signin_with',
             shape: 'rectangular',
-            width: 200,
+            width,
           }
         )
 
@@ -140,7 +160,7 @@ export function GoogleLoginButton() {
         clearInterval(checkGoogleLoaded)
       }
     }
-  }, [login])
+  }, [login, width])
 
   return (
     <Box position="relative">
