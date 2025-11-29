@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Progress Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            background: #0a0a0a;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #00ffff;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00ffff;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+        .error { color: #ff0000; }
+        .success { color: #00ff00; }
+        .warning { color: #ffff00; }
+        input {
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 5px;
+            width: 100px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Video Progress Tracking Debug Tool</h1>
+
+    <div class="section">
+        <h2>1. Authentication Status</h2>
+        <div id="authStatus">Checking...</div>
+        <button onclick="checkAuth()">Refresh Auth Status</button>
+    </div>
+
+    <div class="section">
+        <h2>2. Test Save Progress</h2>
+        <div>
+            <label>Lesson ID: <input type="number" id="lessonId" value="3" /></label>
+            <label>Current Time (s): <input type="number" id="currentTime" value="31.5" /></label>
+            <label>Duration (s): <input type="number" id="duration" value="120" /></label>
+        </div>
+        <button onclick="testSaveProgress()">Test Save Progress</button>
+        <div id="saveResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Test Get Progress</h2>
+        <div>
+            <label>Lesson ID: <input type="number" id="getProgressLessonId" value="3" /></label>
+        </div>
+        <button onclick="testGetProgress()">Test Get Progress</button>
+        <div id="getResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. API Request Logs</h2>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <pre id="logs"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8081/api';
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            const logEntry = `[${timestamp}] ${message}`;
+            logs.push({ message: logEntry, type });
+            updateLogs();
+        }
+
+        function updateLogs() {
+            const logsEl = document.getElementById('logs');
+            logsEl.innerHTML = logs.map(l =>
+                `<span class="${l.type}">${l.message}</span>`
+            ).join('\n');
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+
+        function clearLogs() {
+            logs = [];
+            updateLogs();
+        }
+
+        async function checkAuth() {
+            const authStatusEl = document.getElementById('authStatus');
+
+            try {
+                const token = localStorage.getItem('accessToken');
+
+                if (!token) {
+                    authStatusEl.innerHTML = `
+                        <div class="error">❌ No access token found in localStorage</div>
+                        <div>You need to login first at <a href="http://localhost:3001">http://localhost:3001</a></div>
+                    `;
+                    log('No access token in localStorage', 'error');
+                    return;
+                }
+
+                log('Found access token in localStorage', 'success');
+                authStatusEl.innerHTML = `
+                    <div class="success">✅ Access token found</div>
+                    <div>Token preview: ${token.substring(0, 50)}...</div>
+                    <div>Token length: ${token.length} characters</div>
+                `;
+
+                // Test token by calling /api/auth/me
+                log('Testing token by calling /api/auth/me...', 'info');
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    authStatusEl.innerHTML += `
+                        <div class="success">✅ Token is valid!</div>
+                        <pre>${JSON.stringify(user, null, 2)}</pre>
+                    `;
+                    log(`Token validated successfully. User: ${user.name} (${user.email})`, 'success');
+                } else {
+                    const error = await response.text();
+                    authStatusEl.innerHTML += `
+                        <div class="error">❌ Token validation failed (${response.status})</div>
+                        <pre>${error}</pre>
+                    `;
+                    log(`Token validation failed: ${response.status} - ${error}`, 'error');
+                }
+            } catch (error) {
+                authStatusEl.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                log(`Error checking auth: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSaveProgress() {
+            const resultEl = document.getElementById('saveResult');
+            resultEl.innerHTML = 'Sending request...';
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    throw new Error('No access token found. Please login first.');
+                }
+
+                const lessonId = document.getElementById('lessonId').value;
+                const currentTime = parseFloat(document.getElementById('currentTime').value);
+                const duration = parseFloat(document.getElementById('duration').value);
+                const completionPercentage = Math.min(100, Math.round((currentTime / duration) * 100));
+
+                const requestBody = {
+                    currentTimeSeconds: currentTime,
+                    durationSeconds: duration,
+                    completionPercentage: completionPercentage,
+                    isCompleted: completionPercentage >= 95
+                };
+
+                log(`Saving progress for lesson ${lessonId}: ${JSON.stringify(requestBody)}`, 'info');
+
+                const response = await fetch(`${API_BASE}/lessons/${lessonId}/progress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = responseText;
+                }
+
+                if (response.ok) {
+                    resultEl.innerHTML = `
+                        <div class="success">✅ Progress saved successfully!</div>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `;
+                    log(`Progress saved successfully: ${JSON.stringify(responseData)}`, 'success');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="error">❌ Failed to save progress (${response.status})</div>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `;
+                    log(`Failed to save progress: ${response.status} - ${JSON.stringify(responseData)}`, 'error');
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                log(`Error saving progress: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetProgress() {
+            const resultEl = document.getElementById('getResult');
+            resultEl.innerHTML = 'Fetching...';
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    throw new Error('No access token found. Please login first.');
+                }
+
+                const lessonId = document.getElementById('getProgressLessonId').value;
+
+                log(`Fetching progress for lesson ${lessonId}...`, 'info');
+
+                const response = await fetch(`${API_BASE}/lessons/${lessonId}/progress`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 404) {
+                    resultEl.innerHTML = `
+                        <div class="warning">⚠️ No progress found for lesson ${lessonId}</div>
+                        <div>This is normal if you haven't watched this lesson yet.</div>
+                    `;
+                    log(`No progress found for lesson ${lessonId} (404)`, 'warning');
+                    return;
+                }
+
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = responseText;
+                }
+
+                if (response.ok) {
+                    resultEl.innerHTML = `
+                        <div class="success">✅ Progress found!</div>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `;
+                    log(`Progress retrieved: ${JSON.stringify(responseData)}`, 'success');
+                } else {
+                    resultEl.innerHTML = `
+                        <div class="error">❌ Failed to get progress (${response.status})</div>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `;
+                    log(`Failed to get progress: ${response.status} - ${JSON.stringify(responseData)}`, 'error');
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                log(`Error getting progress: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check auth on load
+        window.onload = () => {
+            checkAuth();
+            log('Debug tool loaded', 'info');
+        };
+    </script>
+</body>
+</html>
