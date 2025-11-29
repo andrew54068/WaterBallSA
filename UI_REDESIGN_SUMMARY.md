@@ -100,7 +100,7 @@ Created 5 comprehensive specification documents with Given-When-Then scenarios:
    - Tab navigation (主線, 支線)
    - Challenge list with lock icons
    - Star difficulty ratings (1-3 stars)
-   - Section headers (自段道館)
+   - Section headers (白段道館)
    - Mock challenge data
 
 9. **`frontend/src/app/curriculums/[id]/page.tsx`** ✅ **Enhanced Curriculum Detail**
@@ -181,7 +181,7 @@ All mock data follows the specifications and matches screenshot content:
 
 ### **Roadmap**
 ```typescript
-- 5 main path challenges (自段道館)
+- 5 main path challenges (白段道館)
 - Star ratings: 1-3 stars
 - All locked initially
 - 0 progress stats
