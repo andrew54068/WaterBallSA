@@ -1,32 +1,26 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { lessonsApi } from '@/lib/api/lessons'
-import { chaptersApi } from '@/lib/api/chapters'
+import { Box, Flex, Heading, Text } from '@chakra-ui/react'
 import { curriculumsApi } from '@/lib/api/curriculums'
-import VideoPlayer from '@/components/VideoPlayer'
-import ArticleRenderer from '@/components/ArticleRenderer'
-import SurveyForm from '@/components/SurveyForm'
-import { LessonSidebar } from '@/components/LessonSidebar'
-import { Box, Heading, Text, Flex } from '@chakra-ui/react'
+import LessonPageClient from '@/app/lessons/LessonPageClient'
 
 interface PageProps {
   params: {
     courseId: string
-    chapterId: string // This is the chapter order_index (0-based)
-    lessonId: string  // This is the lesson order_index (0-based)
+    chapterId: string
+    lessonId: string
   }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const courseId = parseInt(params.courseId)
+    const curriculum = await curriculumsApi.getById(courseId)
     const chapterIndex = parseInt(params.chapterId)
     const lessonIndex = parseInt(params.lessonId)
 
-    const curriculum = await curriculumsApi.getById(courseId)
-    const chapter = curriculum.chapters.find(ch => ch.orderIndex === chapterIndex)
-    const lesson = chapter?.lessons.find(l => l.orderIndex === lessonIndex)
+    const chapter = curriculum.chapters[chapterIndex]
+    const lesson = chapter?.lessons[lessonIndex]
 
     if (!lesson) {
       return {
@@ -35,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     return {
-      title: `${lesson.title} | WaterBallSA`,
+      title: `${lesson.title} | ${curriculum.title} | WaterBallSA`,
       description: lesson.description || `Learn ${lesson.title}`,
     }
   } catch (error) {
@@ -45,95 +39,47 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function LessonPage({ params }: PageProps) {
+export default async function CourseLessonPage({ params }: PageProps) {
   try {
     const courseId = parseInt(params.courseId)
     const chapterIndex = parseInt(params.chapterId)
     const lessonIndex = parseInt(params.lessonId)
 
     // Validate parameters
-    if (isNaN(courseId) || courseId < 1 || isNaN(chapterIndex) || chapterIndex < 0 || isNaN(lessonIndex) || lessonIndex < 0) {
+    if (isNaN(courseId) || courseId < 1) {
+      notFound()
+    }
+    if (isNaN(chapterIndex) || chapterIndex < 0) {
+      notFound()
+    }
+    if (isNaN(lessonIndex) || lessonIndex < 0) {
       notFound()
     }
 
-    // Fetch curriculum data with ALL chapters and lessons
+    // Fetch curriculum with all chapters and lessons
     const curriculum = await curriculumsApi.getById(courseId)
 
-    // Find chapter by order_index
-    const chapter = curriculum.chapters.find(ch => ch.orderIndex === chapterIndex)
+    // Find the chapter by index (orderIndex)
+    const chapter = curriculum.chapters.find(c => c.orderIndex === chapterIndex)
     if (!chapter) {
+      console.error(`Chapter not found: courseId=${courseId}, chapterIndex=${chapterIndex}`)
       notFound()
     }
 
-    // Find lesson by order_index within the chapter
+    // Find the lesson by index (orderIndex) within the chapter
     const lesson = chapter.lessons.find(l => l.orderIndex === lessonIndex)
     if (!lesson) {
+      console.error(`Lesson not found: chapterIndex=${chapterIndex}, lessonIndex=${lessonIndex}`)
       notFound()
     }
 
-    // TODO: Replace with real authentication in Phase 2
-    const userHasPurchased = false
-
+    // Render using the shared LessonPageClient component
     return (
-      <Flex h="100vh" bg="dark.900">
-        {/* Left Sidebar - 30% */}
-        <Box w="30%" borderRight="1px" borderColor="dark.600">
-          <LessonSidebar
-            chapters={curriculum.chapters}
-            currentLessonId={lesson.id}
-            curriculumId={curriculum.id}
-            userHasPurchased={userHasPurchased}
-          />
-        </Box>
-
-        {/* Right Content Area - 70% */}
-        <Box w="70%" overflowY="auto">
-          <Box p={8}>
-            {/* Lesson Header */}
-            <Box mb={6}>
-              <Heading as="h1" fontSize="3xl" fontWeight="bold" color="white" mb={2}>
-                {lesson.title}
-              </Heading>
-              {lesson.description && (
-                <Text color="gray.400" lineHeight="relaxed">
-                  {lesson.description}
-                </Text>
-              )}
-            </Box>
-
-            {/* Lesson Content - Render based on type */}
-            <Box mb={8}>
-              {lesson.lessonType === 'VIDEO' && (
-                <VideoPlayer
-                  videoUrl={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-
-              {lesson.lessonType === 'ARTICLE' && (
-                <ArticleRenderer
-                  articleUrl={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  description={lesson.description}
-                  metadata={lesson.contentMetadata as any}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-
-              {lesson.lessonType === 'SURVEY' && (
-                <SurveyForm
-                  surveyPath={lesson.contentUrl || ''}
-                  title={lesson.title}
-                  description={lesson.description}
-                  metadata={lesson.contentMetadata as any}
-                  duration={lesson.durationMinutes}
-                />
-              )}
-            </Box>
-          </Box>
-        </Box>
-      </Flex>
+      <LessonPageClient
+        lesson={lesson}
+        chapter={chapter}
+        curriculum={curriculum}
+      />
     )
   } catch (error: unknown) {
     console.error('Error loading lesson:', error)
@@ -171,7 +117,7 @@ export default async function LessonPage({ params }: PageProps) {
           <Text color="gray.400" mb={6}>
             There was an error loading this lesson. Please try again.
           </Text>
-          <Link href="/">
+          <a href="/">
             <Box
               display="inline-block"
               px={6}
@@ -184,7 +130,7 @@ export default async function LessonPage({ params }: PageProps) {
             >
               Go to Home
             </Box>
-          </Link>
+          </a>
         </Box>
       </Flex>
     )
