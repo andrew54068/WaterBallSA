@@ -26,11 +26,13 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       (config) => {
-        // TODO: Add JWT token from session/storage
-        // const token = getTokenFromStorage()
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`
-        // }
+        // Add JWT token from localStorage (only in browser)
+        if (typeof window !== 'undefined') {
+          const token = localStorage.getItem('accessToken')
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+          }
+        }
         return config
       },
       (error) => {
