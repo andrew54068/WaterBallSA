@@ -21,9 +21,8 @@ export function JoinCourseButton({ curriculumId, fullWidth = false }: JoinCourse
       setIsLoginModalOpen(true)
       return
     }
-    // Phase 2: Navigate to purchase/enrollment page
-    // For now, just navigate to the first lesson
-    router.push(`/curriculums/${curriculumId}`)
+    // Navigate to order confirmation page
+    router.push(`/curriculums/${curriculumId}/orders`)
   }
 
   return (
@@ -40,7 +39,7 @@ export function JoinCourseButton({ curriculumId, fullWidth = false }: JoinCourse
         transition="all 0.2s"
         onClick={handleJoinCourse}
       >
-        立即加入課程
+        立即購買
       </Button>
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
