@@ -82,9 +82,9 @@ export default function LessonPageClient({
   }
 
   return (
-    <Flex h="100vh" bg="dark.900">
+    <Flex minH="100vh" bg="dark.900" pt="64px">
       {/* Left Sidebar - 30% */}
-      <Box w="30%" borderRight="1px" borderColor="dark.600">
+      <Box w="30%" h="calc(100vh - 64px)" borderRight="1px" borderColor="dark.600">
         <LessonSidebar
           chapters={curriculum.chapters}
           currentLessonId={lesson.id}
@@ -93,7 +93,7 @@ export default function LessonPageClient({
       </Box>
 
       {/* Right Content Area - 70% */}
-      <Box w="70%" overflowY="auto">
+      <Box w="70%" h="calc(100vh - 64px)" overflowY="auto">
         <Box p={8}>
           {/* Lesson Header */}
           <Box mb={6}>
