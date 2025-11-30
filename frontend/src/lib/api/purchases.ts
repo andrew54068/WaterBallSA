@@ -39,7 +39,48 @@ export interface PaginatedPurchasesResponse {
   totalPages: number
 }
 
+export interface OrderPreviewResponse {
+  curriculum: {
+    id: number
+    title: string
+    description: string
+    thumbnailUrl?: string
+    instructorName?: string
+    price: number
+    currency: string
+    difficultyLevel?: string
+    estimatedDurationHours?: number
+  }
+  chapters: Array<{
+    id: number
+    title: string
+    description?: string
+    orderIndex: number
+    lessons: Array<{
+      id: number
+      title: string
+      lessonType: string
+      durationMinutes?: number
+      isFreePreview: boolean
+      orderIndex: number
+    }>
+  }>
+  originalPrice: number
+  totalChapters: number
+  totalLessons: number
+}
+
 export const purchasesApi = {
+  /**
+   * Get order preview for a curriculum (for order confirmation page)
+   */
+  async getOrderPreview(curriculumId: number): Promise<OrderPreviewResponse> {
+    const { data } = await apiClient.get<OrderPreviewResponse>(
+      `/curriculums/${curriculumId}/order-preview`
+    )
+    return data
+  },
+
   /**
    * Check if user owns a curriculum
    */
@@ -51,10 +92,18 @@ export const purchasesApi = {
   },
 
   /**
-   * Create a purchase (simplified Phase 2 - instant completion)
+   * Create a purchase (creates PENDING purchase awaiting payment)
    */
   async create(request: PurchaseRequest): Promise<PurchaseResponse> {
     const { data } = await apiClient.post<PurchaseResponse>('/purchases', request)
+    return data
+  },
+
+  /**
+   * Complete a pending purchase (mock payment - always succeeds in Phase 2)
+   */
+  async completePurchase(purchaseId: number): Promise<PurchaseResponse> {
+    const { data} = await apiClient.post<PurchaseResponse>(`/purchases/${purchaseId}/complete`)
     return data
   },
 
