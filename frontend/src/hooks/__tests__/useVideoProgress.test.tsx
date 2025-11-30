@@ -32,6 +32,8 @@ describe('useVideoProgress', () => {
   const mockPlayer = {
     getCurrentTime: jest.fn(),
     getDuration: jest.fn(),
+    addEventListener: jest.fn(),
+    seekTo: jest.fn(),
   } as any
 
   beforeEach(() => {
@@ -596,6 +598,317 @@ describe('useVideoProgress', () => {
       await waitFor(() => {
         expect(onProgressUpdate).toHaveBeenCalledWith(mockSavedProgress)
       })
+    })
+  })
+
+  describe('Accumulated Playback Time Tracking', () => {
+    it('should accumulate playback time and save every 10 seconds of actual playback', async () => {
+      mockUseAuth.mockReturnValue({
+        user: { id: 1, email: 'test@example.com' },
+        isLoading: false,
+        login: jest.fn(),
+        logout: jest.fn(),
+      } as any)
+
+      mockGetProgress.mockResolvedValue(null)
+
+      // Simulate progressive playback
+      let currentTime = 0
+      mockPlayer.getCurrentTime.mockImplementation(() => currentTime)
+      mockPlayer.getDuration.mockReturnValue(120.0)
+
+      const mockSavedProgress: VideoProgressDto = {
+        id: 1,
+        userId: 1,
+        lessonId: 1,
+        currentTimeSeconds: 10.0,
+        durationSeconds: 120.0,
+        completionPercentage: 8,
+        isCompleted: false,
+        completedAt: null,
+        createdAt: '2025-11-29T00:00:00Z',
+        updatedAt: '2025-11-29T00:00:00Z',
+      }
+
+      mockSaveProgress.mockResolvedValue(mockSavedProgress)
+
+      const { result } = renderHook(() => useVideoProgress({
+        lessonId: 1,
+        isAuthenticated: true,
+      }))
+
+      await waitFor(() => {
+        expect(mockGetProgress).toHaveBeenCalled()
+      })
+
+      // Capture the state change handler
+      let stateChangeHandler: ((event: any) => void) | null = null
+      mockPlayer.addEventListener.mockImplementation((eventName: string, handler: any) => {
+        if (eventName === 'onStateChange') {
+          stateChangeHandler = handler
+        }
+      })
+
+      // Initialize player
+      act(() => {
+        result.current.initializePlayer(mockPlayer)
+      })
+
+      // Simulate video starting to play (PLAYING state = 1)
+      act(() => {
+        stateChangeHandler?.({ data: 1 }) // YT.PlayerState.PLAYING = 1
+      })
+
+      // Clear initial calls
+      mockSaveProgress.mockClear()
+
+      // Simulate playback progression:
+      // 0s: currentTime=0, accumulated=0
+      // 2s: currentTime=2, delta=2, accumulated=2
+      // 4s: currentTime=4, delta=2, accumulated=4
+      // 6s: currentTime=6, delta=2, accumulated=6
+      // 8s: currentTime=8, delta=2, accumulated=8
+      // 10s: currentTime=10, delta=2, accumulated=10 ✅ SAVE!
+
+      // Advance by 2 seconds (CHECK_INTERVAL_MS)
+      currentTime = 2
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(mockSaveProgress).not.toHaveBeenCalled() // accumulated=2, not yet 10
+
+      // Advance by 2 seconds
+      currentTime = 4
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(mockSaveProgress).not.toHaveBeenCalled() // accumulated=4, not yet 10
+
+      // Advance by 2 seconds
+      currentTime = 6
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(mockSaveProgress).not.toHaveBeenCalled() // accumulated=6, not yet 10
+
+      // Advance by 2 seconds
+      currentTime = 8
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+      expect(mockSaveProgress).not.toHaveBeenCalled() // accumulated=8, not yet 10
+
+      // Advance by 2 seconds - should trigger save at 10s accumulated
+      currentTime = 10
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      await waitFor(() => {
+        expect(mockSaveProgress).toHaveBeenCalledTimes(1)
+        expect(mockSaveProgress).toHaveBeenCalledWith(1, expect.objectContaining({
+          currentTimeSeconds: 10.0,
+        }))
+      })
+    })
+
+    it('should reset accumulator when user seeks in video', async () => {
+      mockUseAuth.mockReturnValue({
+        user: { id: 1, email: 'test@example.com' },
+        isLoading: false,
+        login: jest.fn(),
+        logout: jest.fn(),
+      } as any)
+
+      mockGetProgress.mockResolvedValue(null)
+
+      let currentTime = 0
+      mockPlayer.getCurrentTime.mockImplementation(() => currentTime)
+      mockPlayer.getDuration.mockReturnValue(120.0)
+
+      mockSaveProgress.mockResolvedValue({
+        id: 1,
+        userId: 1,
+        lessonId: 1,
+        currentTimeSeconds: 50.0,
+        durationSeconds: 120.0,
+        completionPercentage: 41,
+        isCompleted: false,
+        completedAt: null,
+        createdAt: '2025-11-29T00:00:00Z',
+        updatedAt: '2025-11-29T00:00:00Z',
+      })
+
+      const { result } = renderHook(() => useVideoProgress({
+        lessonId: 1,
+        isAuthenticated: true,
+      }))
+
+      await waitFor(() => {
+        expect(mockGetProgress).toHaveBeenCalled()
+      })
+
+      // Capture the state change handler
+      let stateChangeHandler: ((event: any) => void) | null = null
+      mockPlayer.addEventListener.mockImplementation((eventName: string, handler: any) => {
+        if (eventName === 'onStateChange') {
+          stateChangeHandler = handler
+        }
+      })
+
+      act(() => {
+        result.current.initializePlayer(mockPlayer)
+      })
+
+      // Simulate video starting to play
+      act(() => {
+        stateChangeHandler?.({ data: 1 }) // YT.PlayerState.PLAYING = 1
+      })
+
+      mockSaveProgress.mockClear()
+
+      // Play for 4 seconds
+      currentTime = 2
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 4
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      // User seeks to 50s (delta = 46s, which is > 3s max reasonable delta)
+      currentTime = 50
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      // Should NOT save because accumulator was reset due to seek
+      expect(mockSaveProgress).not.toHaveBeenCalled()
+
+      // Continue playing from 50s for another 10 seconds
+      currentTime = 52
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 54
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 56
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 58
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 60
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      // Now should save after 10s of playback from seek point (50s -> 60s)
+      await waitFor(() => {
+        expect(mockSaveProgress).toHaveBeenCalledTimes(1)
+        expect(mockSaveProgress).toHaveBeenCalledWith(1, expect.objectContaining({
+          currentTimeSeconds: 60.0,
+        }))
+      })
+    })
+
+    it('should not accumulate time when video is paused', async () => {
+      mockUseAuth.mockReturnValue({
+        user: { id: 1, email: 'test@example.com' },
+        isLoading: false,
+        login: jest.fn(),
+        logout: jest.fn(),
+      } as any)
+
+      mockGetProgress.mockResolvedValue(null)
+
+      let currentTime = 0
+      mockPlayer.getCurrentTime.mockImplementation(() => currentTime)
+      mockPlayer.getDuration.mockReturnValue(120.0)
+
+      mockSaveProgress.mockResolvedValue({
+        id: 1,
+        userId: 1,
+        lessonId: 1,
+        currentTimeSeconds: 4.0,
+        durationSeconds: 120.0,
+        completionPercentage: 3,
+        isCompleted: false,
+        completedAt: null,
+        createdAt: '2025-11-29T00:00:00Z',
+        updatedAt: '2025-11-29T00:00:00Z',
+      })
+
+      const { result } = renderHook(() => useVideoProgress({
+        lessonId: 1,
+        isAuthenticated: true,
+      }))
+
+      await waitFor(() => {
+        expect(mockGetProgress).toHaveBeenCalled()
+      })
+
+      // Capture the state change handler
+      let stateChangeHandler: ((event: any) => void) | null = null
+      mockPlayer.addEventListener.mockImplementation((eventName: string, handler: any) => {
+        if (eventName === 'onStateChange') {
+          stateChangeHandler = handler
+        }
+      })
+
+      act(() => {
+        result.current.initializePlayer(mockPlayer)
+      })
+
+      // Simulate video starting to play
+      act(() => {
+        stateChangeHandler?.({ data: 1 }) // YT.PlayerState.PLAYING = 1
+      })
+
+      mockSaveProgress.mockClear()
+
+      // Play for 4 seconds
+      currentTime = 2
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      currentTime = 4
+      await act(async () => {
+        jest.advanceTimersByTime(2000)
+      })
+
+      // Pause video (isPlaying = false)
+      act(() => {
+        stateChangeHandler?.({ data: 2 }) // YT.PlayerState.PAUSED = 2
+      })
+
+      // Advance time but don't advance currentTime (video is paused)
+      await act(async () => {
+        jest.advanceTimersByTime(10000)
+      })
+
+      // Should NOT save because video was paused (no playback time accumulated)
+      // Note: One save might happen on pause event itself, so check that no additional saves occur
+      const saveCountAfterPause = mockSaveProgress.mock.calls.length
+
+      // Advance more time
+      await act(async () => {
+        jest.advanceTimersByTime(10000)
+      })
+
+      // Should not have any new saves
+      expect(mockSaveProgress.mock.calls.length).toBe(saveCountAfterPause)
     })
   })
 
