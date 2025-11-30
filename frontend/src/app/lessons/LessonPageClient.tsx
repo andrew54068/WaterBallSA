@@ -89,6 +89,7 @@ export default function LessonPageClient({
           chapters={curriculum.chapters}
           currentLessonId={lesson.id}
           curriculumId={curriculum.id}
+          userHasPurchased={accessControl.reason === 'owned'}
         />
       </Box>
 
