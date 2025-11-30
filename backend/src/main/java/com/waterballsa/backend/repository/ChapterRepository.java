@@ -46,6 +46,19 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     Optional<Chapter> findByIdWithLessons(@Param("id") Long id);
 
     /**
+     * Fetches lessons for multiple chapters in a single query.
+     * This is used to avoid N+1 queries when loading curriculum with chapters and lessons.
+     *
+     * @param chapterIds list of chapter IDs
+     * @return list of chapters with lessons eagerly loaded
+     */
+    @Query("SELECT DISTINCT ch FROM Chapter ch " +
+           "LEFT JOIN FETCH ch.lessons l " +
+           "WHERE ch.id IN :chapterIds " +
+           "ORDER BY ch.orderIndex ASC, l.orderIndex ASC")
+    List<Chapter> findByIdInWithLessons(@Param("chapterIds") List<Long> chapterIds);
+
+    /**
      * Finds a published chapter by ID with its published lessons.
      *
      * @param id the chapter ID

@@ -1,14 +1,13 @@
 package com.waterballsa.backend.service;
 
-import com.waterballsa.backend.dto.OwnershipCheckResponse;
-import com.waterballsa.backend.dto.PurchaseRequest;
-import com.waterballsa.backend.dto.PurchaseResponse;
-import com.waterballsa.backend.entity.Curriculum;
-import com.waterballsa.backend.entity.Purchase;
-import com.waterballsa.backend.entity.PurchaseStatus;
-import com.waterballsa.backend.entity.User;
+import com.waterballsa.backend.dto.*;
+import com.waterballsa.backend.entity.*;
 import com.waterballsa.backend.exception.DuplicatePurchaseException;
+import com.waterballsa.backend.exception.FreeCurriculumException;
+import com.waterballsa.backend.exception.InvalidCouponException;
 import com.waterballsa.backend.exception.ResourceNotFoundException;
+import com.waterballsa.backend.repository.ChapterRepository;
+import com.waterballsa.backend.repository.CouponRepository;
 import com.waterballsa.backend.repository.CurriculumRepository;
 import com.waterballsa.backend.repository.PurchaseRepository;
 import com.waterballsa.backend.repository.UserRepository;
@@ -20,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing purchases and curriculum ownership.
@@ -39,6 +40,8 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final CurriculumRepository curriculumRepository;
     private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
+    private final ChapterRepository chapterRepository;
 
     /**
      * Creates a purchase for a curriculum.
@@ -66,6 +69,14 @@ public class PurchaseService {
             throw new IllegalStateException("Cannot purchase unpublished curriculum");
         }
 
+        // Check if curriculum is free
+        if (curriculum.isFree()) {
+            throw new FreeCurriculumException(
+                    curriculum.getId(),
+                    "Cannot create purchase for free curriculum"
+            );
+        }
+
         // Check for duplicate purchase
         Optional<Purchase> existingPurchase = purchaseRepository.findByUserIdAndCurriculumId(
                 userId, request.getCurriculumId());
@@ -79,28 +90,56 @@ public class PurchaseService {
                         existing.getPurchasedAt()
                 );
             }
-            // If there's a pending or cancelled purchase, we can complete it
-            log.info("Found existing {} purchase, updating to COMPLETED", existing.getStatus());
-            existing.complete();
-            purchaseRepository.save(existing);
+            // If there's a pending purchase, return it so user can proceed to payment
+            log.info("Found existing {} purchase, returning it for payment", existing.getStatus());
             return PurchaseResponse.from(existing);
         }
 
-        // Create new purchase
+        // Calculate pricing with coupon if provided
+        BigDecimal originalPrice = curriculum.getPrice();
+        BigDecimal finalPrice = originalPrice;
+        String couponCode = request.getCouponCode();
+
+        if (couponCode != null && !couponCode.isBlank()) {
+            Coupon coupon = couponRepository.findByCode(couponCode)
+                    .orElseThrow(() -> new InvalidCouponException(
+                            couponCode, "COUPON_NOT_FOUND", "Coupon not found"));
+
+            // Validate coupon
+            if (!coupon.isValid()) {
+                if (coupon.isExpired()) {
+                    throw new InvalidCouponException(couponCode, "COUPON_EXPIRED", "Coupon has expired");
+                } else if (coupon.isNotStarted()) {
+                    throw new InvalidCouponException(couponCode, "COUPON_NOT_STARTED", "Coupon is not yet valid");
+                } else if (coupon.hasReachedMaxUses()) {
+                    throw new InvalidCouponException(couponCode, "COUPON_MAX_USES", "Coupon has reached maximum uses");
+                } else if (!coupon.getIsActive()) {
+                    throw new InvalidCouponException(couponCode, "COUPON_INACTIVE", "Coupon is not active");
+                }
+            }
+
+            // Calculate discount
+            BigDecimal discountAmount = coupon.calculateDiscountAmount(originalPrice);
+            finalPrice = originalPrice.subtract(discountAmount);
+
+            // Increment coupon usage
+            coupon.incrementUsage();
+            couponRepository.save(coupon);
+            log.info("Applied coupon {} with discount {}", couponCode, discountAmount);
+        }
+
+        // Create new purchase with PENDING status
         Purchase purchase = Purchase.builder()
                 .user(user)
                 .curriculum(curriculum)
-                .originalPrice(curriculum.getPrice())
-                .finalPrice(curriculum.getPrice()) // No coupon support in Phase 2
-                .couponCode(request.getCouponCode())
+                .originalPrice(originalPrice)
+                .finalPrice(finalPrice)
+                .couponCode(couponCode)
                 .status(PurchaseStatus.PENDING)
                 .build();
 
-        // Simplified Phase 2: Instantly complete the purchase (mock payment always succeeds)
-        purchase.complete();
-
         Purchase savedPurchase = purchaseRepository.save(purchase);
-        log.info("Purchase {} completed successfully for user {} and curriculum {}",
+        log.info("Purchase {} created with PENDING status for user {} and curriculum {}",
                 savedPurchase.getId(), userId, request.getCurriculumId());
 
         return PurchaseResponse.from(savedPurchase);
@@ -202,5 +241,149 @@ public class PurchaseService {
     @Transactional(readOnly = true)
     public long countUserPurchases(Long userId) {
         return purchaseRepository.countByUserIdAndStatus(userId, PurchaseStatus.COMPLETED);
+    }
+
+    /**
+     * Completes a pending purchase (mock payment in Phase 2).
+     * In production, this would be called after payment gateway confirmation.
+     *
+     * @param purchaseId the purchase ID
+     * @param userId the user ID (for authorization)
+     * @return completed purchase response
+     * @throws ResourceNotFoundException if purchase not found
+     * @throws IllegalStateException if purchase doesn't belong to user or already completed
+     */
+    @Transactional
+    public PurchaseResponse completePurchase(Long purchaseId, Long userId) {
+        log.debug("Completing purchase {} for user {}", purchaseId, userId);
+
+        Purchase purchase = purchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase", "id", purchaseId));
+
+        // Authorization check
+        if (!purchase.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("Purchase does not belong to user");
+        }
+
+        // Check if already completed
+        if (purchase.getStatus() == PurchaseStatus.COMPLETED) {
+            log.warn("Purchase {} is already completed", purchaseId);
+            return PurchaseResponse.from(purchase);
+        }
+
+        // Complete the purchase (Phase 2: mock payment always succeeds)
+        purchase.complete();
+        Purchase completedPurchase = purchaseRepository.save(purchase);
+
+        log.info("Purchase {} completed successfully for user {}", purchaseId, userId);
+        return PurchaseResponse.from(completedPurchase);
+    }
+
+    /**
+     * Gets order preview for a curriculum (for order confirmation page).
+     * Uses two queries to avoid MultipleBagFetchException:
+     * 1. Fetch curriculum with chapters
+     * 2. Fetch lessons for all chapters
+     *
+     * @param curriculumId the curriculum ID
+     * @param userId the user ID
+     * @return OrderPreviewResponse with full curriculum details
+     * @throws ResourceNotFoundException if curriculum not found
+     * @throws DuplicatePurchaseException if user already owns curriculum
+     */
+    @Transactional(readOnly = true)
+    public OrderPreviewResponse getOrderPreview(Long curriculumId, Long userId) {
+        log.debug("Getting order preview for curriculum {} and user {}", curriculumId, userId);
+
+        // Query 1: Fetch curriculum with chapters (but not lessons)
+        Curriculum curriculum = curriculumRepository.findPublishedByIdWithChapters(curriculumId)
+                .orElseThrow(() -> new ResourceNotFoundException("Curriculum", "id", curriculumId));
+
+        // Check if user already owns this curriculum
+        if (purchaseRepository.existsByUserIdAndCurriculumIdAndStatus(
+                userId, curriculumId, PurchaseStatus.COMPLETED)) {
+            Purchase existingPurchase = purchaseRepository.findCompletedPurchase(
+                    userId, curriculumId, PurchaseStatus.COMPLETED)
+                    .orElseThrow(() -> new ResourceNotFoundException("Purchase record not found"));
+            throw new DuplicatePurchaseException(
+                    "You already own this curriculum",
+                    existingPurchase.getId(),
+                    existingPurchase.getPurchasedAt()
+            );
+        }
+
+        // Query 2: Fetch lessons for all chapters in a single query (avoids N+1)
+        List<Long> chapterIds = curriculum.getChapters().stream()
+                .map(Chapter::getId)
+                .collect(Collectors.toList());
+
+        if (!chapterIds.isEmpty()) {
+            // This will fetch all lessons for the chapters and populate the lessons collections
+            chapterRepository.findByIdInWithLessons(chapterIds);
+        }
+
+        // Convert to DTOs
+        CurriculumDto curriculumDto = convertToCurriculumDto(curriculum);
+        var chapterDtos = curriculum.getChapters().stream()
+                .map(this::convertToChapterDto)
+                .collect(Collectors.toList());
+
+        int totalLessons = curriculum.getChapters().stream()
+                .mapToInt(chapter -> chapter.getLessons().size())
+                .sum();
+
+        return OrderPreviewResponse.builder()
+                .curriculum(curriculumDto)
+                .chapters(chapterDtos)
+                .originalPrice(curriculum.getPrice())
+                .totalChapters(curriculum.getChapters().size())
+                .totalLessons(totalLessons)
+                .build();
+    }
+
+    private CurriculumDto convertToCurriculumDto(Curriculum curriculum) {
+        return CurriculumDto.builder()
+                .id(curriculum.getId())
+                .title(curriculum.getTitle())
+                .description(curriculum.getDescription())
+                .thumbnailUrl(curriculum.getThumbnailUrl())
+                .instructorName(curriculum.getInstructorName())
+                .price(curriculum.getPrice())
+                .currency(curriculum.getCurrency())
+                .isPublished(curriculum.getIsPublished())
+                .difficultyLevel(curriculum.getDifficultyLevel())
+                .estimatedDurationHours(curriculum.getEstimatedDurationHours())
+                .createdAt(curriculum.getCreatedAt())
+                .publishedAt(curriculum.getPublishedAt())
+                .build();
+    }
+
+    private ChapterDto convertToChapterDto(Chapter chapter) {
+        var lessonDtos = chapter.getLessons().stream()
+                .map(this::convertToLessonDto)
+                .collect(Collectors.toList());
+
+        return ChapterDto.builder()
+                .id(chapter.getId())
+                .curriculumId(chapter.getCurriculum().getId())
+                .title(chapter.getTitle())
+                .description(chapter.getDescription())
+                .orderIndex(chapter.getOrderIndex())
+                .lessons(lessonDtos)
+                .build();
+    }
+
+    private LessonDto convertToLessonDto(Lesson lesson) {
+        return LessonDto.builder()
+                .id(lesson.getId())
+                .chapterId(lesson.getChapter().getId())
+                .title(lesson.getTitle())
+                .description(lesson.getDescription())
+                .lessonType(lesson.getLessonType())
+                .contentUrl(lesson.getContentUrl())
+                .durationMinutes(lesson.getDurationMinutes())
+                .orderIndex(lesson.getOrderIndex())
+                .isFreePreview(lesson.getIsFreePreview())
+                .build();
     }
 }

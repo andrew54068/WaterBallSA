@@ -54,16 +54,15 @@ public interface CurriculumRepository extends JpaRepository<Curriculum, Long> {
     Optional<Curriculum> findPublishedByIdWithChapters(@Param("id") Long id);
 
     /**
-     * Fetches lessons for chapters of a curriculum.
-     * This is a workaround for MultipleBagFetchException.
+     * Finds curriculum by ID (without eager loading chapters or lessons).
+     * Use this method when you need to fetch curriculum data only,
+     * or when you'll manually fetch related entities in separate queries.
      *
-     * @param curriculumId the curriculum ID
+     * @param id the curriculum ID
+     * @return an Optional containing the curriculum if found
      */
-    @Query("SELECT DISTINCT c FROM Curriculum c " +
-           "LEFT JOIN FETCH c.chapters ch " +
-           "LEFT JOIN FETCH ch.lessons l " +
-           "WHERE c.id = :curriculumId AND c.isPublished = true")
-    Optional<Curriculum> findByIdWithChaptersAndLessons(@Param("curriculumId") Long curriculumId);
+    @Query("SELECT c FROM Curriculum c WHERE c.id = :id")
+    Optional<Curriculum> findByIdWithoutRelations(@Param("id") Long id);
 
     /**
      * Finds curriculums by instructor name (case-insensitive).
