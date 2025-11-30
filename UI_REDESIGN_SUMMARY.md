@@ -105,7 +105,7 @@ Created 5 comprehensive specification documents with Given-When-Then scenarios:
 
 9. **`frontend/src/app/curriculums/[id]/page.tsx`** ✅ **Enhanced Curriculum Detail**
    - Hero section with title, description, stats
-   - CTA buttons (立即加入課程, 預約 1v1 諮詢)
+   - CTA buttons (立即購買, 預約 1v1 諮詢)
    - Chapter accordion (expandable/collapsible)
    - Right sidebar:
      - Certificate preview card

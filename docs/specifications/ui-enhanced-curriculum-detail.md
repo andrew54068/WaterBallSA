@@ -52,7 +52,7 @@ Then the hero section should display:
   | Stats | "49 部影片" and "大量實戰題" |
 And I should see two CTA buttons:
   | Button | Style |
-  | 立即加入課程 | Yellow filled |
+  | 立即購買 | Yellow filled |
   | 預約 1v1 諮詢 | Yellow outline |
 ```
 
@@ -64,7 +64,7 @@ Then the hero section should display:
   | Title | AI x BDD：規格驅動全自動開發術 |
   | Description | Course description about TDD, BDD, AI |
   | Stats | "8 部影片" and "大量實戰題" |
-And I should see one CTA button "立即加入課程" (yellow filled)
+And I should see one CTA button "立即購買" (yellow filled)
 ```
 
 ### Scenario 4: Right Sidebar - Enrollment Card
@@ -74,7 +74,7 @@ Then the right sidebar should display:
   | Element | Description |
   | Certificate image | Course completion certificate preview |
   | Heading | "課程證書" |
-  | CTA button | "立即加入課程" (yellow filled, full width) |
+  | CTA button | "立即購買" (yellow filled, full width) |
 And the certificate should show:
   - "CERTIFICATE OF ACHIEVEMENT" heading
   - Placeholder name "John Doe"
@@ -125,7 +125,7 @@ And I should be able to click lessons to navigate to them
 ### Scenario 8: Enrollment Button - Unpurchased Course
 ```gherkin
 Given I have not purchased the course
-When I click "立即加入課程"
+When I click "立即購買"
 Then I should be directed to the purchase flow (Phase 2)
 Or I should see a modal explaining enrollment process (mock)
 ```
@@ -204,7 +204,7 @@ CurriculumDetailPage
 │       ├── EnrollmentCard
 │       │   ├── CertificatePreview
 │       │   ├── Heading: "課程證書"
-│       │   └── CTA: "立即加入課程"
+│       │   └── CTA: "立即購買"
 │       └── CourseInfoList
 │           ├── Info: 中文課程
 │           ├── Info: 支援行動裝置
