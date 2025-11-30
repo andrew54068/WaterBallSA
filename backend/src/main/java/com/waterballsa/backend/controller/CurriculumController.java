@@ -1,8 +1,11 @@
 package com.waterballsa.backend.controller;
 
 import com.waterballsa.backend.dto.CurriculumDto;
+import com.waterballsa.backend.dto.OrderPreviewResponse;
 import com.waterballsa.backend.entity.DifficultyLevel;
 import com.waterballsa.backend.service.CurriculumService;
+import com.waterballsa.backend.service.PurchaseService;
+import com.waterballsa.backend.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 public class CurriculumController {
 
     private final CurriculumService curriculumService;
+    private final PurchaseService purchaseService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping
     @Operation(summary = "Get all curriculums",
@@ -154,5 +159,30 @@ public class CurriculumController {
         log.info("GET /api/curriculums/count");
         long count = curriculumService.countPublishedCurriculums();
         return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/{id}/order-preview")
+    @Operation(summary = "Get order preview",
+               description = "Get full curriculum details for order confirmation page before purchase")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order preview retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "404", description = "Curriculum not found"),
+            @ApiResponse(responseCode = "409", description = "User already owns this curriculum")
+    })
+    public ResponseEntity<OrderPreviewResponse> getOrderPreview(
+            @RequestHeader("Authorization") String authHeader,
+            @Parameter(description = "Curriculum ID")
+            @PathVariable Long id
+    ) {
+        log.info("GET /api/curriculums/{}/order-preview", id);
+
+        // Extract user ID from JWT token
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        Long userId = jwtUtil.extractUserId(token);
+
+        OrderPreviewResponse response = purchaseService.getOrderPreview(id, userId);
+
+        return ResponseEntity.ok(response);
     }
 }

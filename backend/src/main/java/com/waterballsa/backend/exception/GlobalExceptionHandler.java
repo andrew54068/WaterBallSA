@@ -113,6 +113,40 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    @ExceptionHandler(InvalidCouponException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCouponException(
+            InvalidCouponException ex,
+            HttpServletRequest request
+    ) {
+        log.error("Invalid coupon: {} - {}", ex.getCouponCode(), ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getErrorCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(FreeCurriculumException.class)
+    public ResponseEntity<ErrorResponse> handleFreeCurriculumException(
+            FreeCurriculumException ex,
+            HttpServletRequest request
+    ) {
+        log.error("Free curriculum purchase attempt: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+                HttpStatus.CONFLICT.value(),
+                "Free Curriculum",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex,
