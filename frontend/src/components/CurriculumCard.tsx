@@ -168,7 +168,8 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
                 </Box>
               )}
             </Box>
-            <Button
+            <Box
+              as="span"
               px={5}
               py={2.5}
               bg="accent.yellow"
@@ -176,12 +177,12 @@ export function CurriculumCard({ curriculum }: CurriculumCardProps) {
               borderRadius="lg"
               fontWeight="bold"
               fontSize="sm"
-              _hover={{ bg: 'accent.yellow-dark' }}
-              _groupHover={{ shadow: 'lg' }}
+              _groupHover={{ shadow: 'lg', bg: 'accent.yellow-dark' }}
               transition="all 0.2s"
+              display="inline-block"
             >
               立即購買
-            </Button>
+            </Box>
           </Flex>
         </Box>
       </Box>
