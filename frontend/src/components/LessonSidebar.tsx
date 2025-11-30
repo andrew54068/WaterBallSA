@@ -14,15 +14,16 @@ import { ChevronDownIcon, LockClosedIcon } from '@heroicons/react/24/solid'
 import { useAuth } from '@/lib/auth-context'
 import { useChapterProgress } from '@/hooks/useChapterProgress'
 import LessonProgressIndicator from './LessonProgressIndicator'
+import { Lesson } from '@/types'
 
-interface Lesson {
-  id: number
-  title: string
-  lessonType: string
-  isFree?: boolean
-  isCompleted?: boolean
-  orderIndex?: number
-}
+// interface Lesson {
+//   id: number
+//   title: string
+//   lessonType: string
+//   isFree?: boolean
+//   isCompleted?: boolean
+//   orderIndex?: number
+// }
 
 interface Chapter {
   id: number
@@ -76,14 +77,12 @@ export function LessonSidebar({
     })
   }
 
-  const isLessonLocked = (lesson: Lesson, chapterIndex: number) => {
-    // Chapter 0 is always free
-    if (chapterIndex === 0) return false
+  const isLessonLocked = (lesson: Lesson) => {
     // Free lessons are never locked
-    if (lesson.isFree) return false
-    // If user purchased, nothing is locked
+    if (lesson.isFreePreview) return false
+    
+    // If user has purchased, nothing is locked
     if (userHasPurchased) return false
-    // Otherwise, it's locked
     return true
   }
 
@@ -132,48 +131,47 @@ export function LessonSidebar({
                   <Box borderTop="1px" borderColor="dark.600">
                     {chapter.lessons.map((lesson) => {
                       const isCurrentLesson = lesson.id === currentLessonId
-                      const isLocked = isLessonLocked(lesson, index)
+                      const isLocked = isLessonLocked(lesson)
+                      console.log('lesson is free preview', lesson.isFreePreview)
+                      console.log('lesson is locked', isLocked)
 
                       return (
-                        <Link
+                        <Flex
                           key={lesson.id}
+                          as={Link}
                           href={`/course/${curriculumId}/chapters/${chapter.orderIndex}/lessons/${lesson.orderIndex}`}
-                          passHref
+                          align="center"
+                          gap={3}
+                          p={4}
+                          transition="all 0.2s"
+                          bg={isCurrentLesson ? 'accent.yellow' : 'transparent'}
+                          color={isCurrentLesson ? 'dark.900' : 'white'}
+                          _hover={!isCurrentLesson ? { bg: 'dark.600' } : {}}
+                          style={{ textDecoration: 'none' }}
                         >
-                          <Flex
-                            as="a"
-                            align="center"
-                            gap={3}
-                            p={4}
-                            transition="all 0.2s"
-                            bg={isCurrentLesson ? 'accent.yellow' : 'transparent'}
-                            color={isCurrentLesson ? 'dark.900' : 'white'}
-                            _hover={!isCurrentLesson ? { bg: 'dark.600' } : {}}
-                          >
-                            {/* Status Icon */}
-                            <Box flexShrink={0}>
-                              {isLocked ? (
-                                <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
-                              ) : (
-                                <LessonProgressIndicator
-                                  lessonId={lesson.id}
-                                  progress={progressMap.get(lesson.id)}
-                                  size="sm"
-                                />
-                              )}
-                            </Box>
+                          {/* Status Icon */}
+                          <Box flexShrink={0}>
+                            {isLocked ? (
+                              <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
+                            ) : (
+                              <LessonProgressIndicator
+                                lessonId={lesson.id}
+                                progress={progressMap.get(lesson.id)}
+                                size="sm"
+                              />
+                            )}
+                          </Box>
 
-                            {/* Lesson Title */}
-                            <Text
-                              flex={1}
-                              fontSize="sm"
-                              fontWeight="medium"
-                              lineClamp={2}
-                            >
-                              {lesson.title}
-                            </Text>
-                          </Flex>
-                        </Link>
+                          {/* Lesson Title */}
+                          <Text
+                            flex={1}
+                            fontSize="sm"
+                            fontWeight="medium"
+                            lineClamp={2}
+                          >
+                            {lesson.title}
+                          </Text>
+                        </Flex>
                       )
                     })}
                   </Box>
