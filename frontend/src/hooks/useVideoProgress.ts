@@ -5,8 +5,6 @@ import type { VideoProgressDto } from '@/types/video-progress';
 interface UseVideoProgressProps {
   lessonId: number;
   isAuthenticated: boolean;
-  onProgressUpdate?: (progress: VideoProgressDto) => void;
-  onComplete?: () => void;
 }
 
 interface UseVideoProgressReturn {
@@ -18,15 +16,13 @@ interface UseVideoProgressReturn {
 }
 
 const CHECK_INTERVAL_MS = 2000; // Check every 2 seconds
-const SAVE_INTERVAL_MS = 10000; // Save every 10 seconds (when playing)
+const SAVE_INTERVAL_SECONDS = 10; // Save every 10 seconds of video playback
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff: 1s, 2s, 4s
 
 export function useVideoProgress({
   lessonId,
   isAuthenticated,
-  onProgressUpdate,
-  onComplete,
 }: UseVideoProgressProps): UseVideoProgressReturn {
   const [progress, setProgress] = useState<VideoProgressDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,9 +30,12 @@ export function useVideoProgress({
 
   const playerRef = useRef<YT.Player | null>(null);
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSaveTimeRef = useRef<number>(0);
+  const lastSavedVideoTimeRef = useRef<number>(0); // Track last saved video position (in seconds)
+  const lastCheckedTimeRef = useRef<number>(0); // Track last checked video position for calculating playback delta
+  const accumulatedPlaybackTimeRef = useRef<number>(0); // Track accumulated playback time since last save
   const isSavingRef = useRef(false);
   const isPlayingRef = useRef(false);
+  // const checkAndSaveProgressRef = useRef<() => void>(() => {});
 
   /**
    * Fetch existing progress on mount
@@ -99,15 +98,9 @@ export function useVideoProgress({
         console.log('[VideoProgress] Progress saved successfully');
         setProgress(savedProgress);
         setError(null);
-        lastSaveTimeRef.current = Date.now();
-
-        if (onProgressUpdate) {
-          onProgressUpdate(savedProgress);
-        }
-
-        if (isCompleted && onComplete && !progress?.isCompleted) {
-          onComplete();
-        }
+        lastSavedVideoTimeRef.current = currentTime; // Update last saved video position
+        accumulatedPlaybackTimeRef.current = 0; // Reset accumulated playback time
+        lastCheckedTimeRef.current = currentTime; // Update last checked time
       } catch (err) {
         console.error(`[VideoProgress] Failed to save (attempt ${retryCount + 1}/${MAX_RETRIES}):`, err);
 
@@ -123,12 +116,13 @@ export function useVideoProgress({
         isSavingRef.current = false;
       }
     },
-    [lessonId, isAuthenticated, onProgressUpdate, onComplete, progress]
+    [lessonId, isAuthenticated]
   );
 
   /**
    * Check and save progress if needed
    * This runs every CHECK_INTERVAL_MS (2 seconds)
+   * Accumulates actual playback time and saves every SAVE_INTERVAL_SECONDS
    */
   const checkAndSaveProgress = useCallback(() => {
     if (!playerRef.current || !isAuthenticated || !isPlayingRef.current) {
@@ -143,18 +137,47 @@ export function useVideoProgress({
         return;
       }
 
-      const now = Date.now();
-      const timeSinceLastSave = now - lastSaveTimeRef.current;
+      // Calculate how much the video has progressed since last check
+      const timeDelta = currentTime - lastCheckedTimeRef.current;
 
-      // Save every 10 seconds while playing
-      if (timeSinceLastSave >= SAVE_INTERVAL_MS) {
-        console.log('[VideoProgress] Auto-save triggered (10 seconds elapsed while playing)');
+      // Only accumulate if the delta is reasonable (between 0 and CHECK_INTERVAL_MS + 1 second buffer)
+      // This filters out seeks/jumps in the video
+      const maxReasonableDelta = CHECK_INTERVAL_MS / 1000 + 1; // 2 seconds + 1 second buffer
+      if (timeDelta > 0 && timeDelta <= maxReasonableDelta) {
+        accumulatedPlaybackTimeRef.current += timeDelta;
+        console.log('[VideoProgress] Playback time accumulated:', {
+          timeDelta: timeDelta.toFixed(2),
+          accumulated: accumulatedPlaybackTimeRef.current.toFixed(2),
+          currentTime: currentTime.toFixed(2),
+        });
+      } else if (timeDelta < 0 || timeDelta > maxReasonableDelta) {
+        // User seeked, reset the last checked time but don't accumulate
+        console.log('[VideoProgress] Seek detected (delta:', timeDelta.toFixed(2), 's), resetting accumulator');
+        accumulatedPlaybackTimeRef.current = 0;
+        lastSavedVideoTimeRef.current = currentTime;
+      }
+
+      // Update last checked time
+      lastCheckedTimeRef.current = currentTime;
+
+      // Save every 10 seconds of accumulated playback time
+      if (accumulatedPlaybackTimeRef.current >= SAVE_INTERVAL_SECONDS) {
+        console.log('[VideoProgress] Auto-save triggered:', {
+          currentTime: currentTime.toFixed(2),
+          accumulatedPlaybackTime: accumulatedPlaybackTimeRef.current.toFixed(2),
+          message: `${accumulatedPlaybackTimeRef.current.toFixed(1)} seconds of video played since last save`,
+        });
         saveProgressWithRetry(currentTime, duration);
       }
     } catch (err) {
       console.error('[VideoProgress] Error checking progress:', err);
     }
   }, [isAuthenticated, saveProgressWithRetry]);
+
+  // Keep the ref updated with the latest function
+  // useEffect(() => {
+  //   checkAndSaveProgressRef.current = checkAndSaveProgress;
+  // }, [checkAndSaveProgress]);
 
   /**
    * Initialize player and set up tracking
@@ -172,6 +195,11 @@ export function useVideoProgress({
       // Restore saved position if exists (use current progress state)
       const currentProgress = progress;
       if (currentProgress && currentProgress.currentTimeSeconds > 0) {
+        // Initialize tracking refs to the restored position
+        lastSavedVideoTimeRef.current = currentProgress.currentTimeSeconds;
+        lastCheckedTimeRef.current = currentProgress.currentTimeSeconds;
+        accumulatedPlaybackTimeRef.current = 0;
+
         // Wait for player to be ready before seeking
         setTimeout(() => {
           const duration = player.getDuration();
@@ -181,12 +209,19 @@ export function useVideoProgress({
             player.seekTo(currentProgress.currentTimeSeconds, true);
           }
         }, 500);
+      } else {
+        // If starting from beginning, initialize all tracking refs to 0
+        lastSavedVideoTimeRef.current = 0;
+        lastCheckedTimeRef.current = 0;
+        accumulatedPlaybackTimeRef.current = 0;
       }
 
       // Set up interval for periodic checks (every 2 seconds)
-      // This will save every 10 seconds while playing
+      // This will save every 10 seconds of video playback time
       console.log('[VideoProgress] Setting up progress check interval');
-      checkIntervalRef.current = setInterval(checkAndSaveProgress, CHECK_INTERVAL_MS);
+      checkIntervalRef.current = setInterval(() => {
+        checkAndSaveProgress()
+      }, CHECK_INTERVAL_MS);
 
       // Track player state changes
       const handleStateChange = (event: YT.OnStateChangeEvent) => {
@@ -200,16 +235,23 @@ export function useVideoProgress({
         });
 
         // Update playing state
+        const wasPlaying = isPlayingRef.current;
         isPlayingRef.current = event.data === YT.PlayerState.PLAYING;
 
+        // When video starts playing (transition to PLAYING state)
+        if (event.data === YT.PlayerState.PLAYING && !wasPlaying) {
+          // Reset lastCheckedTimeRef to current position to start fresh accumulation
+          lastCheckedTimeRef.current = currentTime;
+          console.log('[VideoProgress] Video started playing, reset lastCheckedTime to', currentTime.toFixed(2));
+        }
+
         if (duration > 0) {
-          // Save immediately on pause, end, or when starting to play
+          // Save immediately on pause or end (but not on play start to avoid duplicate saves)
           if (
             event.data === YT.PlayerState.PAUSED ||
-            event.data === YT.PlayerState.ENDED ||
-            event.data === YT.PlayerState.PLAYING
+            event.data === YT.PlayerState.ENDED
           ) {
-            console.log('[VideoProgress] State change save triggered');
+            console.log('[VideoProgress] State change save triggered (pause/end)');
             saveProgressWithRetry(currentTime, duration);
           }
         }
@@ -217,7 +259,7 @@ export function useVideoProgress({
 
       player.addEventListener('onStateChange', handleStateChange);
     },
-    [isAuthenticated, checkAndSaveProgress, saveProgressWithRetry]
+    [isAuthenticated, saveProgressWithRetry, progress]
   );
 
   /**

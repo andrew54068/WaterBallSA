@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { Box, Flex, Text, Button, Icon } from '@chakra-ui/react'
 import { useVideoProgress } from '@/hooks/useVideoProgress'
-import type { VideoProgressDto } from '@/types/video-progress'
 
 interface VideoPlayerProps {
   videoUrl: string
@@ -11,8 +10,6 @@ interface VideoPlayerProps {
   lessonId?: number
   duration?: number
   isAuthenticated?: boolean
-  onProgressUpdate?: (progress: VideoProgressDto) => void
-  onComplete?: () => void
 }
 
 /**
@@ -51,8 +48,6 @@ export default function VideoPlayer({
   lessonId,
   duration,
   isAuthenticated = false,
-  onProgressUpdate,
-  onComplete,
 }: VideoPlayerProps) {
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -72,9 +67,7 @@ export default function VideoPlayer({
   // Progress tracking hook (only if lessonId is provided)
   const { progress, isLoading: isProgressLoading, initializePlayer, cleanup } = useVideoProgress({
     lessonId: lessonId || 0,
-    isAuthenticated: isAuthenticated && !!lessonId,
-    onProgressUpdate,
-    onComplete,
+    isAuthenticated: isAuthenticated && !!lessonId
   })
 
   // Store latest hook functions in refs to avoid recreating player
