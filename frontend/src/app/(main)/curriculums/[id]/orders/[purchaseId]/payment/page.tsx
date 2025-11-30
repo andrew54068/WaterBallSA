@@ -173,7 +173,7 @@ export default function PaymentPage() {
             { num: 3, label: '約定開學', active: false, completed: false },
           ]}>
             {(step) => (
-              <VStack gap={2} flex={1} position="relative" zIndex={1}>
+              <VStack key={step.num} gap={2} flex={1} position="relative" zIndex={1}>
                 <Flex
                   align="center"
                   justify="center"
