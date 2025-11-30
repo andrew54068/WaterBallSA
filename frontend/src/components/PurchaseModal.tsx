@@ -123,33 +123,51 @@ export default function PurchaseModal({
   }
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && onClose()} size="lg" placement="center">
-      <DialogBackdrop backdropFilter="blur(4px)" />
-      <DialogContent bg="gray.800" borderColor="gray.700" borderWidth="1px">
-        <DialogHeader color="white">Purchase Curriculum</DialogHeader>
-        <DialogCloseTrigger color="gray.400" />
+    <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && onClose()} size="xl" placement="center">
+      <DialogBackdrop backdropFilter="blur(8px)" bg="blackAlpha.700" />
+      <DialogContent
+        bg="gray.800"
+        borderColor="gray.700"
+        borderWidth="1px"
+        borderRadius="xl"
+        shadow="2xl"
+        maxW="600px"
+      >
+        <DialogHeader
+          color="white"
+          fontSize="2xl"
+          fontWeight="bold"
+          pt={8}
+          px={8}
+          pb={4}
+        >
+          Purchase Curriculum
+        </DialogHeader>
+        <DialogCloseTrigger color="gray.400" top={6} right={6} />
 
-        <DialogBody>
-          <Box mb={6}>
-            <Text color="gray.400" mb={4}>
+        <DialogBody px={8} py={6}>
+          <Box mb={8}>
+            <Text color="gray.400" mb={6} fontSize="md">
               You are about to purchase:
             </Text>
 
             <Box
               bg="gray.700"
-              p={4}
-              borderRadius="md"
+              p={6}
+              borderRadius="lg"
               borderWidth="1px"
               borderColor="gray.600"
+              shadow="md"
+              mb={6}
             >
-              <Heading as="h3" fontSize="lg" color="white" mb={2}>
+              <Heading as="h3" fontSize="xl" color="white" mb={4}>
                 {curriculumTitle}
               </Heading>
               <Flex justify="space-between" align="center">
-                <Text color="gray.400" fontSize="sm">
+                <Text color="gray.400" fontSize="md">
                   Price:
                 </Text>
-                <Text color="blue.400" fontSize="2xl" fontWeight="bold">
+                <Text color="blue.400" fontSize="3xl" fontWeight="bold">
                   {formatPrice(curriculumPrice)}
                 </Text>
               </Flex>
@@ -160,34 +178,59 @@ export default function PurchaseModal({
             bg="blue.900"
             borderColor="blue.700"
             borderWidth="1px"
-            p={4}
-            borderRadius="md"
-            mb={4}
+            p={6}
+            borderRadius="lg"
+            mb={6}
+            shadow="md"
           >
-            <Text color="blue.200" fontSize="sm">
-              <strong>What you'll get:</strong>
+            <Text color="blue.200" fontSize="md" fontWeight="bold" mb={4}>
+              What you'll get:
             </Text>
-            <Text color="blue.300" fontSize="sm" mt={2}>
-              • Unlimited access to all lessons
-              <br />
-              • Lifetime access to course materials
-              <br />• Future updates and new content
-            </Text>
+            <Box color="blue.300" fontSize="md" lineHeight="1.8">
+              <Flex align="flex-start" mb={2}>
+                <Text mr={2}>•</Text>
+                <Text>Unlimited access to all lessons</Text>
+              </Flex>
+              <Flex align="flex-start" mb={2}>
+                <Text mr={2}>•</Text>
+                <Text>Lifetime access to course materials</Text>
+              </Flex>
+              <Flex align="flex-start">
+                <Text mr={2}>•</Text>
+                <Text>Future updates and new content</Text>
+              </Flex>
+            </Box>
           </Box>
 
-          <Text color="gray.500" fontSize="xs" textAlign="center">
+          <Text color="gray.500" fontSize="xs" textAlign="center" fontStyle="italic">
             Phase 2: Simplified mock payment (instant completion)
           </Text>
         </DialogBody>
 
-        <DialogFooter>
-          <Button variant="ghost" mr={3} onClick={onClose} disabled={isProcessing}>
+        <DialogFooter
+          px={8}
+          py={6}
+          gap={3}
+          borderTopWidth="1px"
+          borderTopColor="gray.700"
+        >
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            disabled={isProcessing}
+            size="lg"
+            px={8}
+            _hover={{ bg: 'gray.700' }}
+          >
             Cancel
           </Button>
           <Button
             colorScheme="blue"
             onClick={handlePurchase}
             loading={isProcessing}
+            size="lg"
+            px={10}
+            fontWeight="bold"
           >
             {isProcessing ? 'Processing...' : 'Complete Purchase'}
           </Button>
