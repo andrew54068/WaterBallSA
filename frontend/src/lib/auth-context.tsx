@@ -53,6 +53,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth()
   }, [])
 
+  // Listen for logout events from api-client (when token refresh fails)
+  useEffect(() => {
+    const handleLogoutEvent = () => {
+      console.log('[AuthContext] Received logout event from api-client')
+      setUser(null)
+      setAccessToken(null)
+    }
+
+    const handleTokenRefresh = (event: Event) => {
+      const customEvent = event as CustomEvent<{ accessToken: string }>
+      console.log('[AuthContext] Received token refresh event')
+      setAccessToken(customEvent.detail.accessToken)
+    }
+
+    window.addEventListener('auth:logout', handleLogoutEvent)
+    window.addEventListener('auth:token-refreshed', handleTokenRefresh as EventListener)
+
+    return () => {
+      window.removeEventListener('auth:logout', handleLogoutEvent)
+      window.removeEventListener('auth:token-refreshed', handleTokenRefresh as EventListener)
+    }
+  }, [])
+
   const login = async (googleIdToken: string) => {
     try {
       setIsLoading(true)
