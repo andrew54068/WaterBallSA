@@ -1,5 +1,6 @@
 package com.waterballsa.backend.service;
 
+import com.waterballsa.backend.config.JwtProperties;
 import com.waterballsa.backend.dto.AuthResponse;
 import com.waterballsa.backend.dto.UserDto;
 import com.waterballsa.backend.entity.User;
@@ -29,6 +30,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final GoogleOAuthService googleOAuthService;
     private final JwtUtil jwtUtil;
+    private final JwtProperties jwtProperties;
 
     /**
      * Authenticates a user with Google OAuth ID token.
@@ -60,7 +62,7 @@ public class AuthenticationService {
         return AuthResponse.of(
                 accessToken,
                 refreshToken,
-                900000L, // 15 minutes in milliseconds
+                jwtProperties.getAccessTokenExpiration(),
                 UserDto.from(user)
         );
     }
@@ -93,7 +95,7 @@ public class AuthenticationService {
         return AuthResponse.of(
                 newAccessToken,
                 refreshToken, // Keep same refresh token
-                900000L,
+                jwtProperties.getAccessTokenExpiration(),
                 UserDto.from(user)
         );
     }
