@@ -1,5 +1,6 @@
 package com.waterballsa.backend.controller;
 
+import com.waterballsa.backend.dto.OrderPreviewResponse;
 import com.waterballsa.backend.dto.OwnershipCheckResponse;
 import com.waterballsa.backend.dto.PurchaseRequest;
 import com.waterballsa.backend.dto.PurchaseResponse;
@@ -172,4 +173,32 @@ public class PurchaseController {
 
         return ResponseEntity.ok(purchases);
     }
+
+    @PostMapping("/{id}/complete")
+    @Operation(summary = "Complete a pending purchase",
+               description = "Complete payment for a pending purchase (Phase 2: mock payment always succeeds)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Purchase completed successfully"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Purchase does not belong to user"),
+            @ApiResponse(responseCode = "404", description = "Purchase not found")
+    })
+    public ResponseEntity<PurchaseResponse> completePurchase(
+            @RequestHeader("Authorization") String authHeader,
+            @Parameter(description = "Purchase ID")
+            @PathVariable Long id
+    ) {
+        log.info("POST /api/purchases/{}/complete", id);
+
+        // Extract user ID from JWT token
+        String token = authHeader.substring(7);
+        Long userId = jwtUtil.extractUserId(token);
+
+        PurchaseResponse response = purchaseService.completePurchase(id, userId);
+
+        return ResponseEntity.ok(response);
+    }
 }
+
+// Add this method to CurriculumController instead, as it's more appropriate there
+// Or create a separate endpoint here if needed
