@@ -3,6 +3,8 @@ import { Header } from '@/components/Header'
 import { PromotionalBanner } from '@/components/PromotionalBanner'
 import { Box, Flex } from '@chakra-ui/react'
 
+export const dynamic = 'force-dynamic'
+
 export default function MainLayout({
   children,
 }: {
