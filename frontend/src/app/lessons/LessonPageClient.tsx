@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Box, Flex, Heading, Text, Spinner, Badge } from '@chakra-ui/react'
 import { Lesson, Chapter, Curriculum } from '@/types'
 import { useLessonAccess } from '@/hooks/useLessonAccess'
@@ -9,7 +10,6 @@ import VideoPlayer from '@/components/VideoPlayer'
 import ArticleRenderer from '@/components/ArticleRenderer'
 import SurveyForm from '@/components/SurveyForm'
 import LockedLessonView from '@/components/LockedLessonView'
-import PurchaseModal from '@/components/PurchaseModal'
 import { LessonSidebar } from '@/components/LessonSidebar'
 
 interface LessonPageClientProps {
@@ -30,15 +30,10 @@ export default function LessonPageClient({
 }: LessonPageClientProps) {
   const { user } = useAuth()
   const accessControl = useLessonAccess(lesson.id, curriculum.id)
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+  const router = useRouter()
 
   const handlePurchaseClick = () => {
-    setIsPurchaseModalOpen(true)
-  }
-
-  const handlePurchaseSuccess = () => {
-    // Refresh access control by retrying
-    accessControl.retry()
+    router.push(`/curriculums/${curriculum.id}/orders`)
   }
 
   const renderLessonContent = () => {
@@ -183,16 +178,6 @@ export default function LessonPageClient({
           )}
         </Box>
       </Box>
-
-      {/* Purchase Modal */}
-      <PurchaseModal
-        isOpen={isPurchaseModalOpen}
-        onClose={() => setIsPurchaseModalOpen(false)}
-        curriculumId={curriculum.id}
-        curriculumTitle={curriculum.title}
-        curriculumPrice={curriculum.price}
-        onPurchaseSuccess={handlePurchaseSuccess}
-      />
     </Flex>
   )
 }
