@@ -25,6 +25,7 @@ class ApiClient {
       baseURL: getApiBaseUrl(),
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': '69420', // Skip ngrok browser warning for free tier
       },
     })
 
@@ -85,7 +86,12 @@ class ApiClient {
               // Attempt to refresh the token
               const response = await axios.post(
                 `${getApiBaseUrl()}/auth/refresh`,
-                { refreshToken }
+                { refreshToken },
+                {
+                  headers: {
+                    'ngrok-skip-browser-warning': '69420',
+                  },
+                }
               )
 
               const { accessToken } = response.data
