@@ -94,7 +94,6 @@ services:
       # Override API URLs for Docker network
       NEXT_PUBLIC_API_URL: http://localhost:8081/api
       API_URL: http://backend:8080/api
-      BACKEND_URL: http://backend:8080
     ports:
       - "3001:3000"
     depends_on:
