@@ -81,10 +81,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Use setAllowedOriginPatterns to support wildcards for ngrok
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:3001",
+                "http://localhost:*",        // Allow all localhost ports
+                "https://localhost:*",       // Allow all localhost HTTPS ports
                 "https://waterballsa.com",
                 "https://water-ball-sa.vercel.app",
-                "https://*.ngrok-free.app"  // Allow all ngrok URLs
+                "https://*.ngrok-free.app",  // Allow all ngrok URLs
+                "https://*.ngrok.io"         // Allow legacy ngrok URLs
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
