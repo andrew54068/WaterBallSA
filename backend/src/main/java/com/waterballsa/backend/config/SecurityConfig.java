@@ -79,9 +79,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
+        // Use setAllowedOriginPatterns to support wildcards for ngrok
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3001",
-                "https://waterballsa.com"
+                "https://waterballsa.com",
+                "https://water-ball-sa.vercel.app",
+                "https://*.ngrok-free.app"  // Allow all ngrok URLs
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
