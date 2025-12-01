@@ -160,7 +160,7 @@ export function GoogleLoginButton({ width = 200 }: GoogleLoginButtonProps) {
         clearInterval(checkGoogleLoaded)
       }
     }
-  }, [login, width])
+  }, [login, width, router])
 
   return (
     <Box position="relative">

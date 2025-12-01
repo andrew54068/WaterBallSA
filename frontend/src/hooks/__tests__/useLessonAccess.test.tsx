@@ -73,9 +73,11 @@ const createWrapper = (user: User | null = null, accessToken: string | null = nu
     localStorageMock.clear()
   }
 
-  return ({ children }: { children: ReactNode }) => (
+  const Wrapper = ({ children }: { children: ReactNode }) => (
     <AuthProvider>{children}</AuthProvider>
   )
+  Wrapper.displayName = 'TestWrapper'
+  return Wrapper
 }
 
 describe('useLessonAccess Hook', () => {

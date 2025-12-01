@@ -184,7 +184,7 @@ export default function PurchaseModal({
             shadow="md"
           >
             <Text color="blue.200" fontSize="md" fontWeight="bold" mb={4}>
-              What you'll get:
+              What you&apos;ll get:
             </Text>
             <Box color="blue.300" fontSize="md" lineHeight="1.8">
               <Flex align="flex-start" mb={2}>
