@@ -136,42 +136,44 @@ export function LessonSidebar({
                       console.log('lesson is locked', isLocked)
 
                       return (
-                        <Flex
+                        <Link
                           key={lesson.id}
-                          as={Link}
                           href={`/course/${curriculumId}/chapters/${chapter.orderIndex}/lessons/${lesson.orderIndex}`}
-                          align="center"
-                          gap={3}
-                          p={4}
-                          transition="all 0.2s"
-                          bg={isCurrentLesson ? 'accent.yellow' : 'transparent'}
-                          color={isCurrentLesson ? 'dark.900' : 'white'}
-                          _hover={!isCurrentLesson ? { bg: 'dark.600' } : {}}
                           style={{ textDecoration: 'none' }}
                         >
-                          {/* Status Icon */}
-                          <Box flexShrink={0}>
-                            {isLocked ? (
-                              <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
-                            ) : (
-                              <LessonProgressIndicator
-                                lessonId={lesson.id}
-                                progress={progressMap.get(lesson.id)}
-                                size="sm"
-                              />
-                            )}
-                          </Box>
-
-                          {/* Lesson Title */}
-                          <Text
-                            flex={1}
-                            fontSize="sm"
-                            fontWeight="medium"
-                            lineClamp={2}
+                          <Flex
+                            align="center"
+                            gap={3}
+                            p={4}
+                            transition="all 0.2s"
+                            bg={isCurrentLesson ? 'accent.yellow' : 'transparent'}
+                            color={isCurrentLesson ? 'dark.900' : 'white'}
+                            _hover={!isCurrentLesson ? { bg: 'dark.600' } : {}}
                           >
-                            {lesson.title}
-                          </Text>
-                        </Flex>
+                            {/* Status Icon */}
+                            <Box flexShrink={0}>
+                              {isLocked ? (
+                                <Icon as={LockClosedIcon} w={5} h={5} color="gray.400" />
+                              ) : (
+                                <LessonProgressIndicator
+                                  lessonId={lesson.id}
+                                  progress={progressMap.get(lesson.id)}
+                                  size="sm"
+                                />
+                              )}
+                            </Box>
+
+                            {/* Lesson Title */}
+                            <Text
+                              flex={1}
+                              fontSize="sm"
+                              fontWeight="medium"
+                              lineClamp={2}
+                            >
+                              {lesson.title}
+                            </Text>
+                          </Flex>
+                        </Link>
                       )
                     })}
                   </Box>

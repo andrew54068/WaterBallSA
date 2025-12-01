@@ -408,7 +408,7 @@ export default function OrderConfirmationPage() {
                 {appliedCoupon ? (
                   <Flex align="center" gap={2} bg="green.900" p={3} borderRadius="lg" borderWidth="1px" borderColor="green.700">
                     <Text color="green.300" fontSize="sm" flex={1}>
-                      Coupon "{appliedCoupon}" applied
+                      Coupon &ldquo;{appliedCoupon}&rdquo; applied
                     </Text>
                     <Button
                       size="sm"
@@ -435,7 +435,7 @@ export default function OrderConfirmationPage() {
                       />
                       <Button
                         onClick={handleApplyCoupon}
-                        isLoading={couponLoading}
+                        loading={couponLoading}
                         bg="accent.yellow"
                         color="dark.900"
                         _hover={{ bg: 'accent.yellow-dark' }}
@@ -461,7 +461,7 @@ export default function OrderConfirmationPage() {
                   w="full"
                   size="lg"
                   onClick={handleConfirmPurchase}
-                  isLoading={purchasing}
+                  loading={purchasing}
                   bg="accent.yellow"
                   color="dark.900"
                   fontWeight="bold"

@@ -8,6 +8,7 @@ import {
   Box,
   Flex,
   Text,
+  Link,
   Button,
   VStack,
   HStack,
@@ -333,8 +334,7 @@ export default function PaymentPage() {
           </Text>
           <Flex justify="center" align="center" gap={2}>
             <Text fontSize="xs" color="blue.400">▶</Text>
-            <Text
-              as="a"
+            <Link
               href="#"
               fontSize="xs"
               color="blue.400"
@@ -342,7 +342,7 @@ export default function PaymentPage() {
               _hover={{ color: 'blue.300' }}
             >
               網際網路課程購買暨服務契約
-            </Text>
+            </Link>
           </Flex>
         </Box>
       </Box>
