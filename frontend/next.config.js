@@ -7,11 +7,6 @@ const nextConfig = {
   },
   // Rewrites removed - browser will call backend directly via NEXT_PUBLIC_API_URL
   // This prevents 508 loop on Vercel when calling external backend (ngrok/deployed)
-  // Skip build errors for error pages during static generation
-  // This allows the build to complete despite prerender errors
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
 }
 
 module.exports = nextConfig
