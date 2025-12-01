@@ -8,7 +8,6 @@ import { purchasesApi, PurchaseResponse } from '@/lib/api/purchases'
 export function OrderHistory() {
     const [orders, setOrders] = useState<PurchaseResponse[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -19,7 +18,6 @@ export function OrderHistory() {
                 // If 401, it means user is not logged in, which is fine, just show empty or nothing
                 // But for now, let's just log it and show empty
                 console.error('Failed to fetch orders:', err)
-                // setError('無法載入訂單紀錄')
             } finally {
                 setIsLoading(false)
             }
