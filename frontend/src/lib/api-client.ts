@@ -2,14 +2,14 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import type { ApiError } from '@/types'
 
 // Use internal Docker service name for server-side requests (SSR)
-// Use relative URL for client-side requests (browser) to leverage Next.js rewrites
+// Use NEXT_PUBLIC_API_URL for client-side requests (browser calls backend directly)
 const getApiBaseUrl = () => {
   if (typeof window === 'undefined') {
     // Server-side (inside Docker container)
     return process.env.API_URL || 'http://backend:8080/api'
   }
-  // Client-side (browser) - use relative URL, Next.js rewrites will proxy to backend
-  return '/api'
+  // Client-side (browser) - call backend directly (ngrok URL on Vercel, localhost for local dev)
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api'
 }
 
 class ApiClient {
