@@ -102,8 +102,8 @@ services:
       - waterballsa-network
     volumes:
       - ./frontend:/app
-      # - /app/node_modules
-      # - /app/.next
+      - /app/node_modules
+      - /app/.next
     restart: unless-stopped
 
 volumes:
