@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Box, Flex, Text, Badge, Button } from "@chakra-ui/react";
 import { useAuth } from "@/lib/auth-context";
 import { LoginModal } from "./LoginModal";
+import { useOwnership } from "@/hooks/useOwnership";
 
 interface FeaturedCourseCardProps {
   id: number;
@@ -14,9 +15,7 @@ interface FeaturedCourseCardProps {
   image: string;
   hasCoupon?: boolean;
   couponValue?: number;
-  isPurchased?: boolean;
   hasFreeTrial?: boolean;
-  isPaidOnly?: boolean;
   firstFreeLessonIndex?: number;
   firstFreeChapterIndex?: number;
 }
@@ -29,14 +28,13 @@ export function FeaturedCourseCard({
   image,
   hasCoupon = false,
   couponValue,
-  isPurchased = false,
   hasFreeTrial = false,
-  isPaidOnly = false,
   firstFreeLessonIndex,
   firstFreeChapterIndex,
 }: FeaturedCourseCardProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { owns } = useOwnership(id);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
 
@@ -123,21 +121,22 @@ export function FeaturedCourseCard({
           </Flex>
         )}
 
-        {/* Status Badge */}
-        <Box position="absolute" top={4} right={4}>
-          <Badge
-            px={4}
-            py={1.5}
-            borderRadius="full"
-            fontSize="xs"
-            fontWeight="bold"
-            colorScheme={isPurchased ? "green" : undefined}
-            bg={isPurchased ? "green.500" : "accent.yellow"}
-            color={isPurchased ? "white" : "dark.900"}
-          >
-            {isPurchased ? "已購買" : "尚未購買"}
-          </Badge>
-        </Box>
+        {user && (
+          <Box position="absolute" top={4} right={4}>
+            <Badge
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              fontSize="xs"
+              fontWeight="bold"
+              colorScheme={owns ? "green" : undefined}
+              bg={owns ? "green.500" : "accent.yellow"}
+              color={owns ? "white" : "dark.900"}
+            >
+              {owns ? "已購買" : "尚未購買"}
+            </Badge>
+          </Box>
+        )}
       </Box>
 
       {/* Content */}
@@ -200,47 +199,87 @@ export function FeaturedCourseCard({
         {/* Action Buttons */}
         <Flex gap={3} marginTop="auto">
           {hasFreeTrial ? (
-            <Button
-              flex={1}
-              px={6}
-              py={3}
-              bg="accent.yellow"
-              color="dark.900"
-              borderRadius="lg"
-              fontWeight="bold"
-              _hover={{ bg: "accent.yellow-dark" }}
-              transition="all 0.2s"
-              onClick={handleFreeTrialClick}
-            >
-              立刻體驗
-            </Button>
+            <>
+              {/* Try Now button - yellow */}
+              <Button
+                flex={1}
+                px={6}
+                py={3}
+                bg="accent.yellow"
+                color="dark.900"
+                borderRadius="lg"
+                fontWeight="bold"
+                _hover={{ bg: "accent.yellow-dark" }}
+                transition="all 0.2s"
+                onClick={handleFreeTrialClick}
+              >
+                立刻體驗
+              </Button>
+              {/* Buy Now button - white border */}
+              <Button
+                flex={1}
+                px={6}
+                py={3}
+                bg="transparent"
+                borderWidth="2px"
+                borderColor="rgba(255, 255, 255, 0.3)"
+                color="white"
+                borderRadius="lg"
+                fontWeight="bold"
+                _hover={{
+                  bg: "rgba(255, 255, 255, 0.1)",
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                }}
+                transition="all 0.2s"
+                onClick={handlePurchaseClick}
+              >
+                立即購買
+              </Button>
+            </>
           ) : (
-            <Button
-              flex={hasFreeTrial || isPaidOnly ? 1 : undefined}
-              w={hasFreeTrial || isPaidOnly ? undefined : "full"}
-              px={6}
-              py={3}
-              bg="transparent"
-              borderWidth="2px"
-              borderColor="rgba(255, 255, 255, 0.3)"
-              color="white"
-              borderRadius="lg"
-              fontWeight="bold"
-              _hover={{
-                bg: "rgba(255, 255, 255, 0.1)",
-                borderColor: "rgba(255, 255, 255, 0.5)",
-              }}
-              transition="all 0.2s"
-              onClick={handlePurchaseClick}
-            >
-              立即購買
-            </Button>
+            <>
+              {/* Paid Only button - disabled, white border */}
+              <Button
+                flex={1}
+                px={6}
+                py={3}
+                bg="transparent"
+                borderWidth="2px"
+                borderColor="rgba(255, 255, 255, 0.2)"
+                color="rgba(255, 255, 255, 0.4)"
+                borderRadius="lg"
+                fontWeight="bold"
+                disabled
+                cursor="not-allowed"
+                _hover={{}}
+              >
+                僅限付費
+              </Button>
+              {/* Buy Now button - yellow */}
+              <Button
+                flex={1}
+                px={6}
+                py={3}
+                bg="accent.yellow"
+                color="dark.900"
+                borderRadius="lg"
+                fontWeight="bold"
+                _hover={{ bg: "accent.yellow-dark" }}
+                transition="all 0.2s"
+                onClick={handlePurchaseClick}
+              >
+                立刻購買
+              </Button>
+            </>
           )}
         </Flex>
       </Box>
 
       {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </Box>
   );
 }
