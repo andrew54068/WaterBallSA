@@ -1,7 +1,8 @@
 import { apiClient } from '../api-client'
 
 export interface ValidateCouponRequest {
-  code: string
+  curriculumId: number
+  couponCode: string
 }
 
 export interface CouponValidationResponse {
@@ -15,10 +16,13 @@ export interface CouponValidationResponse {
 
 export const couponApi = {
   /**
-   * Validate a coupon code
+   * Validate a coupon code for a specific curriculum
    */
-  async validateCoupon(code: string): Promise<CouponValidationResponse> {
-    const { data } = await apiClient.post<CouponValidationResponse>('/coupons/validate', { code })
+  async validateCoupon(curriculumId: number, couponCode: string): Promise<CouponValidationResponse> {
+    const { data } = await apiClient.post<CouponValidationResponse>('/coupons/validate', {
+      curriculumId,
+      couponCode
+    })
     return data
   }
 }
