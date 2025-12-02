@@ -89,7 +89,7 @@ export default function OrderConfirmationPage() {
 
     try {
       setCouponLoading(true)
-      const validation = await couponApi.validateCoupon(couponCode.trim())
+      const validation = await couponApi.validateCoupon(curriculumId, couponCode.trim())
       setCouponValidation(validation)
 
       if (validation.valid) {
@@ -424,6 +424,7 @@ export default function OrderConfirmationPage() {
                   <VStack align="stretch" gap={2}>
                     <Flex gap={2}>
                       <Input
+                        pl='8px'
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                         placeholder="Enter coupon code"
