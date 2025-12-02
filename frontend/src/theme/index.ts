@@ -33,6 +33,13 @@ const customConfig = defineConfig({
         'accent.primary.hover': { value: '{colors.accent.yellow-dark}' },
       },
     },
+    recipes: {
+      input: {
+        base: {
+          paddingLeft: '4px',
+        },
+      },
+    },
   },
   globalCss: {
     body: {
