@@ -62,7 +62,7 @@ export default function PaymentPage() {
       } catch (err: unknown) {
         console.error('Failed to fetch purchase:', err)
         const error = err as { response?: { data?: { message?: string } } }
-        setError(error.response?.data?.message || 'Failed to load purchase details. Please try again.')
+        setError(error.response?.data?.message || '無法載入訂單資訊，請稍後再試')
       } finally {
         setLoading(false)
       }
@@ -89,7 +89,7 @@ export default function PaymentPage() {
     } catch (err: unknown) {
       console.error('Failed to complete payment:', err)
       const error = err as { response?: { data?: { message?: string } } }
-      setError(error.response?.data?.message || 'Failed to complete payment. Please try again.')
+      setError(error.response?.data?.message || '無法完成付款，請稍後再試')
       setPaying(false)
     }
   }
@@ -323,7 +323,7 @@ export default function PaymentPage() {
         {/* Footer Info */}
         <Box textAlign="center">
           <Text fontSize="xs" color="gray.500" mb={2}>
-            付款後的平日一天內（假日則一至兩個天內）會立即幫您封帳，若對帳無誤則會於約定之開學日期為您啟動此帳號的正式使用資格，也會透過信息來引導您享受此旅程。
+            付款後的平日一天內（假日則一至兩個天內）會立即幫您封帳，若對帳無誤則會於約定之開學日期為您啟動此帳號的正式使用資格，也會透過電子郵件來引導您享受此旅程。
           </Text>
           <Text fontSize="xs" color="gray.500" mb={2}>
             若您有其他購買相關的問題，歡迎信至{' '}

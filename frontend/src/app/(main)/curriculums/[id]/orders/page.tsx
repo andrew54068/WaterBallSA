@@ -70,7 +70,7 @@ export default function OrderConfirmationPage() {
           // Free curriculum, redirect to curriculum page
           router.push(`/curriculums/${curriculumId}`)
         } else {
-          setError(error.response?.data?.message || 'Failed to load order preview. Please try again.')
+          setError(error.response?.data?.message || '無法載入訂單預覽，請稍後再試')
         }
       } finally {
         setLoading(false)
@@ -83,7 +83,7 @@ export default function OrderConfirmationPage() {
   // Handle coupon validation
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      setCouponValidation({ valid: false, errorMessage: 'Please enter a coupon code' })
+      setCouponValidation({ valid: false, errorMessage: '請輸入折價券代碼' })
       return
     }
 
@@ -100,7 +100,7 @@ export default function OrderConfirmationPage() {
       const error = err as { response?: { data?: { message?: string } } }
       setCouponValidation({
         valid: false,
-        errorMessage: error.response?.data?.message || 'Failed to validate coupon. Please try again.'
+        errorMessage: error.response?.data?.message || '無法驗證折價券，請稍後再試'
       })
     } finally {
       setCouponLoading(false)
@@ -139,7 +139,7 @@ export default function OrderConfirmationPage() {
     } catch (err: unknown) {
       console.error('Failed to create purchase:', err)
       const error = err as { response?: { data?: { message?: string } } }
-      setError(error.response?.data?.message || 'Failed to create purchase. Please try again.')
+      setError(error.response?.data?.message || '無法建立訂單，請稍後再試')
       setPurchasing(false)
     }
   }
@@ -171,7 +171,7 @@ export default function OrderConfirmationPage() {
       <Flex align="center" justify="center" minH="100vh" bg="dark.900">
         <VStack gap={4}>
           <Spinner size="xl" color="accent.yellow" />
-          <Text color="gray.400">Loading order details...</Text>
+          <Text color="gray.400">載入訂單詳情中...</Text>
         </VStack>
       </Flex>
     )
@@ -183,7 +183,7 @@ export default function OrderConfirmationPage() {
         <Box maxW="md" w="full">
           <Alert.Root status="error" mb={6}>
             <Alert.Indicator />
-            <Alert.Title>Error</Alert.Title>
+            <Alert.Title>錯誤</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
           <Button
@@ -193,7 +193,7 @@ export default function OrderConfirmationPage() {
             color="dark.900"
             _hover={{ bg: 'accent.yellow-dark' }}
           >
-            Back to Home
+            返回首頁
           </Button>
         </Box>
       </Flex>
@@ -221,26 +221,26 @@ export default function OrderConfirmationPage() {
         {/* Breadcrumb */}
         <Flex align="center" gap={2} mb={8} fontSize="sm" color="gray.400">
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <Text _hover={{ color: 'accent.yellow' }}>Home</Text>
+            <Text _hover={{ color: 'accent.yellow' }}>首頁</Text>
           </Link>
           <Text>/</Text>
           <Link href={`/curriculums/${curriculumId}`} style={{ textDecoration: 'none' }}>
             <Text _hover={{ color: 'accent.yellow' }}>{orderPreview.curriculum.title}</Text>
           </Link>
           <Text>/</Text>
-          <Text color="white">Order Confirmation</Text>
+          <Text color="white">訂單確認</Text>
         </Flex>
 
         {/* Page Title */}
         <Text fontSize="3xl" fontWeight="bold" color="white" mb={8}>
-          Order Confirmation
+          訂單確認
         </Text>
 
         {/* Error Alert */}
         {error && (
           <Alert.Root status="error" mb={6}>
             <Alert.Indicator />
-            <Alert.Title>Error</Alert.Title>
+            <Alert.Title>錯誤</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
         )}
@@ -267,7 +267,7 @@ export default function OrderConfirmationPage() {
                   </Text>
                   {orderPreview.curriculum.instructorName && (
                     <Text fontSize="sm" color="gray.400">
-                      Instructor: {orderPreview.curriculum.instructorName}
+                      講師：{orderPreview.curriculum.instructorName}
                     </Text>
                   )}
                   {orderPreview.curriculum.difficultyLevel && (
@@ -297,16 +297,16 @@ export default function OrderConfirmationPage() {
               <Flex gap={6} mb={6} fontSize="sm" color="gray.400">
                 <Flex align="center" gap={2}>
                   <Text fontWeight="semibold" color="white">{orderPreview.totalChapters}</Text>
-                  <Text>Chapters</Text>
+                  <Text>章節</Text>
                 </Flex>
                 <Flex align="center" gap={2}>
                   <Text fontWeight="semibold" color="white">{orderPreview.totalLessons}</Text>
-                  <Text>Lessons</Text>
+                  <Text>課程</Text>
                 </Flex>
                 {orderPreview.curriculum.estimatedDurationHours && (
                   <Flex align="center" gap={2}>
                     <Text fontWeight="semibold" color="white">{orderPreview.curriculum.estimatedDurationHours}</Text>
-                    <Text>Hours</Text>
+                    <Text>小時</Text>
                   </Flex>
                 )}
               </Flex>
@@ -315,13 +315,13 @@ export default function OrderConfirmationPage() {
 
               {/* Chapters & Lessons */}
               <Text fontSize="lg" fontWeight="bold" color="white" mb={4}>
-                Course Content
+                課程內容
               </Text>
               <VStack align="stretch" gap={4}>
                 {orderPreview.chapters.map((chapter) => (
                   <Box key={chapter.id} bg="dark.700" p={4} borderRadius="lg">
                     <Text fontWeight="semibold" color="white" mb={2}>
-                      Chapter {chapter.orderIndex + 1}: {chapter.title}
+                      章節 {chapter.orderIndex + 1}：{chapter.title}
                     </Text>
                     {chapter.description && (
                       <Text fontSize="sm" color="gray.400" mb={3}>
@@ -365,13 +365,13 @@ export default function OrderConfirmationPage() {
           <Box flex={1}>
             <Box bg="dark.800" borderRadius="2xl" p={6} borderWidth="2px" borderColor="dark.600" position="sticky" top="80px">
               <Text fontSize="xl" fontWeight="bold" color="white" mb={6}>
-                Order Summary
+                訂單摘要
               </Text>
 
               {/* Pricing Breakdown */}
               <VStack align="stretch" gap={3} mb={6}>
                 <Flex justify="space-between">
-                  <Text color="gray.400">Original Price</Text>
+                  <Text color="gray.400">原價</Text>
                   <Text color="white" fontWeight="semibold">
                     {orderPreview.curriculum.currency} ${orderPreview.originalPrice.toFixed(2)}
                   </Text>
@@ -379,7 +379,7 @@ export default function OrderConfirmationPage() {
                 {discount > 0 && (
                   <Flex justify="space-between" color="green.400">
                     <Text>
-                      Discount
+                      折扣
                       {couponValidation?.discountType === 'PERCENTAGE' && couponValidation.discountValue &&
                         ` (${couponValidation.discountValue}%)`
                       }
@@ -391,7 +391,7 @@ export default function OrderConfirmationPage() {
                 )}
                 <Separator />
                 <Flex justify="space-between" fontSize="lg">
-                  <Text color="white" fontWeight="bold">Total</Text>
+                  <Text color="white" fontWeight="bold">總計</Text>
                   <Text color="accent.yellow" fontWeight="bold">
                     {orderPreview.curriculum.currency} ${finalPrice.toFixed(2)}
                   </Text>
@@ -403,12 +403,12 @@ export default function OrderConfirmationPage() {
               {/* Coupon Section */}
               <Box mb={6}>
                 <Text fontSize="sm" fontWeight="semibold" color="white" mb={2}>
-                  Have a coupon code?
+                  有折價券嗎？
                 </Text>
                 {appliedCoupon ? (
                   <Flex align="center" gap={2} bg="green.900" p={3} borderRadius="lg" borderWidth="1px" borderColor="green.700">
                     <Text color="green.300" fontSize="sm" flex={1}>
-                      Coupon &ldquo;{appliedCoupon}&rdquo; applied
+                      已套用折價券「{appliedCoupon}」
                     </Text>
                     <Button
                       size="sm"
@@ -417,7 +417,7 @@ export default function OrderConfirmationPage() {
                       color="green.300"
                       _hover={{ color: 'green.200' }}
                     >
-                      Remove
+                      移除
                     </Button>
                   </Flex>
                 ) : (
@@ -427,7 +427,7 @@ export default function OrderConfirmationPage() {
                         pl='8px'
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="Enter coupon code"
+                        placeholder="輸入折價券代碼"
                         bg="dark.700"
                         borderColor="dark.600"
                         color="white"
@@ -442,12 +442,12 @@ export default function OrderConfirmationPage() {
                         _hover={{ bg: 'accent.yellow-dark' }}
                         px={6}
                       >
-                        Apply
+                        套用
                       </Button>
                     </Flex>
                     {couponValidation && !couponValidation.valid && (
                       <Text color="red.400" fontSize="sm">
-                        {couponValidation.errorMessage || 'Invalid coupon code'}
+                        {couponValidation.errorMessage || '無效的折價券代碼'}
                       </Text>
                     )}
                   </VStack>
@@ -468,7 +468,7 @@ export default function OrderConfirmationPage() {
                   fontWeight="bold"
                   _hover={{ bg: 'accent.yellow-dark' }}
                 >
-                  Confirm Purchase - ${finalPrice.toFixed(2)}
+                  確認購買 - ${finalPrice.toFixed(2)}
                 </Button>
                 <Button
                   w="full"
@@ -477,13 +477,13 @@ export default function OrderConfirmationPage() {
                   color="gray.400"
                   _hover={{ color: 'white', bg: 'dark.700' }}
                 >
-                  Cancel
+                  取消
                 </Button>
               </VStack>
 
               {/* Info Text */}
               <Text fontSize="xs" color="gray.500" mt={4} textAlign="center">
-                By confirming, you agree to our Terms of Service and Privacy Policy
+                確認購買即表示您同意我們的服務條款和隱私權政策
               </Text>
             </Box>
           </Box>
