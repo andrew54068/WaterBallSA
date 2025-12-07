@@ -1,0 +1,589 @@
+openapi: 3.0.0
+info:
+  title: WaterBallSA Purchases API
+  version: 1.0.0
+  description: |
+    WaterBallSA 線上學習平台 - 購買 (Purchase) API 規格
+
+    **認證說明**：所有端點需要 JWT Bearer token 認證
+    **購買流程**：建立訂單 (PENDING) → 完成付款 (COMPLETED)
+    **Phase 2 說明**：目前使用 mock 付款，完成付款 API 永遠成功
+
+servers:
+  - url: http://localhost:8081/api
+    description: 開發環境
+  - url: https://api.waterballsa.com/api
+    description: 正式環境
+
+paths:
+  /curriculums/{curriculumId}/order-preview:
+    get:
+      summary: 取得訂單預覽資訊
+      description: 在訂單確認頁面顯示課程完整資訊（章節、課程列表等）
+      operationId: getOrderPreview
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: curriculumId
+          in: path
+          description: 課程 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得訂單預覽資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPreviewResponse'
+        "404":
+          description: 找不到該課程
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases/check-ownership/{curriculumId}:
+    get:
+      summary: 檢查使用者是否擁有課程
+      description: 檢查當前登入使用者是否已購買指定課程
+      operationId: checkOwnership
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: curriculumId
+          in: path
+          description: 課程 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得擁有狀態
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnershipCheckResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases:
+    post:
+      summary: 建立購買訂單
+      description: 建立新的購買訂單（狀態為 PENDING，等待付款）
+      operationId: createPurchase
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        "201":
+          description: 訂單建立成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        "400":
+          description: 請求格式錯誤或業務邏輯錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicatePurchase:
+                  value:
+                    timestamp: "2025-12-08T10:30:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "User has already purchased this curriculum"
+                    path: "/api/purchases"
+                freeCurriculum:
+                  value:
+                    timestamp: "2025-12-08T10:30:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Cannot purchase free curriculum"
+                    path: "/api/purchases"
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases/{purchaseId}/complete:
+    post:
+      summary: 完成購買付款
+      description: 完成 PENDING 狀態的訂單付款（Phase 2 mock 付款，永遠成功）
+      operationId: completePurchase
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: purchaseId
+          in: path
+          description: 購買訂單 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 付款完成，訂單狀態更新為 COMPLETED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        "404":
+          description: 找不到該訂單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases/my-purchases:
+    get:
+      summary: 取得使用者的購買歷史
+      description: 取得當前登入使用者的所有購買記錄（分頁）
+      operationId: getMyPurchases
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: 頁碼（從 0 開始）
+          required: false
+          schema:
+            type: integer
+            default: 0
+          example: 0
+        - name: size
+          in: query
+          description: 每頁筆數
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 10
+        - name: sortBy
+          in: query
+          description: 排序欄位
+          required: false
+          schema:
+            type: string
+            default: "purchasedAt"
+          example: "purchasedAt"
+        - name: direction
+          in: query
+          description: 排序方向
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: "desc"
+          example: "desc"
+      responses:
+        "200":
+          description: 成功取得購買歷史
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPurchasesResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases/completed:
+    get:
+      summary: 取得已完成的購買記錄
+      description: 取得當前登入使用者所有已完成（COMPLETED）的購買記錄
+      operationId: getCompletedPurchases
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: 頁碼（從 0 開始）
+          required: false
+          schema:
+            type: integer
+            default: 0
+          example: 0
+        - name: size
+          in: query
+          description: 每頁筆數
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 10
+      responses:
+        "200":
+          description: 成功取得已完成的購買記錄
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPurchasesResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /purchases/{purchaseId}:
+    get:
+      summary: 取得購買訂單詳情
+      description: 根據 ID 取得購買訂單詳情
+      operationId: getPurchaseById
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: purchaseId
+          in: path
+          description: 購買訂單 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得訂單詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        "404":
+          description: 找不到該訂單
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token（格式：Bearer {token}）
+
+  schemas:
+    OrderPreviewResponse:
+      type: object
+      required:
+        - curriculum
+        - chapters
+        - originalPrice
+        - totalChapters
+        - totalLessons
+      properties:
+        curriculum:
+          type: object
+          description: 課程基本資訊
+          required:
+            - id
+            - title
+            - description
+            - instructorName
+            - price
+            - currency
+          properties:
+            id:
+              type: integer
+              example: 1
+            title:
+              type: string
+              example: "完整 Java 開發入門課程"
+            description:
+              type: string
+              example: "從零開始學習 Java 程式設計"
+            thumbnailUrl:
+              type: string
+              format: uri
+              example: "https://example.com/thumbnails/java-course.jpg"
+            instructorName:
+              type: string
+              example: "張老師"
+            price:
+              type: number
+              format: double
+              example: 1990.00
+            currency:
+              type: string
+              example: "TWD"
+            difficultyLevel:
+              type: string
+              example: "BEGINNER"
+            estimatedDurationHours:
+              type: integer
+              example: 40
+        chapters:
+          type: array
+          description: 章節與課程列表
+          items:
+            type: object
+            required:
+              - id
+              - title
+              - orderIndex
+              - lessons
+            properties:
+              id:
+                type: integer
+                example: 1
+              title:
+                type: string
+                example: "Java 基礎語法"
+              description:
+                type: string
+                example: "學習 Java 基本語法"
+              orderIndex:
+                type: integer
+                example: 1
+              lessons:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - title
+                    - lessonType
+                    - orderIndex
+                    - isFreePreview
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    title:
+                      type: string
+                      example: "變數與資料型別"
+                    lessonType:
+                      type: string
+                      enum: [VIDEO, ARTICLE, SURVEY]
+                      example: "VIDEO"
+                    durationMinutes:
+                      type: integer
+                      example: 45
+                    isFreePreview:
+                      type: boolean
+                      example: true
+                    orderIndex:
+                      type: integer
+                      example: 1
+        originalPrice:
+          type: number
+          format: double
+          description: 原始價格
+          example: 1990.00
+        totalChapters:
+          type: integer
+          description: 總章節數
+          example: 5
+        totalLessons:
+          type: integer
+          description: 總課程數
+          example: 42
+
+    OwnershipCheckResponse:
+      type: object
+      required:
+        - owns
+      properties:
+        owns:
+          type: boolean
+          description: 是否擁有該課程
+          example: true
+        purchaseId:
+          type: integer
+          description: 購買訂單 ID（如果擁有）
+          example: 1
+        purchaseDate:
+          type: string
+          format: date-time
+          description: 購買日期（如果擁有）
+          example: "2025-01-15T12:30:00Z"
+
+    PurchaseRequest:
+      type: object
+      required:
+        - curriculumId
+      properties:
+        curriculumId:
+          type: integer
+          description: 課程 ID
+          example: 1
+        couponCode:
+          type: string
+          description: 優惠券代碼（可選）
+          example: "WELCOME2025"
+
+    PurchaseResponse:
+      type: object
+      required:
+        - purchaseId
+        - curriculumId
+        - curriculumTitle
+        - originalPrice
+        - finalPrice
+        - status
+        - createdAt
+      properties:
+        purchaseId:
+          type: integer
+          description: 購買訂單 ID
+          example: 1
+        curriculumId:
+          type: integer
+          description: 課程 ID
+          example: 1
+        curriculumTitle:
+          type: string
+          description: 課程標題
+          example: "完整 Java 開發入門課程"
+        curriculumThumbnailUrl:
+          type: string
+          format: uri
+          description: 課程縮圖 URL（可選）
+          example: "https://example.com/thumbnails/java-course.jpg"
+        originalPrice:
+          type: number
+          format: double
+          description: 原始價格
+          example: 1990.00
+        finalPrice:
+          type: number
+          format: double
+          description: 最終價格（套用優惠券後）
+          example: 1591.00
+        couponCode:
+          type: string
+          description: 使用的優惠券代碼（可選）
+          example: "WELCOME2025"
+        status:
+          type: string
+          enum:
+            - PENDING
+            - COMPLETED
+            - CANCELLED
+          description: 訂單狀態
+          example: "COMPLETED"
+        purchasedAt:
+          type: string
+          format: date-time
+          description: 付款完成時間（可選，COMPLETED 狀態才有）
+          example: "2025-01-15T12:30:00Z"
+        createdAt:
+          type: string
+          format: date-time
+          description: 訂單建立時間
+          example: "2025-01-15T12:25:00Z"
+
+    PaginatedPurchasesResponse:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - totalElements
+        - totalPages
+      properties:
+        content:
+          type: array
+          description: 購買記錄列表
+          items:
+            $ref: '#/components/schemas/PurchaseResponse'
+        page:
+          type: integer
+          description: 當前頁碼
+          example: 0
+        size:
+          type: integer
+          description: 每頁筆數
+          example: 10
+        totalElements:
+          type: integer
+          description: 總筆數
+          example: 25
+        totalPages:
+          type: integer
+          description: 總頁數
+          example: 3
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 錯誤發生時間
+          example: "2025-12-08T10:30:00Z"
+        status:
+          type: integer
+          description: HTTP 狀態碼
+          example: 400
+        error:
+          type: string
+          description: 錯誤類型
+          example: "Bad Request"
+        message:
+          type: string
+          description: 錯誤訊息
+          example: "Invalid request"
+        path:
+          type: string
+          description: 請求路徑
+          example: "/api/purchases"

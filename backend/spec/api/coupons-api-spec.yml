@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: WaterBallSA Coupons API
+  version: 1.0.0
+  description: |
+    WaterBallSA 線上學習平台 - 優惠券 (Coupon) API 規格
+
+    **認證說明**：所有端點需要 JWT Bearer token 認證
+    **優惠券類型**：PERCENTAGE（百分比折扣）、FIXED_AMOUNT（固定金額折扣）
+    **驗證規則**：檢查優惠券有效期、使用次數限制、適用課程等
+
+servers:
+  - url: http://localhost:8081/api
+    description: 開發環境
+  - url: https://api.waterballsa.com/api
+    description: 正式環境
+
+paths:
+  /coupons/validate:
+    post:
+      summary: 驗證優惠券
+      description: 驗證優惠券是否可用於指定課程
+      operationId: validateCoupon
+      tags:
+        - Coupons
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateCouponRequest'
+      responses:
+        "200":
+          description: 驗證成功（包含有效和無效的情況）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouponValidationResponse'
+              examples:
+                validCoupon:
+                  value:
+                    valid: true
+                    code: "WELCOME2025"
+                    discountType: "PERCENTAGE"
+                    discountValue: 20.0
+                invalidCoupon:
+                  value:
+                    valid: false
+                    errorCode: "COUPON_EXPIRED"
+                    errorMessage: "優惠券已過期"
+                couponNotFound:
+                  value:
+                    valid: false
+                    errorCode: "COUPON_NOT_FOUND"
+                    errorMessage: "找不到該優惠券"
+                usageLimitReached:
+                  value:
+                    valid: false
+                    errorCode: "USAGE_LIMIT_REACHED"
+                    errorMessage: "優惠券使用次數已達上限"
+                notApplicable:
+                  value:
+                    valid: false
+                    errorCode: "NOT_APPLICABLE"
+                    errorMessage: "此優惠券不適用於該課程"
+        "400":
+          description: 請求格式錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: 未提供有效的 JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token（格式：Bearer {token}）
+
+  schemas:
+    ValidateCouponRequest:
+      type: object
+      required:
+        - curriculumId
+        - couponCode
+      properties:
+        curriculumId:
+          type: integer
+          description: 課程 ID
+          example: 1
+        couponCode:
+          type: string
+          description: 優惠券代碼
+          example: "WELCOME2025"
+
+    CouponValidationResponse:
+      type: object
+      required:
+        - valid
+      properties:
+        valid:
+          type: boolean
+          description: 優惠券是否有效
+          example: true
+        code:
+          type: string
+          description: 優惠券代碼（有效時才有）
+          example: "WELCOME2025"
+        discountType:
+          type: string
+          enum:
+            - PERCENTAGE
+            - FIXED_AMOUNT
+          description: 折扣類型（有效時才有）
+          example: "PERCENTAGE"
+        discountValue:
+          type: number
+          format: double
+          description: 折扣值（有效時才有）
+          example: 20.0
+        errorCode:
+          type: string
+          description: 錯誤代碼（無效時才有）
+          enum:
+            - COUPON_NOT_FOUND
+            - COUPON_EXPIRED
+            - COUPON_NOT_STARTED
+            - USAGE_LIMIT_REACHED
+            - NOT_APPLICABLE
+          example: "COUPON_EXPIRED"
+        errorMessage:
+          type: string
+          description: 錯誤訊息（無效時才有）
+          example: "優惠券已過期"
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 錯誤發生時間
+          example: "2025-12-08T10:30:00Z"
+        status:
+          type: integer
+          description: HTTP 狀態碼
+          example: 400
+        error:
+          type: string
+          description: 錯誤類型
+          example: "Bad Request"
+        message:
+          type: string
+          description: 錯誤訊息
+          example: "Invalid request parameters"
+        path:
+          type: string
+          description: 請求路徑
+          example: "/api/coupons/validate"
+        validationErrors:
+          type: object
+          additionalProperties:
+            type: string
+          description: 驗證錯誤詳情（可選）
+          example:
+            couponCode: "不得為空"

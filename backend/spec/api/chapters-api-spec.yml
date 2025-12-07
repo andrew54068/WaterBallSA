@@ -1,0 +1,257 @@
+openapi: 3.0.0
+info:
+  title: WaterBallSA Chapters API
+  version: 1.0.0
+  description: |
+    WaterBallSA 線上學習平台 - 章節 (Chapter) API 規格
+
+    **認證說明**：所有端點為公開 API，不需要認證
+    **階層說明**：Curriculum → Chapters → Lessons
+
+servers:
+  - url: http://localhost:8081/api
+    description: 開發環境
+  - url: https://api.waterballsa.com/api
+    description: 正式環境
+
+paths:
+  /chapters/{id}:
+    get:
+      summary: 取得章節詳情
+      description: 根據 ID 取得章節詳情（包含課程列表）
+      operationId: getChapterById
+      tags:
+        - Chapters
+      parameters:
+        - name: id
+          in: path
+          description: 章節 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得章節詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        "404":
+          description: 找不到該章節
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2025-12-08T10:30:00Z"
+                status: 404
+                error: "Not Found"
+                message: "Chapter not found with id: 1"
+                path: "/api/chapters/1"
+
+  /chapters/curriculum/{curriculumId}:
+    get:
+      summary: 取得課程的所有章節
+      description: 根據課程 ID 取得該課程的所有章節
+      operationId: getChaptersByCurriculumId
+      tags:
+        - Chapters
+      parameters:
+        - name: curriculumId
+          in: path
+          description: 課程 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得章節列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+        "404":
+          description: 找不到該課程
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /chapters/curriculum/{curriculumId}/count:
+    get:
+      summary: 取得課程的章節數量
+      description: 取得指定課程的章節總數
+      operationId: getChapterCount
+      tags:
+        - Chapters
+      parameters:
+        - name: curriculumId
+          in: path
+          description: 課程 ID
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 成功取得章節數量
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: 章節總數
+                example: 5
+        "404":
+          description: 找不到該課程
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Chapter:
+      type: object
+      required:
+        - id
+        - curriculumId
+        - title
+        - orderIndex
+        - createdAt
+        - lessons
+      properties:
+        id:
+          type: integer
+          description: 章節 ID
+          example: 1
+        curriculumId:
+          type: integer
+          description: 所屬課程 ID
+          example: 1
+        title:
+          type: string
+          description: 章節標題
+          example: "Java 基礎語法"
+        description:
+          type: string
+          description: 章節描述（可選）
+          example: "學習 Java 變數、資料型別、流程控制等基礎語法"
+        orderIndex:
+          type: integer
+          description: 排序索引（用於章節排序）
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          description: 建立時間
+          example: "2024-12-01T00:00:00Z"
+        lessons:
+          type: array
+          description: 課程列表
+          items:
+            $ref: '#/components/schemas/Lesson'
+
+    Lesson:
+      type: object
+      required:
+        - id
+        - chapterId
+        - title
+        - lessonType
+        - contentMetadata
+        - orderIndex
+        - createdAt
+      properties:
+        id:
+          type: integer
+          description: 課程 ID
+          example: 1
+        chapterId:
+          type: integer
+          description: 所屬章節 ID
+          example: 1
+        title:
+          type: string
+          description: 課程標題
+          example: "變數與資料型別"
+        description:
+          type: string
+          description: 課程描述（可選）
+          example: "介紹 Java 的基本資料型別和變數宣告方式"
+        lessonType:
+          type: string
+          enum:
+            - VIDEO
+            - ARTICLE
+            - SURVEY
+          description: 課程類型
+          example: "VIDEO"
+        contentUrl:
+          type: string
+          format: uri
+          description: 課程內容 URL（可選）
+          example: "https://www.youtube.com/watch?v=abc123"
+        contentMetadata:
+          type: object
+          description: 課程內容元資料（JSONB 欄位，依 lessonType 而異）
+          additionalProperties: true
+          example:
+            videoProvider: "youtube"
+            videoId: "abc123"
+            thumbnailUrl: "https://img.youtube.com/vi/abc123/maxresdefault.jpg"
+        orderIndex:
+          type: integer
+          description: 排序索引（用於課程排序）
+          example: 1
+        durationMinutes:
+          type: integer
+          description: 課程時長（分鐘）（可選）
+          example: 45
+        isFreePreview:
+          type: boolean
+          description: 是否為免費試看
+          example: true
+        isCompleted:
+          type: boolean
+          description: 是否已完成（需要認證才有此欄位）
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: 建立時間
+          example: "2024-12-01T00:00:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: 錯誤發生時間
+          example: "2025-12-08T10:30:00Z"
+        status:
+          type: integer
+          description: HTTP 狀態碼
+          example: 404
+        error:
+          type: string
+          description: 錯誤類型
+          example: "Not Found"
+        message:
+          type: string
+          description: 錯誤訊息
+          example: "Resource not found"
+        path:
+          type: string
+          description: 請求路徑
+          example: "/api/chapters/999"
