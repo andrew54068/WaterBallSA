@@ -1,0 +1,1018 @@
+openapi: 3.0.0
+info:
+  title: WaterBallSA Combined API
+  version: 1.0.0
+  description: Combined API specification for WaterBallSA platform
+servers:
+  - url: http://localhost:8081/api
+    description: 開發環境
+  - url: https://api.waterballsa.com/api
+    description: 正式環境
+
+paths:
+  # Auth API
+  /auth/google:
+    post:
+      summary: Google OAuth 登入
+      description: 使用 Google ID token 交換後端 JWT tokens
+      operationId: loginWithGoogle
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - googleIdToken
+              properties:
+                googleIdToken:
+                  type: string
+      responses:
+        "200":
+          description: 登入成功，返回 JWT tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Google ID token 驗證失敗
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/refresh:
+    post:
+      summary: 刷新 Access Token
+      operationId: refreshToken
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: Token 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponse"
+        "401":
+          description: Refresh Token 無效
+
+  /auth/me:
+    get:
+      summary: 取得當前使用者資訊
+      operationId: getCurrentUser
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: 成功取得使用者資訊
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 未提供有效的 JWT token
+
+  /auth/logout:
+    post:
+      summary: 登出
+      operationId: logout
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: 登出成功
+
+  # Curriculums API
+  /curriculums:
+    get:
+      summary: 取得課程列表（分頁）
+      operationId: getAllCurriculums
+      tags:
+        - Curriculums
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: "createdAt,desc"
+      responses:
+        "200":
+          description: 成功取得課程列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedCurriculumResponse"
+
+  /curriculums/{id}:
+    get:
+      summary: 取得課程詳情
+      operationId: getCurriculumById
+      tags:
+        - Curriculums
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得課程詳情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curriculum"
+        "404":
+          description: 找不到該課程
+
+  /curriculums/search:
+    get:
+      summary: 搜尋課程
+      operationId: searchCurriculums
+      tags:
+        - Curriculums
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功取得搜尋結果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedCurriculumResponse"
+
+  /curriculums/difficulty/{level}:
+    get:
+      summary: 根據難度篩選課程
+      operationId: getCurriculumsByDifficulty
+      tags:
+        - Curriculums
+      parameters:
+        - name: level
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功取得指定難度的課程列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedCurriculumResponse"
+
+  /curriculums/free:
+    get:
+      summary: 取得免費課程
+      operationId: getFreeCurriculums
+      tags:
+        - Curriculums
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功取得免費課程列表
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedCurriculumResponse"
+
+  # Chapters API
+  /chapters/{id}:
+    get:
+      summary: 取得章節詳情
+      operationId: getChapterById
+      tags:
+        - Chapters
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得章節詳情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chapter"
+        "404":
+          description: 找不到該章節
+
+  /chapters/curriculum/{curriculumId}:
+    get:
+      summary: 取得課程的所有章節
+      operationId: getChaptersByCurriculumId
+      tags:
+        - Chapters
+      parameters:
+        - name: curriculumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得章節列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Chapter"
+
+  /chapters/curriculum/{curriculumId}/count:
+    get:
+      summary: 取得課程的章節數量
+      operationId: getChapterCount
+      tags:
+        - Chapters
+      parameters:
+        - name: curriculumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得章節數量
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  # Lessons API
+  /lessons/{id}:
+    get:
+      summary: 取得單元詳情
+      operationId: getLessonById
+      tags:
+        - Lessons
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得課程詳情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "404":
+          description: 找不到該課程
+
+  /lessons/chapter/{chapterId}:
+    get:
+      summary: 取得章節的所有課程
+      operationId: getLessonsByChapterId
+      tags:
+        - Lessons
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得課程列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lesson"
+
+  /lessons/curriculum/{curriculumId}/free-preview:
+    get:
+      summary: 取得課程的免費試看課程
+      operationId: getFreePreviewLessons
+      tags:
+        - Lessons
+      parameters:
+        - name: curriculumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得免費試看課程列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lesson"
+
+  # Purchases API
+  /curriculums/{curriculumId}/order-preview:
+    get:
+      summary: 取得訂單預覽資訊
+      operationId: getOrderPreview
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: curriculumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得訂單預覽資訊
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPreviewResponse"
+        "401":
+          description: 未提供有效的 JWT token
+
+  /purchases/check-ownership/{curriculumId}:
+    get:
+      summary: 檢查使用者是否擁有課程
+      operationId: checkOwnership
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: curriculumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得擁有狀態
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OwnershipCheckResponse"
+        "401":
+          description: 未提供有效的 JWT token
+
+  /purchases:
+    post:
+      summary: 建立購買訂單
+      operationId: createPurchase
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [curriculumId]
+              properties:
+                curriculumId: { type: integer }
+                couponCode: { type: string }
+      responses:
+        "201":
+          description: 訂單建立成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseResponse"
+        "400":
+          description: 請求格式錯誤
+        "401":
+          description: 未提供有效的 JWT token
+
+  /purchases/{purchaseId}/complete:
+    post:
+      summary: 完成購買付款
+      operationId: completePurchase
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: purchaseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 付款完成
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseResponse"
+        "401":
+          description: 未提供有效的 JWT token
+        "404":
+          description: 找不到該訂單
+
+  /purchases/my-purchases:
+    get:
+      summary: 取得使用者的購買歷史
+      operationId: getMyPurchases
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: direction
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功取得購買歷史
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedPurchasesResponse"
+        "401":
+          description: 未提供有效的 JWT token
+
+  /purchases/completed:
+    get:
+      summary: 取得已完成的購買記錄
+      operationId: getCompletedPurchases
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得已完成的購買記錄
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedPurchasesResponse"
+        "401":
+          description: 未提供有效的 JWT token
+
+  /purchases/{purchaseId}:
+    get:
+      summary: 取得購買訂單詳情
+      operationId: getPurchaseById
+      tags:
+        - Purchases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: purchaseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得訂單詳情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseResponse"
+        "404":
+          description: 找不到該訂單
+        "401":
+          description: 未提供有效的 JWT token
+
+  # Coupons API
+  /coupons/validate:
+    post:
+      summary: 驗證優惠券
+      operationId: validateCoupon
+      tags:
+        - Coupons
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [curriculumId, couponCode]
+              properties:
+                curriculumId: { type: integer }
+                couponCode: { type: string }
+      responses:
+        "200":
+          description: 驗證成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponValidationResponse"
+        "401":
+          description: 未提供有效的 JWT token
+
+  # Video Progress API
+  /lessons/{lessonId}/progress:
+    post:
+      summary: 儲存或更新影片進度
+      operationId: saveProgress
+      tags:
+        - Video Progress
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                [
+                  currentTimeSeconds,
+                  durationSeconds,
+                  completionPercentage,
+                  isCompleted,
+                ]
+              properties:
+                currentTimeSeconds: { type: number }
+                durationSeconds: { type: number }
+                completionPercentage: { type: number }
+                isCompleted: { type: boolean }
+      responses:
+        "200":
+          description: 進度儲存成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoProgressDto"
+        "401":
+          description: 未提供有效的 JWT token
+        "404":
+          description: 找不到該課程
+
+    get:
+      summary: 取得影片進度
+      operationId: getProgress
+      tags:
+        - Video Progress
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得進度資訊
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoProgressDto"
+        "404":
+          description: 找不到該課程
+        "401":
+          description: 未提供有效的 JWT token
+
+  /lessons/chapters/{chapterId}/progress:
+    get:
+      summary: 取得章節所有課程的進度
+      operationId: getChapterProgress
+      tags:
+        - Video Progress
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chapterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 成功取得章節進度列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VideoProgressDto"
+        "404":
+          description: 找不到該章節
+        "401":
+          description: 未提供有效的 JWT token
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Auth Schemas
+    AuthResponse:
+      type: object
+      required: [accessToken, refreshToken, tokenType, expiresIn]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        tokenType: { type: string }
+        expiresIn: { type: integer }
+
+    RefreshTokenResponse:
+      type: object
+      required: [accessToken, tokenType, expiresIn]
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string }
+        expiresIn: { type: integer }
+
+    User:
+      type: object
+      required: [id, googleId, email, name, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        googleId: { type: string }
+        email: { type: string }
+        name: { type: string }
+        profilePicture: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    # Common Error Schema
+    ErrorResponse:
+      type: object
+      required: [timestamp, status, error, message, path]
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        error: { type: string }
+        message: { type: string }
+        path: { type: string }
+        validationErrors:
+          type: object
+          additionalProperties: { type: string }
+
+    # Curriculum Schemas
+    Curriculum:
+      type: object
+      required:
+        [
+          id,
+          title,
+          description,
+          instructorName,
+          price,
+          currency,
+          difficultyLevel,
+          estimatedDurationHours,
+          isPublished,
+          createdAt,
+          chapters,
+        ]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        thumbnailUrl: { type: string }
+        instructorName: { type: string }
+        price: { type: number }
+        currency: { type: string }
+        difficultyLevel: { type: string }
+        estimatedDurationHours: { type: integer }
+        isPublished: { type: boolean }
+        publishedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        chapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChapterSummary"
+
+    ChapterSummary:
+      type: object
+      required: [id, curriculumId, title, orderIndex, createdAt]
+      properties:
+        id: { type: integer }
+        curriculumId: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        orderIndex: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    PaginatedCurriculumResponse:
+      type: object
+      required: [content, totalPages, totalElements]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Curriculum"
+        totalPages: { type: integer }
+        totalElements: { type: integer }
+        size: { type: integer }
+        number: { type: integer }
+
+    # Chapter Schemas (Detailed)
+    Chapter:
+      type: object
+      required: [id, curriculumId, title, orderIndex, createdAt, lessons]
+      properties:
+        id: { type: integer }
+        curriculumId: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        orderIndex: { type: integer }
+        createdAt: { type: string, format: date-time }
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lesson"
+
+    # Lesson Schemas
+    Lesson:
+      type: object
+      required:
+        [
+          id,
+          chapterId,
+          title,
+          lessonType,
+          contentMetadata,
+          orderIndex,
+          createdAt,
+        ]
+      properties:
+        id: { type: integer }
+        chapterId: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        lessonType: { type: string }
+        contentUrl: { type: string }
+        contentMetadata:
+          oneOf:
+            - $ref: "#/components/schemas/VideoMetadata"
+            - $ref: "#/components/schemas/ArticleMetadata"
+            - $ref: "#/components/schemas/SurveyMetadata"
+        orderIndex: { type: integer }
+        durationMinutes: { type: integer }
+        isFreePreview: { type: boolean }
+        isCompleted: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    VideoMetadata:
+      type: object
+      properties:
+        videoProvider: { type: string }
+        videoId: { type: string }
+        thumbnailUrl: { type: string }
+
+    ArticleMetadata:
+      type: object
+      properties:
+        author: { type: string }
+        publishedDate: { type: string }
+        readingTime: { type: integer }
+
+    SurveyMetadata:
+      type: object
+      properties:
+        questionsCount: { type: integer }
+        passingScore: { type: integer }
+        timeLimit: { type: integer }
+
+    # Purchase Schemas
+    OrderPreviewResponse:
+      type: object
+      required:
+        [curriculum, chapters, originalPrice, totalChapters, totalLessons]
+      properties:
+        curriculum:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            price: { type: number }
+            currency: { type: string }
+        chapters:
+          type: array
+          items:
+            type: object
+            required: [id, title, lessons]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              lessons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    title: { type: string }
+                    lessonType: { type: string }
+                    isFreePreview: { type: boolean }
+        originalPrice: { type: number }
+        totalChapters: { type: integer }
+        totalLessons: { type: integer }
+
+    OwnershipCheckResponse:
+      type: object
+      required: [owns]
+      properties:
+        owns: { type: boolean }
+        purchaseId: { type: integer }
+        purchaseDate: { type: string, format: date-time }
+
+    PurchaseRequest:
+      type: object
+      required: [curriculumId]
+      properties:
+        curriculumId: { type: integer }
+        couponCode: { type: string }
+
+    PurchaseResponse:
+      type: object
+      required:
+        [
+          purchaseId,
+          curriculumId,
+          curriculumTitle,
+          originalPrice,
+          finalPrice,
+          status,
+          createdAt,
+        ]
+      properties:
+        purchaseId: { type: integer }
+        curriculumId: { type: integer }
+        curriculumTitle: { type: string }
+        originalPrice: { type: number }
+        finalPrice: { type: number }
+        couponCode: { type: string }
+        status: { type: string }
+        purchasedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    PaginatedPurchasesResponse:
+      type: object
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseResponse"
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+
+    # Coupon Schemas
+    ValidateCouponRequest:
+      type: object
+      required: [curriculumId, couponCode]
+      properties:
+        curriculumId: { type: integer }
+        couponCode: { type: string }
+
+    CouponValidationResponse:
+      type: object
+      required: [valid]
+      properties:
+        valid: { type: boolean }
+        code: { type: string }
+        discountType: { type: string }
+        discountValue: { type: number }
+        errorCode: { type: string }
+        errorMessage: { type: string }
+
+    # Video Progress Schemas
+    SaveProgressRequest:
+      type: object
+      required:
+        [currentTimeSeconds, durationSeconds, completionPercentage, isCompleted]
+      properties:
+        currentTimeSeconds: { type: number }
+        durationSeconds: { type: number }
+        completionPercentage: { type: number }
+        isCompleted: { type: boolean }
+
+    VideoProgressDto:
+      type: object
+      required:
+        [
+          id,
+          userId,
+          lessonId,
+          currentTimeSeconds,
+          durationSeconds,
+          completionPercentage,
+          isCompleted,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id: { type: integer }
+        userId: { type: integer }
+        lessonId: { type: integer }
+        currentTimeSeconds: { type: number }
+        durationSeconds: { type: number }
+        completionPercentage: { type: number }
+        isCompleted: { type: boolean }
+        completedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }

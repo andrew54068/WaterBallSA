@@ -30,14 +30,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ValidateCouponRequest'
+              $ref: "#/components/schemas/ValidateCouponRequest"
       responses:
         "200":
           description: 驗證成功（包含有效和無效的情況）
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CouponValidationResponse'
+                $ref: "#/components/schemas/CouponValidationResponse"
               examples:
                 validCoupon:
                   value:
@@ -70,13 +70,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: 未提供有效的 JWT token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:

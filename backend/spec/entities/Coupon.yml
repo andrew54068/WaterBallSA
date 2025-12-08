@@ -1,0 +1,8 @@
+name: Coupon
+table: coupons
+properties:
+  id: Integer
+  code: String
+  discountType: String
+  discountValue: Double
+  isActive: Boolean

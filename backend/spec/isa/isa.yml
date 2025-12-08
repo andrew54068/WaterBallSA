@@ -1,0 +1,622 @@
+# ISA (Instruction Set Architecture) 指令集定義
+# WaterBallSA 線上學習平台 - ISA-Level Feature File 可執行指令集
+
+version: "1.0"
+domain: "waterballsa-learning-platform"
+
+instructions:
+  # ---------- 資料準備指令 (Given) ----------
+
+  - name: "準備一個{entity}, with table:"
+    description: "在資料庫中插入測試資料（fixture）"
+    context: "Given"
+    syntax: "準備一個{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+        examples:
+          ["用戶", "課程", "章節", "課程內容", "購買紀錄", "作業", "作業提交"]
+    datatable:
+      required: true
+      structure: "entity-based"
+      headers:
+        source: "schema.sql"
+      values:
+        types: ["literal", "variable", "uuid", "timestamp", "jsonb"]
+
+  - name: "準備多個{entity}, with table:"
+    description: "批次插入多筆測試資料"
+    context: "Given"
+    syntax: "準備多個{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+        examples: ["課程", "章節", "課程內容"]
+    datatable:
+      required: true
+      structure: "entity-based-batch"
+      headers:
+        source: "schema.sql"
+
+  - name: "準備一張{entity}, with table:"
+    description: "準備單筆資料（量詞 Alias）"
+    context: "Given"
+    syntax: "準備一張{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱"
+    datatable:
+      required: true
+      structure: "entity-based"
+      headers:
+        source: "schema.sql"
+
+  # ---------- 時間控制指令 (Given) ----------
+
+  - name: "現在的時間是"
+    description: "設定測試時的當前時間"
+    context: "Given"
+    syntax: '現在的時間是 "{time_expression}"'
+    parameters:
+      time_expression:
+        type: "string"
+        description: "時間表達式（支援 @time() 語法）"
+        examples: ["@time(2024-01-15 10:00:00)", "@time(now)", "@time(+1d)"]
+    datatable:
+      required: false
+
+  # ---------- 認證狀態指令 (Given) ----------
+
+  - name: "用戶 {userId} 已登入"
+    description: "設定已登入的用戶（帶有有效 JWT token）"
+    context: "Given"
+    syntax: "用戶 {userId} 已登入"
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+        examples: ["$User001.id", "$Student001.id"]
+    datatable:
+      required: false
+
+  - name: '(UID="{userId}") 已經登入'
+    description: "設定已登入的用戶（Alias）"
+    context: "Given"
+    syntax: '(UID="{userId}") 已經登入'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+    datatable:
+      required: false
+
+  - name: '(UID="{userId}") 登出'
+    description: "用戶登出"
+    context: "When"
+    syntax: '(UID="{userId}") 登出'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+    datatable:
+      required: false
+
+  - name: '(UID="{userId}") 已經登入'
+    description: "設定已登入的用戶（Alias）"
+    context: "Given"
+    syntax: '(UID="{userId}") 已經登入'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+    datatable:
+      required: false
+
+  - name: '(UID="{userId}") 登出'
+    description: "用戶登出"
+    context: "When"
+    syntax: '(UID="{userId}") 登出'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+    datatable:
+      required: false
+
+  - name: "用戶未登入"
+    description: "設定未登入狀態（無 JWT token）"
+    context: "Given"
+    syntax: "用戶未登入"
+    parameters: {}
+    datatable:
+      required: false
+
+  - name: "用戶 {userId} 擁有課程 {curriculumId}"
+    description: "設定用戶已購買特定課程（Phase 2）"
+    context: "Given"
+    syntax: "用戶 {userId} 擁有課程 {curriculumId}"
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數"
+      curriculumId:
+        type: "variable"
+        description: "課程 ID 變數"
+    datatable:
+      required: false
+
+  # ---------- API 呼叫指令 (When) ----------
+
+  - name: '(UID="{userId}") {api_summary}, call table:'
+    description: "以認證用戶身份呼叫 API endpoint"
+    context: "When"
+    syntax: '(UID="{userId}") {api_summary}, call table:'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數（用於 JWT 認證）"
+        examples: ["$User001.id", "$Student001.id"]
+      api_summary:
+        type: "string"
+        description: "API 動作描述（來自 api-spec.yml 的 summary）"
+        examples:
+          - "瀏覽所有課程"
+          - "查詢課程詳細資訊"
+          - "搜尋課程"
+          - "查詢章節列表"
+          - "查詢課程內容詳細資訊"
+          - "購買課程"
+          - "提交作業"
+          - "查詢我的學習進度"
+    datatable:
+      required: true
+      structure: "api-based"
+      headers:
+        source: "api-spec.yml requestBody or queryParameters"
+
+  - name: "{api_summary}, call table:"
+    description: "以訪客身份（未認證）呼叫公開 API endpoint"
+    context: "When"
+    syntax: "{api_summary}, call table:"
+    parameters:
+      api_summary:
+        type: "string"
+        description: "API 動作描述（來自 api-spec.yml 的 summary）"
+        examples:
+          - "Google OAuth 登入"
+          - "瀏覽所有課程"
+          - "查詢免費課程"
+          - "查詢課程免費試看內容"
+    datatable:
+      required: true
+      structure: "api-based"
+      headers:
+        source: "api-spec.yml requestBody or queryParameters"
+
+  - name: '(UID="{userId}") {method} {endpoint}'
+    description: "直接指定 HTTP method 和 endpoint 進行 API 呼叫"
+    context: "When"
+    syntax: '(UID="{userId}") {method} {endpoint}'
+    parameters:
+      userId:
+        type: "variable"
+        description: "用戶 ID 變數（用於 JWT 認證）"
+      method:
+        type: "enum"
+        values: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+        description: "HTTP method"
+      endpoint:
+        type: "string"
+        description: "API endpoint path"
+        examples: ["/api/curriculums", "/api/lessons/{id}", "/api/auth/me"]
+    datatable:
+      required: false
+
+  # ---------- API 回應驗證指令 (Then) ----------
+
+  - name: "回應狀態碼為 {statusCode}"
+    description: "驗證 HTTP 狀態碼"
+    context: "Then"
+    syntax: "回應狀態碼為 {statusCode}"
+    parameters:
+      statusCode:
+        type: "integer"
+        description: "HTTP 狀態碼"
+        examples: [200, 201, 204, 400, 401, 403, 404, 500]
+    datatable:
+      required: false
+
+  - name: "回應, with table:"
+    description: "驗證 API 回應的 payload 內容（欄位對照）"
+    context: "Then"
+    syntax: "回應, with table:"
+    parameters: {}
+    datatable:
+      required: true
+      structure: "api-response-based"
+      headers:
+        source: "api-spec.yml responses[200]"
+      columns: ["欄位", "預期值"]
+      description: "支援 JSONPath 表達式和變數參照"
+
+  - name: "回應為, with JSON:"
+    description: "驗證 API 回應為完整 JSON 格式"
+    context: "Then"
+    syntax: "回應為, with JSON:"
+    parameters: {}
+    datatable:
+      required: false
+      description: "使用 JSON DocString 進行精確比對"
+
+  - name: "回應包含陣列 {arrayPath}, 且長度為 {length}"
+    description: "驗證回應中的陣列長度"
+    context: "Then"
+    syntax: "回應包含陣列 {arrayPath}, 且長度為 {length}"
+    parameters:
+      arrayPath:
+        type: "string"
+        description: "JSONPath 表達式"
+        examples: ["$.content", "$.chapters", "$.lessons"]
+      length:
+        type: "integer"
+        description: "預期陣列長度"
+    datatable:
+      required: false
+
+  - name: "回應列表包含{entity}, with table:"
+    description: "驗證回應列表包含特定實體資料"
+    context: "Then"
+    syntax: "回應列表包含{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱"
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+
+  - name: "回應列表不包含{entity}, with table:"
+    description: "驗證回應列表不包含特定實體資料"
+    context: "Then"
+    syntax: "回應列表不包含{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱"
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+
+  - name: "回應包含欄位 {fieldPath}"
+    description: "驗證回應中存在特定欄位"
+    context: "Then"
+    syntax: "回應包含欄位 {fieldPath}"
+    parameters:
+      fieldPath:
+        type: "string"
+        description: "JSONPath 表達式"
+        examples: ["$.id", "$.accessToken", "$.chapters[0].title"]
+    datatable:
+      required: false
+
+  - name: "回應不包含欄位 {fieldPath}"
+    description: "驗證回應中不存在特定欄位（用於敏感資訊檢查）"
+    context: "Then"
+    syntax: "回應不包含欄位 {fieldPath}"
+    parameters:
+      fieldPath:
+        type: "string"
+        description: "JSONPath 表達式"
+        examples: ["$.password", "$.jwtSecret"]
+    datatable:
+      required: false
+
+  - name: "回應符合分頁格式"
+    description: "驗證回應符合 Spring Data Page 格式"
+    context: "Then"
+    syntax: "回應符合分頁格式"
+    parameters: {}
+    datatable:
+      required: false
+      description: "自動驗證 content, pageable, totalElements, totalPages 等欄位"
+
+  - name: "回應列表包含{entity}, with table:"
+    description: "驗證回應列表包含特定實體資料"
+    context: "Then"
+    syntax: "回應列表包含{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱"
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+
+  - name: "回應列表不包含{entity}, with table:"
+    description: "驗證回應列表不包含特定實體資料"
+    context: "Then"
+    syntax: "回應列表不包含{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱"
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+
+  # ---------- 資料庫驗證指令 (Then) ----------
+
+  - name: "應該存在一個{entity}, with table:"
+    description: "從資料庫查詢並驗證實體存在且欄位符合預期"
+    context: "Then"
+    syntax: "應該存在一個{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+        examples: ["用戶", "課程", "購買紀錄", "作業提交"]
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+      description: "支援 SQL LIKE 運算子和變數參照"
+
+  - name: "應該不存在一個{entity}, with table:"
+    description: "從資料庫查詢並驗證實體不存在"
+    context: "Then"
+    syntax: "應該不存在一個{entity}, with table:"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+    datatable:
+      required: true
+      structure: "entity-based-validation"
+      headers:
+        source: "schema.sql"
+
+  - name: "{entity} 的數量為 {count}"
+    description: "驗證資料庫中特定實體的總數"
+    context: "Then"
+    syntax: "{entity} 的數量為 {count}"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+      count:
+        type: "integer"
+        description: "預期數量"
+    datatable:
+      required: false
+
+  - name: "資料庫中 {entity} 的 {field} 欄位為 {value}"
+    description: "驗證特定實體的特定欄位值"
+    context: "Then"
+    syntax: "資料庫中 {entity} 的 {field} 欄位為 {value}"
+    parameters:
+      entity:
+        type: "string"
+        description: "實體名稱（來自 entity_to_table_mapping.yml）"
+      field:
+        type: "string"
+        description: "欄位名稱"
+      value:
+        type: "string"
+        description: "預期值（支援變數）"
+    datatable:
+      required: false
+
+  # ---------- 操作失敗驗證指令 (Then) ----------
+
+  - name: "操作失敗"
+    description: "驗證 API 呼叫失敗（HTTP 4xx 或 5xx）"
+    context: "Then"
+    syntax: "操作失敗"
+    parameters: {}
+    datatable:
+      required: false
+
+  - name: '操作失敗, 錯誤訊息為 "{message}"'
+    description: "驗證 API 呼叫失敗且包含特定錯誤訊息"
+    context: "Then"
+    syntax: '操作失敗, 錯誤訊息為 "{message}"'
+    parameters:
+      message:
+        type: "string"
+        description: "預期的錯誤訊息（支援部分匹配）"
+        examples: ["Unauthorized", "Curriculum not found", "Access denied"]
+    datatable:
+      required: false
+
+  - name: '操作失敗, 錯誤代碼為 "{errorCode}"'
+    description: "驗證 API 呼叫失敗且包含特定錯誤代碼"
+    context: "Then"
+    syntax: '操作失敗, 錯誤代碼為 "{errorCode}"'
+    parameters:
+      errorCode:
+        type: "string"
+        description: "預期的錯誤代碼（來自 error-codes.md）"
+        examples: ["AUTH_001", "CURR_001", "PERM_001"]
+    datatable:
+      required: false
+
+  # ---------- JWT Token 驗證指令 (Then) ----------
+
+  - name: "回應包含有效的 JWT tokens"
+    description: "驗證回應包含 accessToken 和 refreshToken 且格式正確"
+    context: "Then"
+    syntax: "回應包含有效的 JWT tokens"
+    parameters: {}
+    datatable:
+      required: false
+      description: "自動驗證 JWT 格式、簽名和有效期限"
+
+  - name: "JWT token 包含聲明 {claim} 為 {value}"
+    description: "驗證 JWT token 中的特定聲明值"
+    context: "Then"
+    syntax: "JWT token 包含聲明 {claim} 為 {value}"
+    parameters:
+      claim:
+        type: "string"
+        description: "JWT claim 名稱"
+        examples: ["sub", "email", "role"]
+      value:
+        type: "string"
+        description: "預期值"
+    datatable:
+      required: false
+
+  # ---------- 變數儲存指令 (Then) ----------
+
+  - name: "儲存回應欄位 {fieldPath} 至變數 {variableName}"
+    description: "從 API 回應中提取值並儲存至變數（用於後續步驟）"
+    context: "Then"
+    syntax: "儲存回應欄位 {fieldPath} 至變數 {variableName}"
+    parameters:
+      fieldPath:
+        type: "string"
+        description: "JSONPath 表達式"
+        examples: ["$.id", "$.accessToken"]
+      variableName:
+        type: "string"
+        description: "變數名稱"
+        examples: ["curriculumId", "userToken"]
+    datatable:
+      required: false
+
+# ---------- 規格來源定義 ----------
+
+spec_sources:
+  api_spec:
+    path: "spec/api/api-spec.yml"
+    format: "OpenAPI 3.0"
+    description: "API 端點定義與 request/response schema"
+
+  entity_mapping:
+    path: "spec/data/entity_to_table_mapping.yml"
+    format: "YAML"
+    description: "實體名稱與資料庫表格的對照關係"
+
+  database_schema:
+    path: "spec/data/schema.sql"
+    format: "SQL DDL"
+    description: "資料庫結構定義（從 Flyway migrations 生成）"
+
+# ---------- 資料型別定義 ----------
+
+data_types:
+  uuid:
+    description: "UUID 格式（用於 id 欄位）"
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    generator: "@uuid()"
+
+  timestamp:
+    description: "ISO 8601 時間戳記"
+    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z?$"
+    generator: "@time()"
+
+  jsonb:
+    description: "PostgreSQL JSONB 格式"
+    format: "JSON"
+    examples:
+      - '{"duration": 600, "youtubeId": "abc123"}'
+      - '{"url": "https://example.com/article"}'
+
+  jwt:
+    description: "JWT token 格式"
+    pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$"
+    generator: "@jwt()"
+
+# ---------- 變數語法定義 ----------
+
+variable_syntax:
+  reference:
+    syntax: "${variableName}"
+    description: "參照已儲存的變數值"
+    examples: ["${User001.id}", "${curriculumId}"]
+
+  entity_field:
+    syntax: "${EntityName.fieldName}"
+    description: "參照已準備的實體欄位值"
+    examples: ["${Student001.email}", "${JavaCurriculum.id}"]
+
+  function:
+    syntax: "@function(args)"
+    description: "呼叫內建函數生成值"
+    examples: ["@uuid()", "@time(now)", "@time(+1d)", "@random(1,100)"]
+
+# ---------- 驗證運算子定義 ----------
+
+validation_operators:
+  equality:
+    - "="
+    - "!="
+
+  comparison:
+    - ">"
+    - ">="
+    - "<"
+    - "<="
+
+  pattern:
+    - "LIKE"
+    - "NOT LIKE"
+    - "MATCHES" # Regex
+
+  containment:
+    - "CONTAINS"
+    - "NOT CONTAINS"
+
+  null_check:
+    - "IS NULL"
+    - "IS NOT NULL"
+
+# ---------- 範例場景參考 ----------
+
+example_scenarios:
+  - name: "用戶登入並瀏覽課程"
+    file: "spec/features/authentication/google-oauth-login.feature"
+    description: "展示 Google OAuth 登入流程與 JWT token 驗證"
+
+  - name: "已登入用戶查詢課程詳細資訊"
+    file: "spec/features/curriculums/view-curriculum-details.feature"
+    description: "展示認證用戶 API 呼叫與回應驗證"
+
+  - name: "訪客瀏覽免費課程"
+    file: "spec/features/curriculums/browse-free-curriculums.feature"
+    description: "展示未認證 API 呼叫與分頁驗證"
+
+  - name: "用戶觀看課程影片"
+    file: "spec/features/lessons/watch-video-lesson.feature"
+    description: "展示課程內容存取與 JSONB 欄位驗證"
+
+# ---------- 實作指引 ----------
+
+implementation_notes:
+  test_framework: "JUnit 5 + Spring Boot Test + TestContainers"
+  database: "PostgreSQL 14+ (via TestContainers)"
+  authentication: "JWT Bearer token (stateless)"
+  api_testing: "REST Assured"
+  coverage_target: ">80%"
+
+  step_definitions_location: "backend/src/test/java/com/waterballsa/backend/steps/"
+  feature_files_location: "backend/src/test/resources/features/"
+
+  key_patterns:
+    - "使用 TestContainers 提供真實 PostgreSQL 環境"
+    - "所有 API 測試使用 REST Assured 進行 HTTP 呼叫"
+    - "JWT token 透過 JwtUtil 生成並注入 Authorization header"
+    - "變數儲存使用 Cucumber ScenarioContext 或 Spring TestContext"
+    - "JSONB 欄位驗證使用 JsonPath 或 Jackson ObjectMapper"

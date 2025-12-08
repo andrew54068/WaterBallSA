@@ -1,0 +1,28 @@
+# WaterBallSA Entity to Table Mapping
+# Format: EntityName: database_table_name
+
+entity_to_table_mapping:
+  # Phase 1 - Foundation
+  - User: users
+  - Curriculum: curriculums
+  - Chapter: chapters
+  - Lesson: lessons
+  - VideoProgress: video_progress
+
+  # Phase 2 - Purchase
+  - Purchase: purchases
+  - Coupon: coupons
+  # - PaymentTransaction: payment_transactions
+# Notes:
+# - users: Stores Google OAuth user info
+# - curriculums: Course outlines (price, difficulty, duration)
+# - chapters: Course chapters
+# - lessons: Course content (VIDEO/ARTICLE/SURVEY)
+# - video_progress: User video watching progress
+# - purchases: Purchase orders
+# - coupons: Discount coupons
+# - payment_transactions: Payment records
+# - assignments: Course assignments
+# - submissions: User assignment submissions
+# - achievements: Gamification achievements
+# - user_achievements: User unlocked achievements

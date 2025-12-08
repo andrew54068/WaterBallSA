@@ -1,0 +1,8 @@
+name: Lesson
+table: lessons
+properties:
+  id: Integer
+  title: String
+  lessonType: String
+  isFreePreview: Boolean
+  createdAt: Date

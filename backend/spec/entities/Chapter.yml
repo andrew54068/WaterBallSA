@@ -1,0 +1,10 @@
+name: Chapter
+table: chapters
+method_name: findByCurriculumId
+properties:
+  id: Integer
+  curriculumId: Integer
+  title: String
+  description: String
+  orderIndex: Integer
+  createdAt: Date
