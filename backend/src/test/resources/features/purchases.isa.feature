@@ -15,7 +15,7 @@ Feature: 課程購買
         | curriculumId   |
         | $Curriculum.id |
       Then 回應, with table:
-        | >Order.originalPrice | curriculum.id  | curriculum.title | originalPrice |
+        | >originalPrice | curriculum.id  | curriculum.title | originalPrice |
         | <originalPrice       | $Curriculum.id | Spring Boot 實戰 | 2490.00       |
 
   Rule: 使用者可以建立購買訂單
@@ -25,11 +25,11 @@ Feature: 課程購買
         | curriculumId   |
         | $Curriculum.id |
       Then 回應, with table:
-        | >Purchase.id | status  | originalPrice | finalPrice |
+        | >id          | status  | originalPrice | finalPrice |
         | <purchaseId  | PENDING | 2490.00       | 2490.00    |
       And 應該存在一個Purchase, with table:
         | id          | userId   | curriculumId   | status  |
-        | $Purchase.id| $User.id | $Curriculum.id | PENDING |
+        | $purchaseId | $User.id | $Curriculum.id | PENDING |
 
   Rule: 使用者可以完成購買付款 (Mock)
     Example: 完成付款應將訂單狀態更新為 COMPLETED

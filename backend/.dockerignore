@@ -1,0 +1,59 @@
+# Maven build artifacts
+target/
+!target/*.jar
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files (should not be in Docker image)
+.env
+.env.local
+.env.*.local
+
+# Log files
+*.log
+logs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CLAUDE.md
+docs/
+
+# Test reports
+test-results/
+coverage/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Specification files (not needed in runtime)
+spec/
+assembler_codegen.sh
+isa_codegen.yml
