@@ -41,16 +41,8 @@ public class API_取得當前使用者資訊 {
 
     @When("\\(UID={string}) 取得當前使用者資訊, call table:")
     public void invoke(String actorId, DataTable dataTable) throws Exception {
-        Map<String, String> row = Collections.emptyMap();
-        List<String> headers = Collections.emptyList();
-
-        if (!dataTable.isEmpty()) {
-            List<Map<String, String>> maps = dataTable.asMaps(String.class, String.class);
-            if (!maps.isEmpty()) {
-                row = maps.get(0);
-                headers = new ArrayList<>(dataTable.row(0));
-            }
-        }
+        Map<String, String> row = dataTable.asMaps(String.class, String.class).get(0);
+        List<String> headers = new ArrayList<>(dataTable.row(0));
 
         // 1. Parse context keys for VAR-System (handle > symbol)
         Map<Integer, String> contextKeyMap = resolver.parseContextKeys(headers);
@@ -67,9 +59,8 @@ public class API_取得當前使用者資訊 {
         for (String header : headers) {
             String cleanHeader = header.trim();
             String value = row.get(header);
-
-            if (value == null)
-                continue;
+            
+            if (value == null) continue;
 
             // Skip VAR-System extraction columns
             if (cleanHeader.startsWith("<") || cleanHeader.startsWith(">")) {
@@ -78,12 +69,11 @@ public class API_取得當前使用者資訊 {
 
             ISAFeatureArgumentResolver.ColumnInfo columnInfo = resolver.parseColumnPrefix(cleanHeader);
             Object resolvedValue = resolver.resolveVariable(value);
-
+            
             // Handle LocalTime objects - ensure they are serialized as "HH:mm:ss" format
             String actualValue;
             if (resolvedValue instanceof java.time.LocalTime) {
-                actualValue = ((java.time.LocalTime) resolvedValue)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+                actualValue = ((java.time.LocalTime) resolvedValue).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
             } else {
                 actualValue = resolvedValue != null ? resolvedValue.toString() : null;
             }
@@ -101,7 +91,7 @@ public class API_取得當前使用者資訊 {
                         // Headers are handled separately, skip for now
                         break;
                 }
-                continue; // 有明確前綴不放入 body
+                continue;  // 有明確前綴不放入 body
             }
 
             // Case 2: 無前綴 - 同名參數自動填寫 + body
@@ -112,7 +102,7 @@ public class API_取得當前使用者資訊 {
             if (QUERY_PARAMS.contains(paramName) && !queryParams.containsKey(paramName)) {
                 queryParams.put(paramName, actualValue);
             }
-
+            
             // 無前綴一律放入 body
             bodyParams.put(paramName, actualValue);
         }
@@ -158,20 +148,19 @@ public class API_取得當前使用者資訊 {
             if (responseBody != null && !responseBody.trim().isEmpty()) {
                 try {
                     Map<String, Object> executionVariable = objectMapper.readValue(
-                            responseBody,
-                            new TypeReference<Map<String, Object>>() {
-                            });
-
+                        responseBody,
+                        new TypeReference<Map<String, Object>>(){}
+                    );
+                    
                     // Extract data row values for variable extraction
                     List<String> dataRow = new ArrayList<>();
                     for (String header : headers) {
                         dataRow.add(row.get(header));
                     }
-
+                    
                     resolver.extractAndStoreVariables(dataRow, contextKeyMap, executionVariable);
                 } catch (Exception e) {
-                    // If response is not a JSON object (e.g., array or empty), skip variable
-                    // extraction
+                    // If response is not a JSON object (e.g., array or empty), skip variable extraction
                 }
             }
         }
@@ -181,15 +170,13 @@ public class API_取得當前使用者資訊 {
     private static final Pattern SEG = Pattern.compile("([A-Za-z0-9_]+)(?:\\[(\\d+)\\])?");
 
     private static void setJson(ObjectNode root, String path, String value) {
-        if (path == null || path.isEmpty())
-            return;
+        if (path == null || path.isEmpty()) return;
         String[] parts = path.split("\\.");
         ObjectNode curr = root;
 
         for (int i = 0; i < parts.length; i++) {
             Matcher m = SEG.matcher(parts[i]);
-            if (!m.matches())
-                throw new IllegalArgumentException("Bad path: " + path);
+            if (!m.matches()) throw new IllegalArgumentException("Bad path: " + path);
             String name = m.group(1);
             String idxStr = m.group(2);
 
@@ -235,25 +222,17 @@ public class API_取得當前使用者資訊 {
     }
 
     private static void ensureArraySize(ArrayNode arr, int size) {
-        while (arr.size() < size)
-            arr.add(NullNode.instance);
+        while (arr.size() < size) arr.add(NullNode.instance);
     }
 
     private static JsonNode toNode(String v) {
-        if (v == null)
-            return NullNode.instance;
+        if (v == null) return NullNode.instance;
         String s = v.trim();
         if ("true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s)) {
             return BooleanNode.valueOf(Boolean.parseBoolean(s));
         }
-        try {
-            return IntNode.valueOf(Integer.parseInt(s));
-        } catch (Exception ignore) {
-        }
-        try {
-            return DoubleNode.valueOf(Double.parseDouble(s));
-        } catch (Exception ignore) {
-        }
+        try { return IntNode.valueOf(Integer.parseInt(s)); } catch (Exception ignore) {}
+        try { return DoubleNode.valueOf(Double.parseDouble(s)); } catch (Exception ignore) {}
         return TextNode.valueOf(v);
     }
 }

@@ -10,7 +10,7 @@ Feature: Curriculum瀏覽
 
   Rule: 使用者可以查詢Curriculum列表
     Example: 查詢所有Curriculum應包含分頁資訊
-      When Get Curriculums With Pagination, call table:
+      When 取得課程列表（分頁）, call table:
         | page | size | sort           |
         | 0    | 10   | createdAt,desc |
       Then 回應, with table:
@@ -23,7 +23,7 @@ Feature: Curriculum瀏覽
 
   Rule: 使用者可以查詢Curriculum詳情
     Example: 查詢特定Curriculum應回傳完整資訊
-      When Get Curriculum Detail, call table:
+      When 取得課程詳情, call table:
         | id              |
         | $JavaCourse.id  |
       Then 回應, with table:
@@ -33,7 +33,7 @@ Feature: Curriculum瀏覽
 
   Rule: 使用者可以查詢免費Curriculum
     Example: 查詢免費Curriculum應為空（如果沒有免費Curriculum）
-      When Get Free Curriculums, call table:
+      When 取得免費課程, call table:
         | page | size |
         | 0    | 10   |
       Then 回應, with table:

@@ -17,7 +17,7 @@ import tw.waterballsa.api.stepdefs.helper.ISAFeatureArgumentResolver;
 import java.util.*;
 import java.util.regex.*;
 
-public class API_刷新_Access_Token {
+public class API_取得免費課程 {
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,10 +36,10 @@ public class API_刷新_Access_Token {
 
     // Hard-coded from OpenAPI spec during code generation
     private static final Set<String> PATH_PARAMS = Set.of();
-    private static final Set<String> QUERY_PARAMS = Set.of();
+    private static final Set<String> QUERY_PARAMS = Set.of("page", "size", "sort");
     private static final Set<String> HEADER_PARAMS = Set.of();
 
-    @When("\\(No Actor\\) 刷新 Access Token, call table:")
+    @When("\\(No Actor\\) 取得免費課程, call table:")
     public void invoke(DataTable dataTable) throws Exception {
         Map<String, String> row = dataTable.asMaps(String.class, String.class).get(0);
         List<String> headers = new ArrayList<>(dataTable.row(0));
@@ -107,13 +107,13 @@ public class API_刷新_Access_Token {
         }
 
         // 4. Build URL with path parameters
-        String url = "/auth/refresh";
+        String url = "/curriculums/free";
         for (Map.Entry<String, String> entry : pathParams.entrySet()) {
             url = url.replace("{" + entry.getKey() + "}", entry.getValue());
         }
 
         // 5. Build request
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(url);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(url);
 
         // 6. Add authentication header
         if (token != null && !token.isEmpty()) {
