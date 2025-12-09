@@ -38,13 +38,17 @@ if [ ! -z "$FEATURE_PATH" ]; then
 fi
 
 # Resolve SDD_OS_PATH
-SDD_OS_PATH="../../../src"
-if [ -f "$ISA_PROPERTIES" ]; then
-  # Read property from file, ignoring comments and whitespace
-  PROP_VAL=$(grep -v '^#' "$ISA_PROPERTIES" | grep "SDD_OS_PATH" | cut -d'=' -f2 | tr -d '[:space:]')
-  if [ ! -z "$PROP_VAL" ]; then
-    SDD_OS_PATH="$PROP_VAL"
-  fi
+SDD_OS_PATH=""
+
+if [ ! -f "$ISA_PROPERTIES" ]; then
+  echo "Error: ISA properties file '$ISA_PROPERTIES' not found."
+  exit 1
+fi
+
+# Read property from file, ignoring comments and whitespace
+PROP_VAL=$(grep -v '^#' "$ISA_PROPERTIES" | grep "SDD_OS_PATH" | cut -d'=' -f2 | tr -d '[:space:]')
+if [ ! -z "$PROP_VAL" ]; then
+  SDD_OS_PATH="$PROP_VAL"
 fi
 
 # Expand tilde (~/...) to $HOME if present
