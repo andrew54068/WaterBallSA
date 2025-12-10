@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,7 +56,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev  # Use Dockerfile for production
+      dockerfile: Dockerfile.dev # Use Dockerfile for production
     container_name: waterballsa-backend
     env_file:
       - ./backend/.env
@@ -68,7 +68,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:
-      - "8080:8080"  # Application port
+      - "8080:8080" # Application port
     depends_on:
       postgres:
         condition: service_healthy
@@ -78,9 +78,9 @@ services:
       - waterballsa-network
     volumes:
       - ./backend:/app
-      - /app/target  # Prevent overwriting build artifacts
+      - /app/target # Prevent overwriting build artifacts
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 3s
       start_period: 60s
@@ -97,7 +97,7 @@ services:
       - ./frontend/.env
     environment:
       # Override API URLs for Docker network
-      NEXT_PUBLIC_API_URL: http://localhost:8081/api
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api
       API_URL: http://backend:8080/api
     ports:
       - "3000:3000"
@@ -114,6 +114,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
 
 networks:
   waterballsa-network:
