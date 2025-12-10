@@ -72,20 +72,18 @@ public class Then_ResponseContainsCurriculum {
 
     private boolean matches(JsonNode item, Map<String, String> expectedRow) {
         for (Map.Entry<String, String> entry : expectedRow.entrySet()) {
-            String field = entry.getKey();
+            String path = entry.getKey();
             Object resolved = resolver.resolveVariable(entry.getValue());
             String expectedVal = resolved != null ? resolved.toString() : null;
 
             if (expectedVal == null)
                 continue;
 
-            if (!item.has(field))
+            String actualVal = resolvePath(item, path);
+            if (actualVal == null)
                 return false;
 
-            String actualVal = item.get(field).asText();
-            // Simple string comparison for now, can be enhanced
             if (!expectedVal.equals(actualVal)) {
-                // Try numeric comparison if both are numbers
                 try {
                     double d1 = Double.parseDouble(expectedVal);
                     double d2 = Double.parseDouble(actualVal);
@@ -97,5 +95,35 @@ public class Then_ResponseContainsCurriculum {
             }
         }
         return true;
+    }
+
+    private String resolvePath(JsonNode root, String path) {
+        JsonNode current = root;
+        String[] segments = path.split("\\.");
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\w+)(?:\\[(\\d+)\\])?");
+
+        for (String segment : segments) {
+            java.util.regex.Matcher matcher = pattern.matcher(segment);
+            if (!matcher.matches()) {
+                if (current.has(segment)) {
+                    current = current.get(segment);
+                    continue;
+                }
+                return null;
+            }
+
+            String key = matcher.group(1);
+            if (!current.has(key)) return null;
+            current = current.get(key);
+
+            String indexStr = matcher.group(2);
+            if (indexStr != null) {
+                if (!current.isArray()) return null;
+                int index = Integer.parseInt(indexStr);
+                if (index < 0 || index >= current.size()) return null;
+                current = current.get(index);
+            }
+        }
+        return current.isValueNode() ? current.asText() : current.toString();
     }
 }

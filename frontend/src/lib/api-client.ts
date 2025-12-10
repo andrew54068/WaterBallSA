@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
     return process.env.API_URL || 'http://backend:8080/api'
   }
   // Client-side (browser) - call backend directly (ngrok URL on Vercel, localhost for local dev)
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081/api'
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 }
 
 class ApiClient {

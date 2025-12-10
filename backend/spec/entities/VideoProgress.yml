@@ -9,5 +9,6 @@ properties:
   durationSeconds: Double
   completionPercentage: Double
   isCompleted: Boolean
+  completedAt: Date
   createdAt: Date
   updatedAt: Date

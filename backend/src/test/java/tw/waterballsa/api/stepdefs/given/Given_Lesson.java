@@ -31,15 +31,16 @@ public class Given_Lesson {
             Long chapterId = Long.parseLong(chapterIdStr);
             String title = row.get("title");
             String lessonTypeStr = row.get("lessonType");
-            Lesson.LessonType lessonType = lessonTypeStr != null ? Lesson.LessonType.valueOf(lessonTypeStr) : null;
+            Lesson.LessonType lessonType = lessonTypeStr != null ? Lesson.LessonType.valueOf(lessonTypeStr)
+                    : Lesson.LessonType.VIDEO;
             String orderIndexStr = row.get("orderIndex");
-            Integer orderIndex = orderIndexStr != null ? Integer.parseInt(orderIndexStr) : null;
+            Integer orderIndex = orderIndexStr != null ? Integer.parseInt(orderIndexStr) : 0;
 
             String isFreePreviewStr = row.get("isFreePreview");
             boolean isFreePreview = (isFreePreviewStr != null) && Boolean.parseBoolean(isFreePreviewStr);
 
-            String durationStr = row.get("durationMinutes");
-            Integer duration = durationStr != null ? Integer.parseInt(durationStr) : null;
+            String durationMinutesStr = row.get("durationMinutes");
+            Integer durationMinutes = durationMinutesStr != null ? Integer.parseInt(durationMinutesStr) : null;
 
             Lesson lesson = Lesson.builder()
                     .chapterId(chapterId)
@@ -47,7 +48,7 @@ public class Given_Lesson {
                     .lessonType(lessonType)
                     .orderIndex(orderIndex)
                     .isFreePreview(isFreePreview)
-                    .duration(duration)
+                    .durationMinutes(durationMinutes)
                     .build();
 
             Lesson saved = lessonRepository.save(lesson);

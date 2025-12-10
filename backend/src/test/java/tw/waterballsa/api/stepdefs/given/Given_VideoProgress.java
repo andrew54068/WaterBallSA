@@ -40,10 +40,18 @@ public class Given_VideoProgress {
             String isCompletedStr = row.get("isCompleted");
             Boolean isCompleted = isCompletedStr != null ? Boolean.parseBoolean(isCompletedStr) : false;
 
+            String durationStr = row.get("durationSeconds");
+            BigDecimal duration = durationStr != null ? new BigDecimal(durationStr) : new BigDecimal("100.0");
+
+            String completionStr = row.get("completionPercentage");
+            BigDecimal completion = completionStr != null ? new BigDecimal(completionStr) : BigDecimal.ZERO;
+
             VideoProgress progress = VideoProgress.builder()
                     .userId(userId)
                     .lessonId(lessonId)
                     .currentTimeSeconds(currentTime)
+                    .durationSeconds(duration)
+                    .completionPercentage(completion)
                     .isCompleted(isCompleted)
                     .build();
 

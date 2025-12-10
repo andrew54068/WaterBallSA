@@ -2,7 +2,14 @@ name: Lesson
 table: lessons
 properties:
   id: Integer
+  chapterId: Integer
   title: String
+  description: String
   lessonType: String
+  contentUrl: String
+  contentMetadata: String
+  orderIndex: Integer
+  durationMinutes: Integer
   isFreePreview: Boolean
   createdAt: Date
+  updatedAt: Date

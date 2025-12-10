@@ -18,72 +18,72 @@
 -- Stores Google OAuth authenticated user information
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    google_id VARCHAR(255) NOT NULL UNIQUE COMMENT 'Google user ID (unique)',
-    email VARCHAR(255) NOT NULL UNIQUE COMMENT 'User email address',
-    name VARCHAR(255) NOT NULL COMMENT 'User full name',
-    profile_picture TEXT COMMENT 'User profile picture URL (from Google)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    google_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    profile_picture TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_users_email (email),
     INDEX idx_users_google_id (google_id)
-) COMMENT 'Users (Google OAuth authentication)';
+);
 
 -- Curriculums Table
 -- Stores complete course information including pricing, difficulty, instructor details
 CREATE TABLE curriculums (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL COMMENT 'Curriculum title',
-    description TEXT NOT NULL COMMENT 'Curriculum description',
-    thumbnail_url TEXT COMMENT 'Curriculum thumbnail URL',
-    instructor_name VARCHAR(255) NOT NULL COMMENT 'Instructor name',
-    price DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Course price (0 = free)',
-    currency VARCHAR(3) DEFAULT 'TWD' COMMENT 'Currency code (default: TWD)',
-    difficulty_level VARCHAR(20) NOT NULL CHECK (difficulty_level IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED')) COMMENT 'Difficulty level (BEGINNER, INTERMEDIATE, ADVANCED)',
-    estimated_duration_hours INT NOT NULL COMMENT 'Estimated total duration in hours',
-    is_published BOOLEAN DEFAULT FALSE COMMENT 'Publication status (FALSE = draft)',
-    published_at TIMESTAMP COMMENT 'Publication timestamp (only set when published)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    thumbnail_url TEXT,
+    instructor_name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    currency VARCHAR(3) DEFAULT 'TWD',
+    difficulty_level VARCHAR(20) NOT NULL CHECK (difficulty_level IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED')),
+    estimated_duration_hours INT NOT NULL,
+    is_published BOOLEAN DEFAULT FALSE,
+    published_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_curriculums_difficulty (difficulty_level),
     INDEX idx_curriculums_price (price),
     INDEX idx_curriculums_published (is_published, published_at)
-) COMMENT 'Curriculums';
+);
 
 -- Chapters Table
 -- Stores chapter information (each curriculum contains multiple chapters)
 CREATE TABLE chapters (
     id SERIAL PRIMARY KEY,
-    curriculum_id INT NOT NULL COMMENT 'Parent curriculum ID (foreign key)',
-    title VARCHAR(255) NOT NULL COMMENT 'Chapter title',
-    description TEXT COMMENT 'Chapter description',
-    order_index INT NOT NULL COMMENT 'Sort order index (lower number = higher priority)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    curriculum_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    order_index INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE CASCADE,
     INDEX idx_chapters_curriculum (curriculum_id, order_index)
-) COMMENT 'Chapters';
+);
 
 -- Lessons Table
 -- Stores actual lesson content (videos, articles, surveys)
 -- Uses JSONB field to store different metadata for different lesson types
 CREATE TABLE lessons (
     id SERIAL PRIMARY KEY,
-    chapter_id INT NOT NULL COMMENT 'Parent chapter ID (foreign key)',
-    title VARCHAR(255) NOT NULL COMMENT 'Lesson title',
-    description TEXT COMMENT 'Lesson description',
-    lesson_type VARCHAR(20) NOT NULL CHECK (lesson_type IN ('VIDEO', 'ARTICLE', 'SURVEY')) COMMENT 'Lesson type (VIDEO, ARTICLE, SURVEY)',
-    content_url TEXT COMMENT 'Lesson content URL (e.g., YouTube video link)',
-    content_metadata JSONB COMMENT 'Lesson content metadata (JSONB, varies by lesson_type)',
-    order_index INT NOT NULL COMMENT 'Sort order index (lower number = higher priority)',
-    duration_minutes INT COMMENT 'Lesson duration in minutes',
-    is_free_preview BOOLEAN DEFAULT FALSE COMMENT 'Free preview flag',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    chapter_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    lesson_type VARCHAR(20) NOT NULL CHECK (lesson_type IN ('VIDEO', 'ARTICLE', 'SURVEY')),
+    content_url TEXT,
+    content_metadata JSONB,
+    order_index INT NOT NULL,
+    duration_minutes INT,
+    is_free_preview BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE,
     INDEX idx_lessons_chapter (chapter_id, order_index),
     INDEX idx_lessons_type (lesson_type),
     INDEX idx_lessons_free_preview (is_free_preview)
-) COMMENT 'Lessons (VIDEO/ARTICLE/SURVEY)';
+);
 
 -- content_metadata Examples:
 -- VIDEO type: {"videoProvider": "youtube", "videoId": "abc123", "thumbnailUrl": "https://..."}
@@ -95,22 +95,22 @@ CREATE TABLE lessons (
 -- Automatically marks as completed when completion_percentage >= 90%
 CREATE TABLE video_progress (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL COMMENT 'User ID (foreign key)',
-    lesson_id INT NOT NULL COMMENT 'Lesson ID (foreign key)',
-    current_time_seconds DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Current playback time in seconds',
-    duration_seconds DECIMAL(10, 2) NOT NULL COMMENT 'Total video duration in seconds',
-    completion_percentage DECIMAL(5, 2) NOT NULL DEFAULT 0.00 CHECK (completion_percentage BETWEEN 0 AND 100) COMMENT 'Completion percentage (0-100)',
-    is_completed BOOLEAN DEFAULT FALSE COMMENT 'Completion flag (usually true when completion_percentage >= 90)',
-    completed_at TIMESTAMP COMMENT 'Completion timestamp (only set when completed)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    user_id INT NOT NULL,
+    lesson_id INT NOT NULL,
+    current_time_seconds DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    duration_seconds DECIMAL(10, 2) NOT NULL,
+    completion_percentage DECIMAL(5, 2) NOT NULL DEFAULT 0.00 CHECK (completion_percentage BETWEEN 0 AND 100),
+    is_completed BOOLEAN DEFAULT FALSE,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_lesson (user_id, lesson_id),
     INDEX idx_video_progress_user (user_id),
     INDEX idx_video_progress_lesson (lesson_id),
     INDEX idx_video_progress_completed (is_completed, completed_at)
-) COMMENT 'Video watching progress';
+);
 
 -- ============================================================================
 -- Phase 2: Purchase System & Access Control
@@ -120,21 +120,21 @@ CREATE TABLE video_progress (
 -- Stores coupon information (percentage discount or fixed amount discount)
 CREATE TABLE coupons (
     id SERIAL PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE COMMENT 'Coupon code (unique, case-insensitive)',
-    discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('PERCENTAGE', 'FIXED_AMOUNT')) COMMENT 'Discount type (PERCENTAGE or FIXED_AMOUNT)',
-    discount_value DECIMAL(10, 2) NOT NULL COMMENT 'Discount value (percentage: 0-100, fixed: actual amount)',
-    valid_from TIMESTAMP NOT NULL COMMENT 'Validity start timestamp',
-    valid_until TIMESTAMP NOT NULL COMMENT 'Validity end timestamp',
-    usage_limit INT COMMENT 'Maximum usage count (NULL = unlimited)',
-    usage_count INT DEFAULT 0 COMMENT 'Current usage count',
-    applicable_curriculum_ids JSONB COMMENT 'Applicable curriculum IDs (JSONB array, NULL = all curriculums)',
-    is_active BOOLEAN DEFAULT TRUE COMMENT 'Active status flag',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Record creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    code VARCHAR(50) NOT NULL UNIQUE,
+    discount_type VARCHAR(20) NOT NULL CHECK (discount_type IN ('PERCENTAGE', 'FIXED_AMOUNT')),
+    discount_value DECIMAL(10, 2) NOT NULL,
+    valid_from TIMESTAMP NOT NULL,
+    valid_until TIMESTAMP NOT NULL,
+    usage_limit INT,
+    usage_count INT DEFAULT 0,
+    applicable_curriculum_ids JSONB,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_coupons_code (code),
     INDEX idx_coupons_validity (valid_from, valid_until),
     INDEX idx_coupons_active (is_active)
-) COMMENT 'Coupons';
+);
 
 -- applicable_curriculum_ids Example: [1, 2, 5] means only applicable to curriculums 1, 2, 5
 -- NULL means applicable to all curriculums
@@ -144,39 +144,39 @@ CREATE TABLE coupons (
 -- Purchase flow: Create order (PENDING) → Complete payment (COMPLETED)
 CREATE TABLE purchases (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL COMMENT 'Purchasing user ID (foreign key)',
-    curriculum_id INT NOT NULL COMMENT 'Purchased curriculum ID (foreign key)',
-    original_price DECIMAL(10, 2) NOT NULL COMMENT 'Original price',
-    final_price DECIMAL(10, 2) NOT NULL COMMENT 'Final price (after coupon applied)',
-    coupon_code VARCHAR(50) COMMENT 'Applied coupon code',
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED', 'CANCELLED')) COMMENT 'Order status (PENDING: awaiting payment, COMPLETED: paid, CANCELLED: cancelled)',
-    purchased_at TIMESTAMP COMMENT 'Payment completion timestamp (only set for COMPLETED status)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Order creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    user_id INT NOT NULL,
+    curriculum_id INT NOT NULL,
+    original_price DECIMAL(10, 2) NOT NULL,
+    final_price DECIMAL(10, 2) NOT NULL,
+    coupon_code VARCHAR(50),
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED', 'CANCELLED')),
+    purchased_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
     FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE RESTRICT,
     INDEX idx_purchases_user (user_id, status),
     INDEX idx_purchases_curriculum (curriculum_id),
     INDEX idx_purchases_status (status, purchased_at)
-) COMMENT 'Purchase records';
+);
 
 -- Payment Transactions Table
 -- Stores payment transaction details (Phase 2 uses mock payment, always succeeds)
 CREATE TABLE payment_transactions (
     id SERIAL PRIMARY KEY,
-    purchase_id INT NOT NULL COMMENT 'Purchase order ID (foreign key)',
-    amount DECIMAL(10, 2) NOT NULL COMMENT 'Transaction amount',
-    currency VARCHAR(3) DEFAULT 'TWD' COMMENT 'Transaction currency',
-    payment_method VARCHAR(50) DEFAULT 'MOCK' COMMENT 'Payment method (Phase 2: MOCK, Phase 3+: CREDIT_CARD, PAYPAL, etc.)',
-    transaction_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (transaction_status IN ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED')) COMMENT 'Transaction status',
-    external_transaction_id VARCHAR(255) COMMENT 'External payment gateway transaction ID',
-    transaction_metadata JSONB COMMENT 'Transaction metadata (JSONB, stores additional info from payment gateway)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Transaction creation timestamp',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Last update timestamp',
+    purchase_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'TWD',
+    payment_method VARCHAR(50) DEFAULT 'MOCK',
+    transaction_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (transaction_status IN ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED')),
+    external_transaction_id VARCHAR(255),
+    transaction_metadata JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE RESTRICT,
     INDEX idx_payment_transactions_purchase (purchase_id),
     INDEX idx_payment_transactions_status (transaction_status)
-) COMMENT 'Payment transaction records';
+);
 
 -- ============================================================================
 -- Index Optimization

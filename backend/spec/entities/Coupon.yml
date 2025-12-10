@@ -5,4 +5,11 @@ properties:
   code: String
   discountType: String
   discountValue: Double
+  validFrom: Date
+  validUntil: Date
+  usageLimit: Integer
+  usageCount: Integer
+  applicableCurriculumIds: String
   isActive: Boolean
+  createdAt: Date
+  updatedAt: Date

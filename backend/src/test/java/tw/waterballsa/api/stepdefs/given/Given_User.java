@@ -27,14 +27,26 @@ public class Given_User {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         Map<String, String> row = rows.get(0);
 
-        User user = User.builder()
-                .id(new Random().nextLong()) // Simple ID generation
-                .googleId(row.get("googleId"))
-                .email(row.get("email"))
-                .name(row.get("name"))
-                .build();
+        String googleId = row.get("googleId");
+        User user = userRepository.findByGoogleId(googleId)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .id(new Random().nextLong()) // Simple ID generation - though JPA usually ignores if
+                                                         // IDENTITY logic is used
+                            .googleId(googleId)
+                            .email(row.get("email"))
+                            .name(row.get("name"))
+                            .role(row.get("role")) // Also set role if provided in table? Table might not have role.
+                            .build();
+                    // Actually let's trust JPA for ID generation if we save.
+                    // But the Builder sets ID. If Entity uses @GeneratedValue, setting ID might be
+                    // ignored or cause detached entity error.
+                    // The original code set ID manually.
+                    newUser.setId(null); // Let DB generate ID
+                    return userRepository.save(newUser);
+                });
 
-        userRepository.save(user);
+        // Update fields if needed? For now assume finding existing is enough.
 
         // Store variable like User.id -> <userId
         // The table header >User.id means we need to store the created user's ID into

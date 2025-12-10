@@ -33,8 +33,8 @@ public class Given_Coupon {
                     .code(row.get("code"))
                     .discountType(row.get("discountType"))
                     .discountValue(Double.parseDouble(row.get("discountValue")))
-                    .validFrom(parseTime(validFromStr))
-                    .validTo(parseTime(validToStr))
+                    .validFrom(parseTime(row.get("validFrom")))
+                    .validUntil(parseTime(row.get("validTo")))
                     .usageLimit(Integer.parseInt(row.get("usageLimit")))
                     .build();
 

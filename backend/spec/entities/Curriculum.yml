@@ -3,7 +3,14 @@ table: curriculums
 properties:
   id: Integer
   title: String
+  instructorName: String
+  description: String
+  thumbnailUrl: String
   price: Double
+  currency: String
   difficultyLevel: String
+  estimatedDurationHours: Integer
   isPublished: Boolean
+  publishedAt: Date
   createdAt: Date
+  updatedAt: Date

@@ -29,4 +29,10 @@ public class Purchase {
     private Double finalPrice;
     private String couponCode;
     private LocalDateTime purchasedAt;
+
+    @jakarta.persistence.Column(name = "created_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @jakarta.persistence.Column(name = "updated_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime updatedAt;
 }

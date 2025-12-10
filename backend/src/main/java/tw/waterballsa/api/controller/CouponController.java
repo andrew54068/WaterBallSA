@@ -40,7 +40,7 @@ public class CouponController {
         Coupon coupon = couponOpt.get();
         LocalDateTime now = timeProvider.now();
 
-        if (coupon.getValidFrom().isAfter(now) || coupon.getValidTo().isBefore(now)) {
+        if (coupon.getValidFrom().isAfter(now) || coupon.getValidUntil().isBefore(now)) {
             return ResponseEntity.ok(ValidateCouponResponse.builder()
                     .valid(false)
                     .errorCode("COUPON_EXPIRED")

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "video_progresses")
+@Table(name = "video_progress")
 public class VideoProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +29,10 @@ public class VideoProgress {
     private BigDecimal completionPercentage;
     private Boolean isCompleted;
     private LocalDateTime completedAt;
+
+    @jakarta.persistence.Column(name = "created_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @jakarta.persistence.Column(name = "updated_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime updatedAt;
 }

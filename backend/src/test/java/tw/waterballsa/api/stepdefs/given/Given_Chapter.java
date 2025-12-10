@@ -31,7 +31,7 @@ public class Given_Chapter {
             Long curriculumId = Long.parseLong(curriculumIdStr);
             String title = row.get("title");
             String orderIndexStr = row.get("orderIndex");
-            Integer orderIndex = orderIndexStr != null ? Integer.parseInt(orderIndexStr) : null;
+            Integer orderIndex = orderIndexStr != null ? Integer.parseInt(orderIndexStr) : 0;
 
             Chapter chapter = Chapter.builder()
                     .curriculumId(curriculumId)

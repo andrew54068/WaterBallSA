@@ -4,6 +4,10 @@ properties:
   id: Integer
   userId: Integer
   curriculumId: Integer
+  originalPrice: Double
   finalPrice: Double
+  couponCode: String
   status: String
+  purchasedAt: Date
   createdAt: Date
+  updatedAt: Date

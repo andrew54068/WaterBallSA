@@ -8,3 +8,4 @@ properties:
   description: String
   orderIndex: Integer
   createdAt: Date
+  updatedAt: Date

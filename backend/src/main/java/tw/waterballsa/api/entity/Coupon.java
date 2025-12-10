@@ -25,7 +25,19 @@ public class Coupon {
     private Double discountValue;
 
     private LocalDateTime validFrom;
-    private LocalDateTime validTo;
+    private LocalDateTime validUntil;
 
     private Integer usageLimit;
+    private Integer usageCount;
+
+    @Column(columnDefinition = "jsonb")
+    private String applicableCurriculumIds;
+
+    private Boolean isActive;
+
+    @jakarta.persistence.Column(name = "created_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @jakarta.persistence.Column(name = "updated_at", insertable = false, updatable = false)
+    private java.time.LocalDateTime updatedAt;
 }

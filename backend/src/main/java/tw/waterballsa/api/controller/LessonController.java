@@ -60,43 +60,52 @@ public class LessonController {
                 .findFirst()
                 .orElse(null);
 
+        // Initialize defaults if creating new
         if (existing == null) {
             existing = new VideoProgress();
             existing.setUserId(userId);
             existing.setLessonId(lessonId);
-            existing.setCurrentTimeSeconds(java.math.BigDecimal.ZERO); // Default
+            existing.setCurrentTimeSeconds(java.math.BigDecimal.ZERO);
+            existing.setCompletionPercentage(java.math.BigDecimal.ZERO);
+            existing.setIsCompleted(false);
         }
 
-        // Update fields
+        // Update current time
         if (request.getCurrentTimeSeconds() != null) {
             existing.setCurrentTimeSeconds(request.getCurrentTimeSeconds());
         }
 
-        // Calculate percentage and completion
-        // Use Lesson.duration (Integer minutes) -> BigDecimal seconds
-        if (lesson.getDuration() != null && lesson.getDuration() > 0) {
-            java.math.BigDecimal durationSeconds = java.math.BigDecimal.valueOf(lesson.getDuration() * 60);
-
-            // Avoid divide by zero if duration is somehow 0 (guarded check above)
-            if (durationSeconds.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                java.math.BigDecimal current = existing.getCurrentTimeSeconds() != null
-                        ? existing.getCurrentTimeSeconds()
-                        : java.math.BigDecimal.ZERO;
-                java.math.BigDecimal percentage = current
-                        .divide(durationSeconds, 2, java.math.RoundingMode.HALF_UP)
-                        .multiply(java.math.BigDecimal.valueOf(100));
-
-                existing.setCompletionPercentage(percentage);
-
-                if (percentage.doubleValue() >= 90.0) { // Threshold 90%
-                    existing.setIsCompleted(true);
-                } else {
-                    existing.setIsCompleted(false);
-                }
-            }
+        // Calculate Duration and Set it (MANDATORY per Schema)
+        java.math.BigDecimal durationSeconds = java.math.BigDecimal.ZERO;
+        if (lesson.getDurationMinutes() != null) {
+            durationSeconds = java.math.BigDecimal.valueOf(lesson.getDurationMinutes() * 60);
         }
+        existing.setDurationSeconds(durationSeconds);
 
-        // Also if request provides durationSeconds? ignore for now, use Lesson truth.
+        // Calculate percentage and completion
+        if (durationSeconds.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            java.math.BigDecimal current = existing.getCurrentTimeSeconds() != null
+                    ? existing.getCurrentTimeSeconds()
+                    : java.math.BigDecimal.ZERO;
+
+            // Percentage
+            java.math.BigDecimal percentage = current
+                    .divide(durationSeconds, 2, java.math.RoundingMode.HALF_UP)
+                    .multiply(java.math.BigDecimal.valueOf(100));
+
+            // Cap at 100? No, standard math.
+            existing.setCompletionPercentage(percentage);
+
+            if (percentage.doubleValue() >= 90.0) { // Threshold 90%
+                existing.setIsCompleted(true);
+            } else {
+                existing.setIsCompleted(false);
+            }
+        } else {
+            // Duration is 0, progress implies completed? Or just 0%?
+            // Keep existing completion percentage (0) or set to 100 if completed?
+            // safer to leave simple.
+        }
 
         videoProgressRepository.save(existing);
         return ResponseEntity.ok(convertToMap(existing));

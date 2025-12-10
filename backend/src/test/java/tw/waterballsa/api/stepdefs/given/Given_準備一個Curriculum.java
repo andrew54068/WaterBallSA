@@ -31,7 +31,8 @@ public class Given_準備一個Curriculum {
 
         for (Map<String, String> row : rows) {
             String priceStr = row.get("price");
-            // Default to 1000.0 (paid) if price is not specified to avoid polluting free courses
+            // Default to 1000.0 (paid) if price is not specified to avoid polluting free
+            // courses
             double price = (priceStr != null) ? Double.parseDouble(priceStr) : 1000.0;
 
             String isPublishedStr = row.get("isPublished");
@@ -39,15 +40,29 @@ public class Given_準備一個Curriculum {
 
             String diffStr = row.get("difficultyLevel");
             Curriculum.DifficultyLevel difficultyLevel = (diffStr != null) ? Curriculum.DifficultyLevel.valueOf(diffStr)
+                    : Curriculum.DifficultyLevel.BEGINNER;
+
+            String estimatedDurationHoursStr = row.get("estimatedDurationHours");
+            Integer estimatedDurationHours = (estimatedDurationHoursStr != null)
+                    ? Integer.parseInt(estimatedDurationHoursStr)
+                    : 10;
+
+            String publishedAtStr = row.get("publishedAt");
+            java.time.LocalDateTime publishedAt = (publishedAtStr != null)
+                    ? java.time.LocalDateTime.parse(publishedAtStr)
                     : null;
 
             Curriculum curriculum = Curriculum.builder()
                     .title(row.get("title"))
-                    .description(row.get("description"))
+                    .instructorName(row.getOrDefault("instructorName", "Default Instructor"))
+                    .description(row.getOrDefault("description", "Default Description"))
+                    .thumbnailUrl(row.get("thumbnailUrl"))
                     .price(price)
                     .currency(row.get("currency"))
                     .difficultyLevel(difficultyLevel)
+                    .estimatedDurationHours(estimatedDurationHours)
                     .isPublished(isPublished)
+                    .publishedAt(publishedAt)
                     .build();
 
             Curriculum saved = curriculumRepository.save(curriculum);

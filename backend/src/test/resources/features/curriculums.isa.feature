@@ -2,11 +2,11 @@ Feature: Curriculum瀏覽
 
   Background:
     Given 準備一個Curriculum, with table:
-      | >JavaCourse.id | title                  | description                             | price   | currency | difficultyLevel | isPublished |
-      | <courseId      | 完整 Java 開發入門Curriculum | 從零開始學習 Java 程式設計              | 1990.00 | TWD      | BEGINNER        | true        |
+      | >JavaCourse.id | title                  | instructorName | description                             | thumbnailUrl                     | price   | currency | difficultyLevel | estimatedDurationHours | isPublished | publishedAt         |
+      | <courseId      | 完整 Java 開發入門Curriculum | WaterBall      | 從零開始學習 Java 程式設計              | https://example.com/java.png     | 1990.00 | TWD      | BEGINNER        | 20                     | true        | 2023-01-01T00:00:00 |
     And 準備一個Curriculum, with table:
-      | >SpringCourse.id | title                    | description                             | price   | currency | difficultyLevel | isPublished |
-      | <courseId2       | Spring Boot 實戰         | 深入淺出 Spring Boot                    | 2490.00 | TWD      | INTERMEDIATE    | true        |
+      | >SpringCourse.id | title                    | instructorName | description                             | thumbnailUrl                     | price   | currency | difficultyLevel | estimatedDurationHours | isPublished | publishedAt         |
+      | <courseId2       | Spring Boot 實戰         | WaterBall      | 深入淺出 Spring Boot                    | https://example.com/spring.png   | 2490.00 | TWD      | INTERMEDIATE    | 30                     | true        | 2023-02-01T00:00:00 |
     And 準備一個Chapter, for curriculum $JavaCourse.id, with table:
       | title          | description                 | orderIndex |
       | 物件導向基礎   | 類別、物件、封裝、繼承、多型 | 0          |
@@ -34,8 +34,8 @@ Feature: Curriculum瀏覽
         | id              |
         | $JavaCourse.id  |
       Then 回應, with table:
-        | id              | title                  | description                | price   | currency | difficultyLevel |
-        | $JavaCourse.id  | 完整 Java 開發入門Curriculum | 從零開始學習 Java 程式設計 | 1990.00 | TWD      | BEGINNER        |
+        | id              | title                  | instructorName | description                | thumbnailUrl                 | price   | currency | difficultyLevel | estimatedDurationHours | isPublished | publishedAt         |
+        | $JavaCourse.id  | 完整 Java 開發入門Curriculum | WaterBall      | 從零開始學習 Java 程式設計 | https://example.com/java.png | 1990.00 | TWD      | BEGINNER        | 20                     | true        | 2023-01-01T00:00:00 |
 
 
   Rule: 使用者可以查詢免費Curriculum
