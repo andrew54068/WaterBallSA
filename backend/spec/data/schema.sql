@@ -23,10 +23,10 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     profile_picture TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_users_email (email),
-    INDEX idx_users_google_id (google_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_google_id ON users(google_id);
 
 -- Curriculums Table
 -- Stores complete course information including pricing, difficulty, instructor details
@@ -43,11 +43,11 @@ CREATE TABLE curriculums (
     is_published BOOLEAN DEFAULT FALSE,
     published_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_curriculums_difficulty (difficulty_level),
-    INDEX idx_curriculums_price (price),
-    INDEX idx_curriculums_published (is_published, published_at)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_curriculums_difficulty ON curriculums(difficulty_level);
+CREATE INDEX idx_curriculums_price ON curriculums(price);
+CREATE INDEX idx_curriculums_published ON curriculums(is_published, published_at);
 
 -- Chapters Table
 -- Stores chapter information (each curriculum contains multiple chapters)
@@ -59,9 +59,9 @@ CREATE TABLE chapters (
     order_index INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE CASCADE,
-    INDEX idx_chapters_curriculum (curriculum_id, order_index)
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE CASCADE
 );
+CREATE INDEX idx_chapters_curriculum ON chapters(curriculum_id, order_index);
 
 -- Lessons Table
 -- Stores actual lesson content (videos, articles, surveys)
@@ -79,11 +79,11 @@ CREATE TABLE lessons (
     is_free_preview BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE,
-    INDEX idx_lessons_chapter (chapter_id, order_index),
-    INDEX idx_lessons_type (lesson_type),
-    INDEX idx_lessons_free_preview (is_free_preview)
+    FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE
 );
+CREATE INDEX idx_lessons_chapter ON lessons(chapter_id, order_index);
+CREATE INDEX idx_lessons_type ON lessons(lesson_type);
+CREATE INDEX idx_lessons_free_preview ON lessons(is_free_preview);
 
 -- content_metadata Examples:
 -- VIDEO type: {"videoProvider": "youtube", "videoId": "abc123", "thumbnailUrl": "https://..."}
@@ -106,11 +106,11 @@ CREATE TABLE video_progress (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_lesson (user_id, lesson_id),
-    INDEX idx_video_progress_user (user_id),
-    INDEX idx_video_progress_lesson (lesson_id),
-    INDEX idx_video_progress_completed (is_completed, completed_at)
+    CONSTRAINT unique_user_lesson UNIQUE (user_id, lesson_id)
 );
+CREATE INDEX idx_video_progress_user ON video_progress(user_id);
+CREATE INDEX idx_video_progress_lesson ON video_progress(lesson_id);
+CREATE INDEX idx_video_progress_completed ON video_progress(is_completed, completed_at);
 
 -- ============================================================================
 -- Phase 2: Purchase System & Access Control
@@ -130,11 +130,11 @@ CREATE TABLE coupons (
     applicable_curriculum_ids JSONB,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_coupons_code (code),
-    INDEX idx_coupons_validity (valid_from, valid_until),
-    INDEX idx_coupons_active (is_active)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_coupons_code ON coupons(code);
+CREATE INDEX idx_coupons_validity ON coupons(valid_from, valid_until);
+CREATE INDEX idx_coupons_active ON coupons(is_active);
 
 -- applicable_curriculum_ids Example: [1, 2, 5] means only applicable to curriculums 1, 2, 5
 -- NULL means applicable to all curriculums
@@ -154,11 +154,11 @@ CREATE TABLE purchases (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
-    FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE RESTRICT,
-    INDEX idx_purchases_user (user_id, status),
-    INDEX idx_purchases_curriculum (curriculum_id),
-    INDEX idx_purchases_status (status, purchased_at)
+    FOREIGN KEY (curriculum_id) REFERENCES curriculums(id) ON DELETE RESTRICT
 );
+CREATE INDEX idx_purchases_user ON purchases(user_id, status);
+CREATE INDEX idx_purchases_curriculum ON purchases(curriculum_id);
+CREATE INDEX idx_purchases_status ON purchases(status, purchased_at);
 
 -- Payment Transactions Table
 -- Stores payment transaction details (Phase 2 uses mock payment, always succeeds)
@@ -173,10 +173,10 @@ CREATE TABLE payment_transactions (
     transaction_metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE RESTRICT,
-    INDEX idx_payment_transactions_purchase (purchase_id),
-    INDEX idx_payment_transactions_status (transaction_status)
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE RESTRICT
 );
+CREATE INDEX idx_payment_transactions_purchase ON payment_transactions(purchase_id);
+CREATE INDEX idx_payment_transactions_status ON payment_transactions(transaction_status);
 
 -- ============================================================================
 -- Index Optimization
@@ -184,7 +184,7 @@ CREATE TABLE payment_transactions (
 
 -- Composite indexes for improved query performance
 CREATE INDEX idx_lessons_chapter_type ON lessons(chapter_id, lesson_type);
-CREATE INDEX idx_video_progress_user_completed ON video_progress(user_id, is_completed);
+CREATE INDEX idx_video_progress_user_completed_composite ON video_progress(user_id, is_completed);
 CREATE INDEX idx_purchases_user_curriculum ON purchases(user_id, curriculum_id);
 
 -- Full-text search index (PostgreSQL FULLTEXT)
