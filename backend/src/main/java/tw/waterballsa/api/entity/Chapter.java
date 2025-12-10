@@ -22,6 +22,10 @@ public class Chapter {
     private Integer orderIndex;
     private String description;
 
+    @OneToMany(mappedBy = "chapter", fetch = FetchType.EAGER)
+    @OrderBy("orderIndex ASC")
+    private java.util.List<Lesson> lessons;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private java.time.LocalDateTime createdAt;
 

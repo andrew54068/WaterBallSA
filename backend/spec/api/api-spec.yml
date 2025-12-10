@@ -749,18 +749,7 @@ components:
         chapters:
           type: array
           items:
-            $ref: "#/components/schemas/ChapterSummary"
-
-    ChapterSummary:
-      type: object
-      required: [id, curriculumId, title, orderIndex, createdAt]
-      properties:
-        id: { type: integer }
-        curriculumId: { type: integer }
-        title: { type: string }
-        description: { type: string }
-        orderIndex: { type: integer }
-        createdAt: { type: string, format: date-time }
+            $ref: "#/components/schemas/Chapter"
 
     PaginatedCurriculumResponse:
       type: object

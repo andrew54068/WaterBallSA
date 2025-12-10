@@ -16,9 +16,17 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "chapter_id")
     private Long chapterId;
     private String title;
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chapter_id", insertable = false, updatable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private Chapter chapter;
 
     @Enumerated(EnumType.STRING)
     private LessonType lessonType;
@@ -38,6 +46,6 @@ public class Lesson {
     private java.time.LocalDateTime updatedAt;
 
     public enum LessonType {
-        VIDEO, ARTICLE
+        VIDEO, ARTICLE, SURVEY
     }
 }

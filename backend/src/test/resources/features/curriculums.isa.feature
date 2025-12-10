@@ -11,6 +11,10 @@ Feature: Curriculum瀏覽
       | title          | description                 | orderIndex |
       | 物件導向基礎   | 類別、物件、封裝、繼承、多型 | 0          |
       | 設計模式概論   | GoF Design Patterns         | 1          |
+    And 準備一個Lesson, for chapter 0 of curriculum $JavaCourse.id, with table:
+      | title          | lessonType |
+      | 什麼是物件導向 | VIDEO      |
+      | 封裝的藝術     | VIDEO      |
 
   Rule: 使用者可以查詢Curriculum列表
     Example: 查詢所有Curriculum應包含分頁資訊
@@ -36,6 +40,9 @@ Feature: Curriculum瀏覽
       Then 回應, with table:
         | id              | title                  | instructorName | description                | thumbnailUrl                 | price   | currency | difficultyLevel | estimatedDurationHours | isPublished | publishedAt         |
         | $JavaCourse.id  | 完整 Java 開發入門Curriculum | WaterBall      | 從零開始學習 Java 程式設計 | https://example.com/java.png | 1990.00 | TWD      | BEGINNER        | 20                     | true        | 2023-01-01T00:00:00 |
+      And 回應列表包含Curriculum, with table:
+        | id              | chapters[0].lessons[0].title | chapters[0].lessons[1].title |
+        | $JavaCourse.id  | 什麼是物件導向               | 封裝的藝術                   |
 
 
   Rule: 使用者可以查詢免費Curriculum
