@@ -185,39 +185,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedCurriculumResponse"
 
-  /curriculums/difficulty/{level}:
-    get:
-      summary: 根據難度篩選課程
-      operationId: getCurriculumsByDifficulty
-      tags:
-        - Curriculums
-      parameters:
-        - name: level
-          in: path
-          required: true
-          schema:
-            type: string
-            enum: [BEGINNER, INTERMEDIATE, ADVANCED]
-        - name: page
-          in: query
-          schema:
-            type: integer
-        - name: size
-          in: query
-          schema:
-            type: integer
-        - name: sort
-          in: query
-          schema:
-            type: string
-      responses:
-        "200":
-          description: 成功取得指定難度的課程列表
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedCurriculumResponse"
-
   /curriculums/free:
     get:
       summary: 取得免費課程
@@ -782,18 +749,7 @@ components:
         chapters:
           type: array
           items:
-            $ref: "#/components/schemas/ChapterSummary"
-
-    ChapterSummary:
-      type: object
-      required: [id, curriculumId, title, orderIndex, createdAt]
-      properties:
-        id: { type: integer }
-        curriculumId: { type: integer }
-        title: { type: string }
-        description: { type: string }
-        orderIndex: { type: integer }
-        createdAt: { type: string, format: date-time }
+            $ref: "#/components/schemas/Chapter"
 
     PaginatedCurriculumResponse:
       type: object

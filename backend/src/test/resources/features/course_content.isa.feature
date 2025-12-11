@@ -13,7 +13,7 @@ Feature: 課程內容瀏覽
 
   Rule: 使用者可以查看課程章節列表
     Example: 查詢特定課程的章節列表應包含單元
-      When 取得課程的所有章節, call table:
+      When (No Actor) 取得課程的所有章節, call table:
         | curriculumId   |
         | $Curriculum.id |
       Then 回應列表包含章節, with table:
@@ -22,7 +22,7 @@ Feature: 課程內容瀏覽
 
   Rule: 使用者可以查看章節詳情
     Example: 查詢章節詳情應包含所有單元
-      When 取得章節詳情, call table:
+      When (No Actor) 取得章節詳情, call table:
         | id          |
         | $Chapter.id |
       Then 回應, with table:

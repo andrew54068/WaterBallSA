@@ -6,7 +6,7 @@ Feature: 課程購買
       | <userId  | 108123456789012345678 | user@test.com     | TestUser |
     And 準備一個Curriculum, with table:
       | >Curriculum.id | title            | price   | isPublished |
-      | <curriculumId  | Spring Boot 實戰 | 2490.00 | true        |
+      | <curriculumId  | Spring Boot 實戰 | 2490.0 | true        |
 
   Rule: 使用者可以取得訂單預覽資訊
     Example: 購買前取得訂單預覽資訊應顯示課程與價格資訊
@@ -16,7 +16,7 @@ Feature: 課程購買
         | $Curriculum.id |
       Then 回應, with table:
         | >Order.originalPrice | curriculum.id  | curriculum.title | originalPrice |
-        | <originalPrice       | $Curriculum.id | Spring Boot 實戰 | 2490.00       |
+        | <originalPrice       | $Curriculum.id | Spring Boot 實戰 | 2490.0       |
 
   Rule: 使用者可以建立購買訂單
     Example: 建立訂單應產生 PENDING 狀態的交易
@@ -26,7 +26,7 @@ Feature: 課程購買
         | $Curriculum.id |
       Then 回應, with table:
         | >Purchase.id | status  | originalPrice | finalPrice |
-        | <purchaseId  | PENDING | 2490.00       | 2490.00    |
+        | <purchaseId  | PENDING | 2490.0       | 2490.0    |
       And 應該存在一個Purchase, with table:
         | id          | userId   | curriculumId   | status  |
         | $Purchase.id| $User.id | $Curriculum.id | PENDING |

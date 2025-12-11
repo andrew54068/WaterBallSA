@@ -23,24 +23,45 @@ public class Then_應該存在一個VideoProgress_With_Table {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
 
         for (Map<String, String> row : rows) {
-            String id = Objects.requireNonNull(row.get("id"), "DataTable 必須包含欄位: id");
-            
-            // Resolve variable first before parsing
-Object resolvedid = resolver.resolveVariable(id);
-Long idLong = (resolvedid instanceof Number)
-    ? ((Number) resolvedid).longValue()
-    : Long.parseLong(resolvedid.toString());
-            
-            VideoProgress actual = repository.findById(idLong)
-                    .orElseThrow(() -> new AssertionError("VideoProgress with id=" + id + " should exist"));
+            VideoProgress actual;
+
+            // Support lookup by id OR userId+lessonId
+            if (row.containsKey("id")) {
+                String id = row.get("id");
+                Object resolvedid = resolver.resolveVariable(id);
+                Long idLong = (resolvedid instanceof Number)
+                    ? ((Number) resolvedid).longValue()
+                    : Long.parseLong(resolvedid.toString());
+
+                actual = repository.findById(idLong)
+                        .orElseThrow(() -> new AssertionError("VideoProgress with id=" + id + " should exist"));
+            } else {
+                // Look up by userId + lessonId (unique together)
+                String userIdStr = Objects.requireNonNull(row.get("userId"), "DataTable 必須包含 userId 或 id");
+                String lessonIdStr = Objects.requireNonNull(row.get("lessonId"), "DataTable 必須包含 lessonId 當使用 userId 查詢時");
+
+                Object resolvedUserId = resolver.resolveVariable(userIdStr);
+                Object resolvedLessonId = resolver.resolveVariable(lessonIdStr);
+
+                Long userId = (resolvedUserId instanceof Number)
+                    ? ((Number) resolvedUserId).longValue()
+                    : Long.parseLong(resolvedUserId.toString());
+                Long lessonId = (resolvedLessonId instanceof Number)
+                    ? ((Number) resolvedLessonId).longValue()
+                    : Long.parseLong(resolvedLessonId.toString());
+
+                actual = repository.findByUserIdAndLessonId(userId, lessonId)
+                        .orElseThrow(() -> new AssertionError("VideoProgress with userId=" + userId + " and lessonId=" + lessonId + " should exist"));
+            }
 
             // === validate field: id ===
             if (row.containsKey("id")) {
                 String expected = row.get("id");
                 Object v = actual.getId();
+                Object resolvedExpected = resolver.resolveVariable(expected);
                 assertNotNull(v, "VideoProgress.id should not be null");
                 long actualLong = (v instanceof Number) ? ((Number) v).longValue() : Long.parseLong(String.valueOf(v));
-                long expectedLong = Long.parseLong(resolvedid.toString());
+                long expectedLong = Long.parseLong(resolvedExpected.toString());
                 assertEquals(expectedLong, actualLong, "VideoProgress.id should match");
             }
             

@@ -1,0 +1,3 @@
+Please note that you must complete this task independently. You do not need to ask for my permission for any decisions during the process—just go ahead and make whatever changes you think are necessary based on your own judgment!! I trust you!!
+
+Since I will be going out and won't be at my desk, I fully trust your ability to work independently. Therefore, you must continue working until you have confirmed that all the conditions below have been fully met and passed; only then may you stop!!
