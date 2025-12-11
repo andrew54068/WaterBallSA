@@ -55,8 +55,10 @@ public class Then_回應列表包含_With_Table {
 
     /**
      * Generic method to validate list/array responses
-     * @param dataTable Expected data table
-     * @param arrayFieldName Field name containing the array, or null if root is array
+     * 
+     * @param dataTable      Expected data table
+     * @param arrayFieldName Field name containing the array, or null if root is
+     *                       array
      */
     private void validateListResponse(DataTable dataTable, String arrayFieldName) throws Exception {
         MvcResult result = scenarioContext.getLastResponse();
@@ -68,8 +70,11 @@ public class Then_回應列表包含_With_Table {
         JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
         // Get the array node
+        // Get the array node
         JsonNode arrayNode;
-        if (arrayFieldName != null) {
+        if (jsonResponse.isArray()) {
+            arrayNode = jsonResponse;
+        } else if (arrayFieldName != null) {
             arrayNode = jsonResponse.get(arrayFieldName);
             assertNotNull(arrayNode, "Array field '" + arrayFieldName + "' should exist in response");
         } else {

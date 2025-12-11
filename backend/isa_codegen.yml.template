@@ -119,6 +119,22 @@ instructions:
     subpackage: then
     situation: to validate that the response list does not contain the specified items
 
+  - name: Curriculum chapters validation
+    format: ^課程 (?P<curriculumId>[^ ]+) 應包含章節, with table:$
+    step_type: Then
+    executor:
+      type: skip
+    subpackage: then
+    situation: to validate that the curriculum contains specific chapters
+
+  - name: Chapter lessons validation
+    format: ^章節 (?P<chapterId>[^ ]+) 應包含單元, with table:$
+    step_type: Then
+    executor:
+      type: skip
+    subpackage: then
+    situation: to validate that the chapter contains specific lessons
+
   - name: Database validation
     format: ^應該存在一個(?P<entity>[\u4e00-\u9fffa-zA-Z0-9_]+), with table:$
     step_type: Then

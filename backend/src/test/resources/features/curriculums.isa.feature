@@ -7,6 +7,12 @@ Feature: Curriculum瀏覽
     And 準備一個Curriculum, with table:
       | >SpringCourse.id | title                    | description                             | price   | currency | difficultyLevel | isPublished |
       | <courseId2       | Spring Boot 實戰         | 深入淺出 Spring Boot                    | 2490.0 | TWD      | INTERMEDIATE    | true        |
+    And 準備一個章節, with table:
+      | curriculumId   | title         | description             | >c1.id |
+      | $JavaCourse.id | Java Basics   | Basic concepts of Java  | <c1.id |
+    And 準備一個Lesson, with table:
+      | chapterId | title            | lessonType | durationMinutes | isFreePreview |
+      | $c1.id    | Intro to Classes | VIDEO      | 30              | true          |
 
   Rule: 使用者可以查詢Curriculum列表
     Example: 查詢所有Curriculum應包含分頁資訊
@@ -20,6 +26,12 @@ Feature: Curriculum瀏覽
         | id              | title                  | price   | difficultyLevel |
         | $JavaCourse.id  | 完整 Java 開發入門Curriculum | 1990.0 | BEGINNER        |
         | $SpringCourse.id| Spring Boot 實戰       | 2490.0 | INTERMEDIATE    |
+      And 課程 $JavaCourse.id 應包含章節, with table:
+        | id     | title       |
+        | $c1.id | Java Basics |
+      And 章節 $c1.id 應包含單元, with table:
+        | title            | lessonType | durationMinutes |
+        | Intro to Classes | VIDEO      | 30              |
 
   Rule: 使用者可以查詢Curriculum詳情
     Example: 查詢特定Curriculum應回傳完整資訊

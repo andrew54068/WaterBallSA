@@ -3,7 +3,7 @@ package tw.waterballsa.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tw.waterballsa.api.dto.response.FreePreviewLessonsResponse;
+
 import tw.waterballsa.api.dto.response.LessonDto;
 import tw.waterballsa.application.service.LessonService;
 
@@ -29,11 +29,8 @@ public class LessonController {
     }
 
     @GetMapping("/curriculum/{curriculumId}/free-preview")
-    public ResponseEntity<FreePreviewLessonsResponse> getFreePreviewLessons(@PathVariable Integer curriculumId) {
+    public ResponseEntity<List<LessonDto>> getFreePreviewLessons(@PathVariable Integer curriculumId) {
         List<LessonDto> lessons = lessonService.getFreePreviewLessons(curriculumId);
-        FreePreviewLessonsResponse response = FreePreviewLessonsResponse.builder()
-                .lessons(lessons)
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(lessons);
     }
 }

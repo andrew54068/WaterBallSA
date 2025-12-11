@@ -355,6 +355,22 @@ instructions:
       headers:
         source: "schema.sql"
 
+  - name: Curriculum chapters validation
+    format: ^課程 (?P<curriculumId>[^ ]+) 應包含章節, with table:$
+    step_type: Then
+    executor:
+      type: skip
+    subpackage: then
+    situation: to validate that the curriculum contains specific chapters
+
+  - name: Chapter lessons validation
+    format: ^章節 (?P<chapterId>[^ ]+) 應包含單元, with table:$
+    step_type: Then
+    executor:
+      type: skip
+    subpackage: then
+    situation: to validate that the chapter contains specific lessons
+
   # ---------- 資料庫驗證指令 (Then) ----------
 
   - name: "應該存在一個{entity}, with table:"

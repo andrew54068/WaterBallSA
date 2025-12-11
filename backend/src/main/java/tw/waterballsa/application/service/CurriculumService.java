@@ -66,7 +66,7 @@ public class CurriculumService {
 
     private PaginatedCurriculumResponse buildPaginatedResponse(Page<Curriculum> curriculumPage) {
         List<CurriculumDto> content = curriculumPage.getContent().stream()
-                .map(curriculum -> convertToDto(curriculum, false))
+                .map(curriculum -> convertToDto(curriculum, true))
                 .collect(Collectors.toList());
 
         return PaginatedCurriculumResponse.builder()
