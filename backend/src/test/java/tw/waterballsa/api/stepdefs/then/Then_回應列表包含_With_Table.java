@@ -53,14 +53,26 @@ public class Then_回應列表包含_With_Table {
         validateListResponse(dataTable, null); // Root is array
     }
 
+    @Then("回應列表不包含Purchase, with table:")
+    public void validatePurchaseListNotContains(DataTable dataTable) throws Exception {
+        validateListResponse(dataTable, "content", false);
+    }
+
+    private void validateListResponse(DataTable dataTable, String arrayFieldName) throws Exception {
+        validateListResponse(dataTable, arrayFieldName, true);
+    }
+
     /**
      * Generic method to validate list/array responses
      * 
      * @param dataTable      Expected data table
      * @param arrayFieldName Field name containing the array, or null if root is
      *                       array
+     * @param shouldContain  true if expecting items to exist, false if expecting
+     *                       them NOT to exist
      */
-    private void validateListResponse(DataTable dataTable, String arrayFieldName) throws Exception {
+    private void validateListResponse(DataTable dataTable, String arrayFieldName, boolean shouldContain)
+            throws Exception {
         MvcResult result = scenarioContext.getLastResponse();
         assertNotNull(result, "No HTTP response found in context");
 
@@ -70,22 +82,29 @@ public class Then_回應列表包含_With_Table {
         JsonNode jsonResponse = objectMapper.readTree(responseBody);
 
         // Get the array node
-        // Get the array node
         JsonNode arrayNode;
         if (jsonResponse.isArray()) {
             arrayNode = jsonResponse;
         } else if (arrayFieldName != null) {
             arrayNode = jsonResponse.get(arrayFieldName);
+            // If checking for non-existence, missing array is fine (implies empty/not
+            // found)
+            if (arrayNode == null && !shouldContain) {
+                return;
+            }
             assertNotNull(arrayNode, "Array field '" + arrayFieldName + "' should exist in response");
         } else {
             arrayNode = jsonResponse;
         }
 
+        if (arrayNode == null && !shouldContain)
+            return;
+
         assertTrue(arrayNode.isArray(), "Response should be an array");
 
         List<Map<String, String>> expectedRows = dataTable.asMaps(String.class, String.class);
 
-        // Validate each expected row exists in the array
+        // Validate each expected row
         for (Map<String, String> expectedRow : expectedRows) {
             boolean found = false;
 
@@ -131,7 +150,11 @@ public class Then_回應列表包含_With_Table {
                 }
             }
 
-            assertTrue(found, "Expected item not found in response array: " + expectedRow);
+            if (shouldContain) {
+                assertTrue(found, "Expected item not found in response array: " + expectedRow);
+            } else {
+                assertFalse(found, "Item should NOT be found in response array: " + expectedRow);
+            }
         }
     }
 }

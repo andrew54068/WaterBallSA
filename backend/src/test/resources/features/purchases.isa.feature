@@ -72,3 +72,54 @@ Feature: 課程購買
       Then 回應列表包含Purchase, with table:
         | curriculumId   | status    |
         | $Curriculum.id | COMPLETED |
+
+  Rule: 使用者可以查詢購買訂單詳情
+    Example: 查詢已存在的訂單詳情
+      Given (UID="$User.id") 已經登入
+      And 準備一個Purchase, with table:
+        | >PurchaseDetail.id | userId   | curriculumId   | status    |
+        | <purchaseDetailId  | $User.id | $Curriculum.id | COMPLETED |
+      When (UID="$User.id") 取得購買訂單詳情, call table:
+        | purchaseId          |
+        | $PurchaseDetail.id  |
+      Then 回應, with table:
+        | id                 | userId   | curriculumId   | status    |
+        | $PurchaseDetail.id | $User.id | $Curriculum.id | COMPLETED |
+
+  Rule: 使用者可以查詢已完成的購買記錄
+    Example: 查詢已完成的購買記錄應過濾未完成訂單
+      Given (UID="$User.id") 已經登入
+      And 準備一個Purchase, with table:
+        | userId   | curriculumId   | status  |
+        | $User.id | $Curriculum.id | PENDING |
+      And 準備一個Purchase, with table:
+        | userId   | curriculumId   | status    |
+        | $User.id | $Curriculum.id | COMPLETED |
+      When (UID="$User.id") 取得已完成的購買記錄, call table:
+        | page | size |
+        | 0    | 10   |
+      Then 回應列表包含Purchase, with table:
+        | status    |
+        | COMPLETED |
+      And 回應列表不包含Purchase, with table:
+        | status  |
+        | PENDING |
+
+  Rule: 購買失敗處理
+    Example: 購買不存在的課程應回傳 404
+      Given (UID="$User.id") 已經登入
+      When (UID="$User.id") 建立購買訂單, call table:
+        | curriculumId |
+        | 9999         |
+      Then 回應, with table:
+        | status | error     |
+        | 404    | Not Found |
+
+    Example: 完成不存在的訂單付款應回傳 404
+      Given (UID="$User.id") 已經登入
+      When (UID="$User.id") 完成購買付款, call table:
+        | purchaseId |
+        | 9999       |
+      Then 回應, with table:
+        | status | error     |
+        | 404    | Not Found |

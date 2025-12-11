@@ -31,3 +31,12 @@ Feature: 課程內容瀏覽
       And 回應列表包含Curriculum單元, with table:
         | id         | title          |
         | $Lesson.id | 變數與資料型別 |
+
+  Rule: 使用者可以查詢課程章節數量
+    Example: 查詢特定課程的章節數量
+      When (No Actor) 取得課程的章節數量, call table:
+        | curriculumId   |
+        | $Curriculum.id |
+      Then 回應, with table:
+        | integer |
+        | 1       |

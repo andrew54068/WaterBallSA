@@ -32,3 +32,13 @@ Feature: 單元內容與試看
         | id          | title          | isFreePreview |
         | $Lesson1.id | 課程介紹與學習路徑      | true          |
         | $Lesson2.id | 設計模式的歷史與 GoF | true          |
+
+  Rule: 使用者可以查詢章節的所有單元
+    Example: 查詢章節單元列表應只包含該章節的單元
+      When (No Actor) 取得章節的所有課程, call table:
+        | chapterId   |
+        | $Chapter.id |
+      Then 回應列表包含Curriculum單元, with table:
+        | id          | title          |
+        | $Lesson1.id | 課程介紹與學習路徑      |
+        | $Lesson2.id | 設計模式的歷史與 GoF |

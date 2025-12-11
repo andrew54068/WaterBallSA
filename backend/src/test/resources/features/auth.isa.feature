@@ -46,3 +46,12 @@ Feature: 用戶認證
       Then 回應, with table:
         | message           |
         | Logout successful |
+
+  Rule: 登入失敗處理
+    Example: 使用無效的 Google ID Token 登入應失敗 (401)
+      When (No Actor) Google OAuth 登入, call table:
+        | googleIdToken |
+        | invalid_token |
+      Then 回應, with table:
+        | status | error        |
+        | 401    | Unauthorized |

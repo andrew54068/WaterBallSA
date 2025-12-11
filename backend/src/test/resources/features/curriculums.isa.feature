@@ -50,3 +50,24 @@ Feature: Curriculum瀏覽
       Then 回應, with table:
         | totalElements |
         | 0             |
+
+  Rule: 使用者可以搜尋Curriculum
+    Example: 搜尋關鍵字應回傳符合的Curriculum
+      When (No Actor) 搜尋課程, call table:
+        | q    | page | size | sort           |
+        | Java | 0    | 10   | createdAt,desc |
+      Then 回應, with table:
+        | totalElements |
+        | 1             |
+      And 回應列表包含Curriculum, with table:
+        | id             | title                  |
+        | $JavaCourse.id | 完整 Java 開發入門Curriculum |
+
+  Rule: 查詢失敗處理
+    Example: 查詢不存在的課程 ID 應回傳 404
+      When (No Actor) 取得課程詳情, call table:
+        | id   |
+        | 9999 |
+      Then 回應, with table:
+        | status | error     |
+        | 404    | Not Found |

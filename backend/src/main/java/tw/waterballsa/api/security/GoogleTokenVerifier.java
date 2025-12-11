@@ -37,7 +37,7 @@ public class GoogleTokenVerifier {
             } else {
                 throw new UnauthorizedException("Invalid Google ID token");
             }
-        } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
             throw new UnauthorizedException("Failed to verify Google ID token: " + e.getMessage());
         }
     }
