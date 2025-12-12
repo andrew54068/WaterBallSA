@@ -1,3 +1,0 @@
-# Path to the sdd.os source directory
-# Default is relatively 3 levels up from backend directory
-SDD_OS_PATH=../../../src

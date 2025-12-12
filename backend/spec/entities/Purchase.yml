@@ -1,9 +1,0 @@
-name: Purchase
-table: purchases
-properties:
-  id: Integer
-  userId: Integer
-  curriculumId: Integer
-  finalPrice: Double
-  status: String
-  createdAt: Date

@@ -1,9 +1,0 @@
-name: Curriculum
-table: curriculums
-properties:
-  id: Integer
-  title: String
-  price: Double
-  difficultyLevel: String
-  isPublished: Boolean
-  createdAt: Date
