@@ -128,11 +128,8 @@ fi
 echo ""
 
 # Validate each phase file
-# Note: Phase 3 (gamification) is excluded as it's not yet implemented
 FILES=(
-    "phase1_foundation.sql"
-    "phase2_purchases.sql"
-    "common_triggers.sql"
+    "schema.sql"
 )
 
 VALID=true
