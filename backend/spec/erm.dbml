@@ -1,0 +1,75 @@
+Table User {
+  id string [pk, note: '使用者 ID']
+  email string [note: '使用者 Email']
+  name string [note: '使用者姓名']
+  Note: '使用者，與 Google Identity Provider 對應'
+}
+
+Table Curriculum {
+  id string [pk, note: '課程 ID']
+  title string [note: '課程標題']
+  description string [note: '課程詳細說明']
+  published bool [note: '是否已發布，未發布則對一般使用者隱藏']
+  price int [note: '課程價格 (>= 0, 無強制上限)']
+  Note: '課程，購買的最小單位'
+}
+
+Table Chapter {
+  id string [pk, note: '章節 ID']
+  curriculum_id string [note: '所屬課程 ID']
+  title string [note: '章節標題']
+  sequence_number int [note: '章節排序，數字越小越前面']
+  Note: '課程中的章節，包含多個單元'
+}
+
+Table Lesson {
+  id string [pk, note: '單元 ID']
+  chapter_id string [note: '所屬章節 ID']
+  title string [note: '單元標題']
+  sequence_number int [note: '單元排序，數字越小越前面']
+  type string [note: '單元類型: VIDEO, ARTICLE, SURVEY']
+  public bool [note: '是否公開，若為 true 則無需購買即可觀看']
+  content string [note: '單元內容 (JSON String or Text, 依 type 解析)']
+  Note: '課程中的單元'
+}
+
+Table VideoProgress {
+  user_id string [note: '使用者 ID']
+  lesson_id string [note: '單元 ID']
+  progress_seconds float [note: '觀看進度（秒）']
+  last_updated_at long [note: '最後更新時間']
+  
+  indexes {
+    (user_id, lesson_id) [pk]
+  }
+  Note: '使用者對特定影片單元的觀看進度 (永久保存)'
+}
+
+Table Purchase {
+  id string [pk, note: '訂單 ID']
+  user_id string [note: '使用者 ID']
+  curriculum_id string [note: '課程 ID']
+  status string [note: '訂單狀態: COMPLETED, PENDING']
+  result_amount int [note: '實際結帳金額']
+  coupon_code string [note: '使用的優惠碼']
+  created_at long [note: '建立時間']
+  Note: '購買紀錄，每個課程每位使用者僅限購買一次'
+}
+
+Table Coupon {
+  code string [pk, note: '優惠碼']
+  discount_type string [note: '折扣類型 (FIXED/PERCENTAGE)']
+  discount_value int [note: '折扣數值 (金額或百分比)']
+  valid_from long [note: '生效時間 (Timestamp)']
+  valid_until long [note: '過期時間 (Timestamp)']
+  max_usage int [note: '最大使用次數 restriction']
+  Note: '優惠券，支援期限與次數限制'
+}
+
+Ref: Chapter.curriculum_id > Curriculum.id
+Ref: Lesson.chapter_id > Chapter.id
+Ref: VideoProgress.user_id > User.id
+Ref: VideoProgress.lesson_id > Lesson.id
+Ref: Purchase.user_id > User.id
+Ref: Purchase.curriculum_id > Curriculum.id
+Ref: Purchase.coupon_code > Coupon.code
