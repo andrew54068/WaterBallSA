@@ -46,26 +46,6 @@ export const curriculumsApi = {
   },
 
   /**
-   * Get curriculums by difficulty level
-   */
-  async getByDifficulty(
-    level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED',
-    params: GetCurriculumsParams = {}
-  ): Promise<PaginatedResponse<Curriculum>> {
-    const { data } = await apiClient.get<PaginatedResponse<Curriculum>>(
-      `/curriculums/difficulty/${level}`,
-      {
-        params: {
-          page: params.page || 0,
-          size: params.size || 10,
-          sort: params.sort || 'createdAt,desc',
-        },
-      }
-    )
-    return data
-  },
-
-  /**
    * Get free curriculums only
    */
   async getFree(params: GetCurriculumsParams = {}): Promise<PaginatedResponse<Curriculum>> {
