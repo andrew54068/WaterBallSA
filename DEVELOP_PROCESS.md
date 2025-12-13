@@ -52,12 +52,6 @@ cd ..
 ./run-isa-lint.sh
 ```
 
-## 🤖 AI-Assisted Implementation
-
-We use AI to accelerate development.
-- **Prompt File**: `backend/prompt.md`
-- Use this prompt to guide the AI in implementing the business logic based on the generated specs.
-
 ## ✅ Verification
 
 Verify the implementation using the Dockerized test environment to ensure consistency:
@@ -65,4 +59,21 @@ Verify the implementation using the Dockerized test environment to ensure consis
 ```bash
 docker build -t backend-test -f backend/Dockerfile.dev backend && \
 docker run --rm backend-test mvn test
+```
+
+## 🤖 AI-Assisted Implementation
+
+go to the `SDD.os` root directory and run the following command:
+
+```bash
+source .venv/bin/activate
+```
+
+```bash
+python src/sdd/cli.py --cwd /your-path/backend \
+    --ai-provider "Claude Code SDK" \
+    --model-key "claude-sonnet-4-5-20250929" \
+    --main-dev-prompt-path /your-path/backend/src/sdd/prompts/do-implement.md \
+    --system-prompt-path /your-path/backend/src/sdd/prompts/now-implement-system.md \
+    --test-runner-path /your-path/sdd.os/src/sdd/scripts/verify_mvn.sh
 ```
