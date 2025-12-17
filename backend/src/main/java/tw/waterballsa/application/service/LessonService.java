@@ -9,6 +9,7 @@ import tw.waterballsa.api.exception.ResourceNotFoundException;
 import tw.waterballsa.api.repository.LessonRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +42,10 @@ public class LessonService {
     }
 
     private LessonDto convertToDto(Lesson lesson) {
+        Map<String, Object> metadata = lesson.getContentMetadata();
+
+
+
         return LessonDto.builder()
                 .id(lesson.getId().intValue())
                 .chapterId(lesson.getChapter().getId().intValue())
@@ -48,7 +53,7 @@ public class LessonService {
                 .description(lesson.getDescription())
                 .lessonType(lesson.getLessonType().name())
                 .contentUrl(lesson.getContentUrl())
-                .contentMetadata(lesson.getContentMetadata())
+                .contentMetadata(metadata)
                 .orderIndex(lesson.getOrderIndex())
                 .durationMinutes(lesson.getDurationMinutes())
                 .isFreePreview(lesson.getIsFreePreview())

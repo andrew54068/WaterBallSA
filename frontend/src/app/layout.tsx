@@ -20,11 +20,8 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body style={{ margin: 0, padding: 0 }}>
-        {/* YouTube IFrame Player API */}
-        <Script
-          src="https://www.youtube.com/iframe_api"
-          strategy="beforeInteractive"
-        />
+        {/* YouTube IFrame Player API - Plain Script */}
+        <script src="https://www.youtube.com/iframe_api" async defer></script>
         <Providers>
           {children}
         </Providers>

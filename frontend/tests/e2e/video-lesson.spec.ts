@@ -84,14 +84,12 @@ test.describe('Video Lesson Viewing', () => {
     await page.goto('/lessons/1')
 
     // Loading text might appear very briefly
+    // Verify either loading or video player is visible
     const loadingIndicator = page.getByText(/loading/i)
-
-    // Either we see loading, or the video loads so fast we don't
-    // Both are acceptable outcomes
-    const hasLoading = await loadingIndicator.count() > 0
-    const hasVideo = await page.locator('iframe[src*="youtube"], [data-testid="mock-react-player"]').count() > 0
-
-    expect(hasLoading || hasVideo).toBeTruthy()
+    const videoPlayer = page.locator('iframe[src*="youtube"], [data-testid="mock-react-player"]')
+    
+    // Increased timeout to account for slower environments
+    await expect(loadingIndicator.or(videoPlayer).first()).toBeVisible({ timeout: 10000 })
   })
 
   test('Scenario 2: Navigation controls are present and accessible', async ({ page }) => {

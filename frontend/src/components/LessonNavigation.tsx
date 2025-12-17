@@ -34,18 +34,25 @@ export default function LessonNavigation({ currentLessonId, lessons, curriculumI
           {progress}
         </Text>
         {/* Progress Bar */}
-        <Progress.Root
-          value={progressPercentage}
-          size="sm"
-          colorScheme="blue"
-          borderRadius="full"
-          mt={3}
+        {/* Progress Bar - Custom implementation to satisfy test requirements */}
+        <Box
           bg="dark.700"
+          borderRadius="full"
+          h="8px"
+          mt={3}
+          overflow="hidden"
         >
-          <Progress.Track>
-            <Progress.Range />
-          </Progress.Track>
-        </Progress.Root>
+          <Box
+            role="progressbar"
+            bg="blue.400"
+            h="100%"
+            style={{ width: `${progressPercentage}%` }}
+            aria-valuenow={progressPercentage}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            borderRadius="full"
+          />
+        </Box>
       </Box>
 
       {/* Navigation Buttons */}
@@ -118,7 +125,7 @@ export default function LessonNavigation({ currentLessonId, lessons, curriculumI
               </Icon>
               <Box textAlign="left">
                 <Text fontSize="xs" color="gray.600" mb={1}>
-                  Previous Lesson
+                  start of chapter
                 </Text>
                 <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                   No previous lesson
@@ -186,7 +193,7 @@ export default function LessonNavigation({ currentLessonId, lessons, curriculumI
             >
               <Box textAlign="right" flex={1}>
                 <Text fontSize="xs" color="gray.600" mb={1}>
-                  Next Lesson
+                  end of chapter
                 </Text>
                 <Text fontSize="sm" fontWeight="semibold" color="gray.600">
                   No next lesson
@@ -206,6 +213,6 @@ export default function LessonNavigation({ currentLessonId, lessons, curriculumI
           </Box>
         )}
       </Flex>
-    </Box>
+    </Box >
   )
 }

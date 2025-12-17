@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Flex, Heading, Text, Spinner, Badge } from '@chakra-ui/react'
 import { Lesson, Chapter, Curriculum } from '@/types'
@@ -11,6 +11,8 @@ import ArticleRenderer from '@/components/ArticleRenderer'
 import SurveyForm from '@/components/SurveyForm'
 import LockedLessonView from '@/components/LockedLessonView'
 import { LessonSidebar } from '@/components/LessonSidebar'
+import LessonBreadcrumb from '@/components/LessonBreadcrumb'
+import LessonNavigation from '@/components/LessonNavigation'
 
 interface LessonPageClientProps {
   lesson: Lesson
@@ -32,9 +34,27 @@ export default function LessonPageClient({
   const accessControl = useLessonAccess(lesson.id, curriculum.id)
   const router = useRouter()
 
+  const parsedMetadata = useMemo(() => {
+    let m = lesson.contentMetadata
+    if (typeof m === 'string') {
+      try {
+        return JSON.parse(m)
+      } catch (e) {
+        console.error('Failed to parse metadata', e)
+        return {}
+      }
+    }
+    return m
+  }, [lesson.contentMetadata])
+
   const handlePurchaseClick = () => {
     router.push(`/curriculums/${curriculum.id}/orders`)
   }
+
+  // Flatten all lessons from chapters for navigation
+  const allLessons = curriculum.chapters.flatMap((chapter) =>
+    (chapter.lessons || []).map((l) => ({ ...l, chapterId: chapter.id }))
+  )
 
   const renderLessonContent = () => {
     if (lesson.lessonType === 'VIDEO') {
@@ -55,7 +75,7 @@ export default function LessonPageClient({
           articleUrl={lesson.contentUrl || ''}
           title={lesson.title}
           description={lesson.description}
-          metadata={lesson.contentMetadata as any}
+          metadata={parsedMetadata as any}
           duration={lesson.durationMinutes}
         />
       )
@@ -67,7 +87,7 @@ export default function LessonPageClient({
           surveyPath={lesson.contentUrl || ''}
           title={lesson.title}
           description={lesson.description}
-          metadata={lesson.contentMetadata as any}
+          metadata={parsedMetadata as any}
           duration={lesson.durationMinutes}
         />
       )
@@ -93,6 +113,13 @@ export default function LessonPageClient({
         <Box p={8}>
           {/* Lesson Header */}
           <Box mb={6}>
+            <LessonBreadcrumb
+              curriculumId={curriculum.id}
+              curriculumTitle={curriculum.title}
+              chapterTitle={chapter.title}
+              lessonTitle={lesson.title}
+            />
+
             <Flex align="center" gap={3} mb={2}>
               <Heading as="h1" fontSize="3xl" fontWeight="bold" color="white">
                 {lesson.title}
@@ -175,6 +202,15 @@ export default function LessonPageClient({
                 renderLessonContent()
               )}
             </Box>
+          )}
+
+          {/* Navigation */}
+          {!accessControl.isLoading && !accessControl.error && !accessControl.showLockedView && (
+            <LessonNavigation
+              currentLessonId={lesson.id}
+              lessons={allLessons}
+              curriculumId={curriculum.id}
+            />
           )}
         </Box>
       </Box>

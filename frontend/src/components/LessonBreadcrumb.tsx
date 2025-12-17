@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Breadcrumb, Text, Icon } from '@chakra-ui/react'
+import { Breadcrumb, Text, Icon, Box } from '@chakra-ui/react'
 
 interface LessonBreadcrumbProps {
   curriculumId: number
@@ -34,16 +34,19 @@ export default function LessonBreadcrumb({
     <Breadcrumb.Root fontSize="sm" mb={6} overflowX="auto">
       {/* Curriculum Link */}
       <Breadcrumb.Item>
-        <Breadcrumb.Link
-          as={Link}
-          href={`/curriculums/${curriculumId}`}
-          color="blue.400"
-          _hover={{ color: 'blue.300', textDecoration: 'underline' }}
-          transition="color 0.2s"
-          whiteSpace="nowrap"
-        >
-          {curriculumTitle}
-        </Breadcrumb.Link>
+        <Box display="inline-flex" alignItems="center">
+          <Link href={`/curriculums/${curriculumId}`}>
+            <Text
+              color="blue.400"
+              _hover={{ color: 'blue.300', textDecoration: 'underline' }}
+              transition="color 0.2s"
+              whiteSpace="nowrap"
+              as="span"
+            >
+              {curriculumTitle}
+            </Text>
+          </Link>
+        </Box>
       </Breadcrumb.Item>
 
       <Breadcrumb.Separator>
