@@ -17,11 +17,11 @@ export default function RootLayout({
     <html lang="zh-TW">
       <head>
         {/* Google Sign-In SDK */}
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="https://accounts.google.com/gsi/client" defer></script>
       </head>
       <body style={{ margin: 0, padding: 0 }}>
         {/* YouTube IFrame Player API - Plain Script */}
-        <script src="https://www.youtube.com/iframe_api" async defer></script>
+        <script src="https://www.youtube.com/iframe_api" defer></script>
         <Providers>
           {children}
         </Providers>
